@@ -46,9 +46,14 @@ if (window.history.replaceState) {
     <h2>Bem-vindo ao sistema FlorV3</h2>
 <p>O que deseja cadastrar?</p>
 
+<!--Todos os botoes estao quase todos aqui -->
 <a href="/florV3/public/index.php?rota=escolher-tipo">
     <button>Cadastrar Pedido</button>
 </a>
+<a href="/florV3/public/index.php?rota=historico">
+    <button> Ver Histórico</button>
+</a>
+
 
 </body>
 </html>

@@ -29,4 +29,27 @@ class PedidoEntrega {
 
         return $stmt->execute($dados);
     }
+
+    public function buscar($termo) {
+    $sql = "SELECT id, numero_pedido, tipo, remetente AS nome, telefone_remetente AS telefone, produtos, data_abertura
+        FROM {$this->table}
+        WHERE numero_pedido ILIKE :termo OR remetente ILIKE :termo
+        ORDER BY data_abertura DESC";
+
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindValue(':termo', '%' . $termo . '%');
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+public function buscarPorId($id) {
+    $sql = "SELECT * FROM {$this->table} WHERE id = :id";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+
 }
