@@ -79,6 +79,48 @@ public function detalhesPedido() {
     require __DIR__ . '/../views/pedidos/detalhes.php';
 }
 
+public function acompanharPedidos() {
+    require_once __DIR__ . '/../models/PedidoEntrega.php';
+    require_once __DIR__ . '/../models/PedidoRetirada.php';
+
+    $entregaModel = new PedidoEntrega();
+    $retiradaModel = new PedidoRetirada();
+
+    $pedidosEntrega = $entregaModel->listarTodos();
+    $pedidosRetirada = $retiradaModel->listarTodos();
+
+    // Unifica as listas
+    $todosPedidos = array_merge($pedidosEntrega, $pedidosRetirada);
+
+    // Ordena do mais recente para o mais antigo
+    usort($todosPedidos, function($a, $b) {
+        return strtotime($b['data_abertura']) <=> strtotime($a['data_abertura']);
+    });
+
+    require __DIR__ . '/../views/pedidos/acompanhamento.php';
+}
+
+public function atualizarStatus() {
+    require_once __DIR__ . '/../models/PedidoEntrega.php';
+    require_once __DIR__ . '/../models/PedidoRetirada.php';
+
+    $id = $_POST['id'] ?? null;
+    $tipo = $_POST['tipo'] ?? null;
+    $status = $_POST['status'] ?? null;
+
+    if ($id && $tipo && $status) {
+        if ($tipo === 'entrega') {
+            $model = new PedidoEntrega();
+        } else {
+            $model = new PedidoRetirada();
+        }
+
+        $model->atualizarStatus($id, $status);
+    }
+
+    echo 'OK';
+}
+
 
 }
 

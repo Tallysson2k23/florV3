@@ -53,6 +53,10 @@ if (window.history.replaceState) {
 <a href="/florV3/public/index.php?rota=historico">
     <button> Ver Histórico</button>
 </a>
+<a href="/florV3/public/index.php?rota=acompanhamento">
+    <button>📦 Acompanhar Pedidos</button>
+</a>
+
 
 
 </body>
