@@ -1,0 +1,17 @@
+florV3/
+│
+├── app/
+│   ├── controllers/
+│   ├── models/
+│   └── views/
+│       └── pedidos/
+│           └── cadastrar.php
+│
+├── config/
+│   └── database.php
+│
+├── public/
+│   └── index.php
+│
+└── routes/
+    └── routes.php (opcional)
