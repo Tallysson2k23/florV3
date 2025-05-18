@@ -5,10 +5,50 @@
     <meta charset="UTF-8">
     <title>Painel FlorV3</title>
 </head>
+
 <body>
+<?php if (isset($_GET['sucesso']) && $_GET['sucesso'] == 1): ?>
+<div id="notificacao-sucesso" style="
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #1a1f24;
+    color: #b9fbc0;
+    border-left: 5px solid #00ff88;
+    padding: 15px 20px;
+    border-radius: 6px;
+    font-family: Arial;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    z-index: 9999;
+">
+    ✅ Pedido feito com sucesso!
+</div>
+
+<script>
+// Oculta após 5 segundos
+setTimeout(() => {
+    const notif = document.getElementById('notificacao-sucesso');
+    if (notif) notif.style.display = 'none';
+}, 1000);
+
+// Remove o parâmetro ?sucesso=1 da URL sem recarregar
+if (window.history.replaceState) {
+    const url = new URL(window.location);
+    url.searchParams.delete('sucesso');
+    window.history.replaceState({}, document.title, url.pathname);
+}
+</script>
+
+<?php endif; ?>
+
     <h1>Painel Principal</h1>
-    <a href="/florV3/public/index.php?rota=cadastrar-pedido">
-        <button>Cadastrar Pedido</button>
-    </a>
+    
+    <h2>Bem-vindo ao sistema FlorV3</h2>
+<p>O que deseja cadastrar?</p>
+
+<a href="/florV3/public/index.php?rota=escolher-tipo">
+    <button>Cadastrar Pedido</button>
+</a>
+
 </body>
 </html>
