@@ -10,25 +10,31 @@ class PedidoRetirada {
         $this->conn = $db->getConnection();
     }
 
-    public function criar($dados) {
-        $stmt = $this->conn->query("SELECT MAX(ordem_fila) as max_fila FROM {$this->table}");
-        $maxOrdem = $stmt->fetch(PDO::FETCH_ASSOC)['max_fila'] ?? 0;
-        $ordem = $maxOrdem + 1;
+public function criar($dados) {
+    $stmt = $this->conn->query("SELECT MAX(ordem_fila) as max_fila FROM {$this->table}");
+    $maxOrdem = $stmt->fetch(PDO::FETCH_ASSOC)['max_fila'] ?? 0;
+    $ordem = $maxOrdem + 1;
 
-        $sql = "INSERT INTO {$this->table} 
-(numero_pedido, tipo, nome, telefone, produtos, adicionais, data_abertura, hora, status, ordem_fila)
-VALUES 
-(:numero_pedido, :tipo, :nome, :telefone, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila)";
+    // ❌ Remova campos extras
+    unset($dados['imprimir']);
+
+    $sql = "INSERT INTO {$this->table} 
+        (numero_pedido, tipo, nome, telefone, produtos, adicionais, data_abertura, hora, status, ordem_fila)
+        VALUES 
+        (:numero_pedido, :tipo, :nome, :telefone, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila)";
+
+    $stmt = $this->conn->prepare($sql);
+
+    $dados['status'] = 'Pendente';
+    $dados['ordem_fila'] = $ordem;
+    $dados['hora'] = date('H:i:s');
+
+    $stmt->execute($dados);
+
+    return $this->conn->lastInsertId();
+}
 
 
-        $stmt = $this->conn->prepare($sql);
-
-        $dados['status'] = 'Pendente';
-        $dados['ordem_fila'] = $ordem;
-        $dados['hora'] = date('H:i:s');
-
-        return $stmt->execute($dados);
-    }
 
     public function buscar($termo) {
    $sql = "SELECT id, numero_pedido, tipo, nome, telefone, produtos, data_abertura

@@ -85,6 +85,18 @@ switch ($rota) {
     $controller->imprimirPedido();
     break;
 
+    case 'imprimir-ordem':
+    $controller->imprimirOrdem();
+    break;
+
+        case 'imprimir-cupom-cliente':
+    $controller->imprimirCupomCliente();
+    break;
+
+
+
+
+
 
     default:
         echo "Página não encontrada.";

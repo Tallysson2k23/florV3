@@ -23,21 +23,46 @@ class PedidoController {
 public function salvarEntrega() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $model = new PedidoEntrega();
-        $model->criar($_POST);
-        header('Location: /florV3/public/index.php?rota=painel&sucesso=1');
+        $id = $model->criar($_POST);
+
+        $desejaImprimir = isset($_POST['imprimir']) && $_POST['imprimir'] == '1';
+
+        if ($desejaImprimir) {
+            // Redireciona para o novo cupom de cliente
+            header("Location: /florV3/public/index.php?rota=imprimir-cupom-cliente&id={$id}&tipo=entrega");
+        } else {
+            header('Location: /florV3/public/index.php?rota=painel&sucesso=1');
+        }
+
         exit;
     }
 }
 
 
-  public function salvarRetirada() {
+
+public function salvarRetirada() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $model = new PedidoRetirada();
-        $model->criar($_POST);
-        header('Location: /florV3/public/index.php?rota=painel&sucesso=1');
+        $id = $model->criar($_POST);
+
+        $desejaImprimir = isset($_POST['imprimir']) && $_POST['imprimir'] == '1';
+
+        if ($desejaImprimir) {
+            // Redireciona para o novo cupom de cliente RETIRADA
+            header("Location: /florV3/public/index.php?rota=imprimir-cupom-cliente&id={$id}&tipo=retirada");
+        } else {
+            header('Location: /florV3/public/index.php?rota=painel&sucesso=1');
+        }
+
         exit;
     }
 }
+
+
+
+
+
+
 
 public function historico() {
 
@@ -138,11 +163,69 @@ public function imprimirPedido() {
         // Atualiza status para Produção
         $model->atualizarStatus($id, 'Produção');
         $dados = $model->buscarPorId($id);
-        require __DIR__ . '/../views/pedidos/imprimir.php';
+        require __DIR__ . '/../views/pedidos/imprimir_ordem.php';
     } else {
         echo "Pedido não encontrado.";
     }
 }
+
+public function imprimirOrdem() {
+    require_once __DIR__ . '/../models/PedidoEntrega.php';
+    require_once __DIR__ . '/../models/PedidoRetirada.php';
+
+    $id = $_GET['id'] ?? null;
+    $tipo = $_GET['tipo'] ?? null;
+
+    if ($id && $tipo) {
+        if ($tipo === 'entrega') {
+            $model = new PedidoEntrega();
+        } elseif ($tipo === 'retirada') {
+            $model = new PedidoRetirada();
+        } else {
+            echo "Tipo inválido.";
+            return;
+        }
+
+        $dados = $model->buscarPorId($id);
+
+        if (!$dados) {
+            echo "Pedido não encontrado.";
+            return;
+        }
+
+        require __DIR__ . '/../views/pedidos/imprimir_ordem.php';
+    } else {
+        echo "Dados inválidos.";
+    }
+}
+
+public function imprimirCupomCliente() {
+    require_once __DIR__ . '/../models/PedidoEntrega.php';
+    require_once __DIR__ . '/../models/PedidoRetirada.php';
+
+    $id = $_GET['id'] ?? null;
+    $tipo = $_GET['tipo'] ?? null;
+
+    if ($id && $tipo) {
+        if ($tipo === 'entrega') {
+            $model = new PedidoEntrega();
+        } else {
+            $model = new PedidoRetirada();
+        }
+
+        $dados = $model->buscarPorId($id);
+
+        if (!$dados) {
+            echo "Pedido não encontrado.";
+            return;
+        }
+
+        require __DIR__ . '/../views/pedidos/imprimir_cupom_cliente.php';
+    } else {
+        echo "Dados inválidos.";
+    }
+}
+
 
 
 }

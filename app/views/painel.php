@@ -1,15 +1,25 @@
 <!-- app/views/painel.php -->
 
-
-
 <?php
 session_start();
+
 if (!isset($_SESSION['usuario_id'])) {
     header('Location: /florV3/public/index.php?rota=login');
     exit;
 }
-?>
 
+$impressao = $_SESSION['impressao_pendente'] ?? null;
+unset($_SESSION['impressao_pendente']);
+
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: /florV3/public/index.php?rota=login');
+    exit;
+}
+
+// 👇 captura e limpa a variável de impressão pendente
+$impressao = $_SESSION['impressao_pendente'] ?? null;
+unset($_SESSION['impressao_pendente']);
+?>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -50,26 +60,35 @@ if (window.history.replaceState) {
     window.history.replaceState({}, document.title, url.pathname);
 }
 </script>
-
 <?php endif; ?>
 
-    <h1>Painel Principal</h1>
-    
-    <h2>Bem-vindo ao sistema FlorV3</h2>
+<!-- 👇 Abre a aba de impressão se houve confirmação -->
+<?php if ($impressao): ?>
+<script>
+    window.onload = () => {
+        window.open(
+            '/florV3/public/index.php?rota=imprimir-pedido&id=<?= $impressao['id'] ?>&tipo=<?= $impressao['tipo'] ?>',
+            '_blank'
+        );
+    };
+</script>
+<?php endif; ?>
+
+<h1>Painel Principal</h1>
+<h2>Bem-vindo ao sistema FlorV3</h2>
 <p>O que deseja cadastrar?</p>
 
-<!--Todos os botoes estao quase todos aqui -->
 <a href="/florV3/public/index.php?rota=escolher-tipo">
     <button>Cadastrar Pedido</button>
 </a>
 <a href="/florV3/public/index.php?rota=historico">
-    <button> Ver Histórico</button>
+    <button>Ver Histórico</button>
 </a>
 <a href="/florV3/public/index.php?rota=acompanhamento">
     <button>📦 Acompanhar Pedidos</button>
 </a>
-<?php if (isset($_SESSION['usuario_tipo']) && $_SESSION['usuario_tipo'] === 'admin'): ?>
 
+<?php if (isset($_SESSION['usuario_tipo']) && $_SESSION['usuario_tipo'] === 'admin'): ?>
     <a href="/florV3/public/index.php?rota=usuarios">
         <button>👤 Gerenciar Usuários</button>
     </a>
@@ -79,6 +98,17 @@ if (window.history.replaceState) {
     <button style="background: red; color: white;">🚪 Sair</button>
 </a>
 
+<?php if ($impressao): ?>
+<script>
+    window.onload = () => {
+        const id = <?= json_encode($impressao['id']) ?>;
+        const tipo = <?= json_encode($impressao['tipo']) ?>;
+
+        // Abre a aba de impressão
+        window.open(`/florV3/public/index.php?rota=imprimir-pedido&id=${id}&tipo=${tipo}`, '_blank');
+    };
+</script>
+<?php endif; ?>
 
 </body>
 </html>
