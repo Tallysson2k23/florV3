@@ -11,4 +11,4 @@
     </label><br>
     <button type="submit">Cadastrar</button>
 </form>
-<a href="/florV3/public/index.php?rota=painel"><button>⬅ Voltar</button></a>
+<a href="/florV3/public/index.php?rota=usuarios"><button>⬅ Voltar</button></a>
