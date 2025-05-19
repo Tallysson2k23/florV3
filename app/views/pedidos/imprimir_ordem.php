@@ -43,9 +43,32 @@
             font-weight: bold;
             width: 30%;
         }
+
+        .voltar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #eee;
+    padding: 6px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 12px;
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+@media print {
+    .voltar {
+        display: none;
+    }
+}
+
     </style>
 </head>
 <body onload="window.print()">
+    <body onload="window.print()">
+    <a href="/florV3/public/index.php?rota=painel" class="voltar">⬅ Voltar</a>
+
 
 <div class="titulo">Ordem de Produção</div>
 

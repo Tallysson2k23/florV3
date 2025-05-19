@@ -36,8 +36,31 @@
             border-top: 1px solid #000;
             padding-top: 6px;
         }
+
+        .voltar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #eee;
+    padding: 6px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 12px;
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+@media print {
+    .voltar {
+        display: none;
+    }
+}
+
     </style>
 </head>
+<body onload="window.print()">
+    <a href="/florV3/public/index.php?rota=painel" class="voltar">⬅ Voltar</a>
+
 <body onload="window.print()">
 
 <?php if ($tipo === 'entrega'): ?>
