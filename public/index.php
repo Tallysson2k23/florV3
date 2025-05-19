@@ -7,9 +7,9 @@ $controller = new PedidoController();
 $usuarioController = new UsuarioController();
 
 switch ($rota) {
-    case 'painel':
-        require_once __DIR__ . '/../app/views/painel.php';
-        break;
+  case 'painel':
+    $controller->painelComPedidos(); // ✅ importante estar esse nome
+    break;
 
     case 'escolher-tipo':
         require_once __DIR__ . '/../app/views/pedidos/escolher_tipo.php';
@@ -93,6 +93,7 @@ switch ($rota) {
     $controller->imprimirCupomCliente();
     break;
 
+ 
 
 
 

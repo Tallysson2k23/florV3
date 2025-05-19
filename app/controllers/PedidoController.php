@@ -226,6 +226,31 @@ public function imprimirCupomCliente() {
     }
 }
 
+public function painelComPedidos() {
+    $entregaModel = new PedidoEntrega();
+    $retiradaModel = new PedidoRetirada();
+
+    $pedidosEntrega = $entregaModel->listarTodos();
+    $pedidosRetirada = $retiradaModel->listarTodos();
+
+    $todosPedidos = array_merge($pedidosEntrega, $pedidosRetirada);
+
+    $agrupados = [
+        'Pendente' => [],
+        'Produção' => [],
+        'Pronto' => [],
+    ];
+
+    foreach ($todosPedidos as $pedido) {
+        $status = $pedido['status'];
+        if (isset($agrupados[$status])) {
+            $agrupados[$status][] = $pedido;
+        }
+    }
+
+    require __DIR__ . '/../views/painel.php';
+}
+
 
 
 }
