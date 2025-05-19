@@ -59,31 +59,31 @@ public function salvarRetirada() {
 }
 
 
-
-
-
-
-
 public function historico() {
+    $entregaModel = new PedidoEntrega();
+    $retiradaModel = new PedidoRetirada();
 
-    $resultados = [];
+    $busca = $_GET['busca'] ?? '';
+    $pagina = isset($_GET['pagina']) ? max(1, (int)$_GET['pagina']) : 1;
+    $porPagina = 10;
 
-    if (isset($_GET['busca']) && trim($_GET['busca']) !== '') {
-        $busca = trim($_GET['busca']);
+    // Buscar dados combinados
+    $resultadosEntrega = $entregaModel->buscar($busca);
+    $resultadosRetirada = $retiradaModel->buscar($busca);
+    $todos = array_merge($resultadosEntrega, $resultadosRetirada);
 
-        $entregaModel = new PedidoEntrega();
-        $retiradaModel = new PedidoRetirada();
+    // Ordenar por data decrescente
+    usort($todos, fn($a, $b) => strtotime($b['data_abertura']) <=> strtotime($a['data_abertura']));
 
-        $resultadosEntrega = $entregaModel->buscar($busca);
-        $resultadosRetirada = $retiradaModel->buscar($busca);
-
-
-        // Unificar os resultados
-        $resultados = array_merge($resultadosEntrega, $resultadosRetirada);
-    }
+    // Paginação
+    $total = count($todos);
+    $inicio = ($pagina - 1) * $porPagina;
+    $resultados = array_slice($todos, $inicio, $porPagina);
+    $totalPaginas = ceil($total / $porPagina);
 
     require __DIR__ . '/../views/pedidos/historico.php';
 }
+
 
 public function detalhesPedido() {
     require_once __DIR__ . '/../models/PedidoEntrega.php';
