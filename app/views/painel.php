@@ -1,4 +1,16 @@
 <!-- app/views/painel.php -->
+
+
+
+<?php
+session_start();
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: /florV3/public/index.php?rota=login');
+    exit;
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -56,7 +68,16 @@ if (window.history.replaceState) {
 <a href="/florV3/public/index.php?rota=acompanhamento">
     <button>📦 Acompanhar Pedidos</button>
 </a>
+<?php if (isset($_SESSION['usuario_tipo']) && $_SESSION['usuario_tipo'] === 'admin'): ?>
 
+    <a href="/florV3/public/index.php?rota=usuarios">
+        <button>👤 Gerenciar Usuários</button>
+    </a>
+<?php endif; ?>
+
+<a href="/florV3/public/index.php?rota=logout">
+    <button style="background: red; color: white;">🚪 Sair</button>
+</a>
 
 
 </body>
