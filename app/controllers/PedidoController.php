@@ -121,6 +121,29 @@ public function atualizarStatus() {
     echo 'OK';
 }
 
+public function imprimirPedido() {
+    require_once __DIR__ . '/../models/PedidoEntrega.php';
+    require_once __DIR__ . '/../models/PedidoRetirada.php';
+
+    $id = $_GET['id'] ?? null;
+    $tipo = $_GET['tipo'] ?? null;
+
+    if ($id && $tipo) {
+        if ($tipo === 'entrega') {
+            $model = new PedidoEntrega();
+        } else {
+            $model = new PedidoRetirada();
+        }
+
+        // Atualiza status para Produção
+        $model->atualizarStatus($id, 'Produção');
+        $dados = $model->buscarPorId($id);
+        require __DIR__ . '/../views/pedidos/imprimir.php';
+    } else {
+        echo "Pedido não encontrado.";
+    }
+}
+
 
 }
 

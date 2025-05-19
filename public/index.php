@@ -81,6 +81,11 @@ switch ($rota) {
         $usuarioController->logout();
         break;
 
+    case 'imprimir-pedido':
+    $controller->imprimirPedido();
+    break;
+
+
     default:
         echo "Página não encontrada.";
         break;

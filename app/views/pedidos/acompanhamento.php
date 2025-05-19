@@ -8,7 +8,9 @@
         <th>Status</th>
         <th>Data</th>
         <th>Hora</th>
+        <th>Imprimir</th> <!-- Cabeçalho da coluna de botão -->
     </tr>
+
     <?php foreach ($todosPedidos as $pedido): ?>
         <tr>
             <td><?= htmlspecialchars($pedido['tipo']) ?></td>
@@ -27,13 +29,19 @@
             </td>
             <td><?= htmlspecialchars($pedido['data_abertura']) ?></td>
             <td><?= date('H:i', strtotime($pedido['hora'])) ?></td>
-
+            <td>
+                <a href="/florV3/public/index.php?rota=imprimir-pedido&id=<?= $pedido['id'] ?>&tipo=<?= strtolower(substr($pedido['tipo'], 2)) ?>" target="_blank">
+                    <button>🖨️ Imprimir</button>
+                </a>
+            </td>
         </tr>
     <?php endforeach; ?>
 </table>
+
 <a href="/florV3/public/index.php?rota=painel">
     <button style="margin-bottom: 20px;">⬅ Voltar ao Painel</button>
 </a>
+
 <script>
 function atualizarStatus(id, tipo, status) {
     fetch('/florV3/public/index.php?rota=atualizar-status', {
