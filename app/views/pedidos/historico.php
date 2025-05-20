@@ -1,110 +1,297 @@
-<h2>🔎 Histórico de Pedidos</h2>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Histórico de Pedidos - Flor de Cheiro</title>
+    <style>
+        * { box-sizing: border-box; }
 
-<form method="get" action="/florV3/public/index.php">
-    <input type="hidden" name="rota" value="historico">
-    <input type="text" id="campo-busca" name="busca" placeholder="Buscar por nome ou número do pedido" required>
-    <button type="submit">Pesquisar</button>
-</form>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f3f4f6;
+            margin: 0;
+            padding: 0;
+        }
 
-<!-- Sugestões ao digitar -->
-<ul id="sugestoes" style="list-style:none; padding:0; margin:10px 0;"></ul>
+        .top-bar {
+            width: 100%;
+            height: 60px;
+            background-color: #111;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Brush Script MT", cursive;
+            font-size: 28px;
+        }
 
-<a href="/florV3/public/index.php?rota=painel">
-    <button style="margin-bottom: 20px;">⬅ Voltar ao Painel</button>
-</a>
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
 
-<?php if (isset($resultados) && count($resultados) > 0): ?>
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #111;
+            font-size: 24px;
+        }
 
-    <?php if (count($resultados) > 5): ?>
-        <button id="mostrar-todos">Mostrar todos os pedidos</button>
-    <?php endif; ?>
+        form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
 
-    <table border="1" cellpadding="5" cellspacing="0" style="margin-top:20px;">
-        <tr>
-            <th>Tipo</th>
-            <th>Nº Pedido</th>
-            <th>Nome / Remetente</th>
-        </tr>
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+        }
 
-        <?php foreach ($resultados as $pedido): ?>
+        button[type="submit"], #mostrar-todos, .btn-voltar {
+            background-color: #111;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
 
-            <tr class="pedido-linha <?= $index >= 5 ? 'oculto' : '' ?>">
-                <td><?= htmlspecialchars($pedido['tipo']) ?></td>
-                <td><?= htmlspecialchars($pedido['numero_pedido']) ?></td>
-                <td>
-                    <a href="/florV3/public/index.php?rota=detalhes&id=<?= $pedido['id'] ?>&tipo=<?= strtolower(substr($pedido['tipo'], 2)) ?>">
-                        <?= htmlspecialchars($pedido['nome']) ?>
-                    </a>
-                </td>
+        button:hover, .btn-voltar:hover {
+            background-color: #333;
+        }
+
+        .btn-voltar {
+            display: block;
+            margin: 20px auto;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 15px;
+        }
+
+        th, td {
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        tr:hover {
+            background-color: #fafafa;
+        }
+
+        .oculto { display: none; }
+
+        #sugestoes {
+            list-style: none;
+            padding: 0;
+            margin-top: 10px;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #sugestoes li {
+            background: #f1f1f1;
+            margin-bottom: 4px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        #sugestoes li:hover {
+            background: #e0e0e0;
+        }
+
+        .paginacao {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+        }
+
+        .paginacao a {
+            text-decoration: none;
+            color: #111;
+            font-weight: bold;
+        }
+
+        .paginacao span {
+            color: #555;
+        }
+
+        .rodape {
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+}
+
+.botoes-rodape {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.botoes-rodape button,
+.botoes-rodape .btn-voltar {
+    font-size: 14px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.botoes-rodape button {
+    background: #111;
+    color: white;
+    border: none;
+}
+
+.botoes-rodape button:hover {
+    background: #333;
+}
+
+.botoes-rodape .btn-voltar {
+    background: transparent;
+    border: 1px solid #111;
+    color: #111;
+    font-weight: 500;
+}
+
+.botoes-rodape .btn-voltar:hover {
+    background: #111;
+    color: white;
+}
+
+    </style>
+</head>
+<body>
+
+<div class="top-bar">Flor de Cheiro</div>
+
+<div class="container">
+    <h2>Histórico de Pedidos</h2>
+
+    <form method="get" action="/florV3/public/index.php">
+        <input type="hidden" name="rota" value="historico">
+        <input type="text" id="campo-busca" name="busca" placeholder="Buscar por nome ou número do pedido" required>
+        <button type="submit">Pesquisar</button>
+    </form>
+
+    <ul id="sugestoes"></ul>
+
+    <?php if (isset($resultados) && count($resultados) > 0): ?>
+
+        <table>
+            <tr>
+                <th>Tipo</th>
+                <th>Nº Pedido</th>
+                <th>Nome / Remetente</th>
             </tr>
-        <?php endforeach; ?>
-    </table>
 
-<?php elseif (isset($_GET['busca'])): ?>
-    <p>Nenhum resultado encontrado.</p>
-<?php endif; ?>
+            <?php foreach ($resultados as $index => $pedido): ?>
+                <tr class="pedido-linha <?= $index >= 5 ? 'oculto' : '' ?>">
+                    <td><?= htmlspecialchars($pedido['tipo']) ?></td>
+                    <td><?= htmlspecialchars($pedido['numero_pedido']) ?></td>
+                    <td>
+                        <a href="/florV3/public/index.php?rota=detalhes&id=<?= $pedido['id'] ?>&tipo=<?= strtolower(substr($pedido['tipo'], 2)) ?>">
+                            <?= htmlspecialchars($pedido['nome']) ?>
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
 
-<!-- CSS -->
-<style>
-    .oculto { display: none; }
+        <div class="rodape">
+            <div class="paginacao">
+                <?php if ($pagina > 1): ?>
+                    <a href="?rota=historico&pagina=1<?= $busca ? '&busca=' . urlencode($busca) : '' ?>">⏮️</a>
+                    <a href="?rota=historico&pagina=<?= $pagina - 1 ?><?= $busca ? '&busca=' . urlencode($busca) : '' ?>">◀️</a>
+                <?php endif; ?>
 
-    #sugestoes li {
-        background: #f1f1f1;
-        margin-bottom: 2px;
-        padding: 5px;
-        border: 1px solid #ccc;
-    }
+                <span><?= $inicio + 1 ?> – <?= min($inicio + $porPagina, $total) ?> / <?= $total ?></span>
 
-    #sugestoes li:hover {
-        background: #ddd;
-    }
-</style>
+                <?php if ($pagina < $totalPaginas): ?>
+                    <a href="?rota=historico&pagina=<?= $pagina + 1 ?><?= $busca ? '&busca=' . urlencode($busca) : '' ?>">▶️</a>
+                    <a href="?rota=historico&pagina=<?= $totalPaginas ?><?= $busca ? '&busca=' . urlencode($busca) : '' ?>">⏭️</a>
+                <?php endif; ?>
+            </div>
 
-<!-- JS: Mostrar todos os pedidos -->
-<!-- PAGINAÇÃO -->
-<?php if ($total > $porPagina): ?>
-<div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
-    <?php if ($pagina > 1): ?>
-        <a href="?rota=historico&pagina=1<?= $busca ? '&busca=' . urlencode($busca) : '' ?>">⏮️</a>
-        <a href="?rota=historico&pagina=<?= $pagina - 1 ?><?= $busca ? '&busca=' . urlencode($busca) : '' ?>">◀️</a>
-    <?php endif; ?>
+            <div class="botoes-rodape">
+                <?php if (count($resultados) > 5): ?>
+                    <button id="mostrar-todos"> Ver todos os pedidos</button>
+                <?php endif; ?>
+                <a href="/florV3/public/index.php?rota=painel" class="btn-voltar">⬅ Voltar</a>
+            </div>
+        </div>
 
-    <span><?= $inicio + 1 ?> – <?= min($inicio + $porPagina, $total) ?> / <?= $total ?></span>
-
-    <?php if ($pagina < $totalPaginas): ?>
-        <a href="?rota=historico&pagina=<?= $pagina + 1 ?><?= $busca ? '&busca=' . urlencode($busca) : '' ?>">▶️</a>
-        <a href="?rota=historico&pagina=<?= $totalPaginas ?><?= $busca ? '&busca=' . urlencode($busca) : '' ?>">⏭️</a>
+    <?php elseif (isset($_GET['busca'])): ?>
+        <p style="text-align:center;">Nenhum resultado encontrado.</p>
     <?php endif; ?>
 </div>
-<?php endif; ?>
 
 
-<!-- JS: Sugestões automáticas -->
 <script>
 const campoBusca = document.getElementById('campo-busca');
 const sugestoes = document.getElementById('sugestoes');
 
-// Lista de sugestões (nome + número)
+// Lista de sugestões
 const dados = <?= json_encode(array_map(fn($p) => $p['nome'] . ' - ' . $p['numero_pedido'], $todos)) ?>;
 
 campoBusca.addEventListener('input', function () {
     const valor = this.value.toLowerCase();
     sugestoes.innerHTML = '';
-
     if (valor.length === 0) return;
 
     const filtrados = dados.filter(item => item.toLowerCase().includes(valor)).slice(0, 5);
     filtrados.forEach(item => {
         const li = document.createElement('li');
         li.textContent = item;
-        li.style.cursor = 'pointer';
         li.onclick = () => {
-            campoBusca.value = item; // ✅ pega nome + número juntos
+            campoBusca.value = item;
             sugestoes.innerHTML = '';
         };
         sugestoes.appendChild(li);
     });
 });
 
-
+// Mostrar todos
+const btnMostrar = document.getElementById('mostrar-todos');
+if (btnMostrar) {
+    btnMostrar.addEventListener('click', function () {
+        document.querySelectorAll('.pedido-linha.oculto').forEach(row => row.classList.remove('oculto'));
+        btnMostrar.style.display = 'none';
+    });
+}
 </script>
+
+</body>
+</html>

@@ -90,7 +90,7 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
             width: 250px;
             flex: 0 0 auto;
             background: #eee;
-            padding: 10px;
+            padding: 15px;
             border-radius: 8px;
         }
 
@@ -161,7 +161,7 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
 }
 
 .sair-fixado {
-    margin-top: 550px;
+    margin-top: 470px; /** para a distancia do botao sair */
     padding-top: 0;
     padding-left: 70px;
 }
