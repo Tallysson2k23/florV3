@@ -1,10 +1,10 @@
-<!-- app/views/painel.php -->
 <?php
 session_start();
 if (!isset($_SESSION['usuario_id'])) {
     header('Location: /florV3/public/index.php?rota=login');
     exit;
 }
+$usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
 ?>
 
 <!DOCTYPE html>
@@ -17,11 +17,65 @@ if (!isset($_SESSION['usuario_id'])) {
             font-family: Arial, sans-serif;
             background: #f3f4f6;
             margin: 0;
-            padding: 20px;
+            padding: 0;
         }
 
-        h2 {
-            text-align: center;
+        /* Cabeçalho */
+        .topo {
+    background: #111;
+    color: white;
+    padding: 10px 20px;
+    position: relative;  /* importante para posicionar o botão e h1 */
+    height: 60px;
+}
+
+.topo h1 {
+    font-family: "Brush Script MT", cursive;
+    font-size: 28px;
+    margin: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+        .menu-btn {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+
+        /* Menu lateral */
+        .menu-lateral {
+            position: fixed;
+            top: 0;
+            left: -295px;
+            width: 250px;
+            height: 100%;
+            background: #111;
+            color: white;
+            padding: 20px;
+            transition: left 0.3s ease;
+            z-index: 999;
+        }
+
+        .menu-lateral.ativo {
+            left: 0;
+        }
+
+        .menu-lateral .fechar {
+            float: right;
+            cursor: pointer;
+            font-size: 20px;
         }
 
         .status-container {
@@ -29,17 +83,16 @@ if (!isset($_SESSION['usuario_id'])) {
             justify-content: center;
             gap: 12px;
             flex-wrap: wrap;
-            margin-bottom: 30px;
+            margin: 20px;
         }
 
         .coluna {
-    width: 220px; /* ajuste conforme desejar */
-    flex: 0 0 auto; /* NÃO cresce automaticamente */
-    background: #eee;
-    padding: 10px;
-    border-radius: 8px;
-}
-
+            width: 220px;
+            flex: 0 0 auto;
+            background: #eee;
+            padding: 10px;
+            border-radius: 8px;
+        }
 
         .coluna h3 {
             text-align: center;
@@ -55,7 +108,7 @@ if (!isset($_SESSION['usuario_id'])) {
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        .ver-mais {
+        .ver-toggle {
             text-align: center;
             margin-top: 5px;
             cursor: pointer;
@@ -63,15 +116,16 @@ if (!isset($_SESSION['usuario_id'])) {
             color: blue;
         }
 
-        .coluna.pendente    { background-color: #f28b82; }
-        .coluna.producao    { background-color: #fbbc04; }
-        .coluna.pronto      { background-color: #a7cdfa; }
+        .coluna.pendente { background-color: #f28b82; }
+        .coluna.producao { background-color: #fbbc04; }
+        .coluna.pronto   { background-color: #a7cdfa; }
 
         .botoes {
             display: flex;
             justify-content: center;
             gap: 20px;
             flex-wrap: wrap;
+            margin-bottom: 20px;
         }
 
         .botao-acao {
@@ -96,27 +150,32 @@ if (!isset($_SESSION['usuario_id'])) {
             cursor: pointer;
         }
 
-        .ver-toggle {
-    text-align: center;
-    margin-top: 5px;
-    cursor: pointer;
-    font-size: 12px;
-    color: blue;
-}
-
-
+       h1 {
+            font-size: 48px;
+            font-family: 'Segoe UI', cursive;
+        }
 
         .oculto { display: none; }
     </style>
 </head>
 <body>
 
-<h2>Status dos Pedidos</h2>
+<div class="topo">
+    <button class="menu-btn" onclick="abrirMenu()">☰</button>
+    <h1>𝓕𝓵𝓸𝓻 𝓭𝓮 𝓒𝓱𝓮𝓲𝓻𝓸</h1>
+</div>
+
+<div class="menu-lateral" id="menuLateral">
+    <span class="fechar" onclick="fecharMenu()">&times;</span>
+    <br>
+    <p>🙋🏻‍♂️ Olá <strong><?= htmlspecialchars($usuarioNome) ?></strong></p>
+</div>
+
+<h2 style="text-align: center;">Status dos Pedidos</h2>
 
 <div class="status-container">
     <?php
     $cores = ['Pendente' => 'pendente', 'Produção' => 'producao', 'Pronto' => 'pronto'];
-
     foreach ($agrupados as $status => $lista):
         $classe = $cores[$status];
     ?>
@@ -129,15 +188,13 @@ if (!isset($_SESSION['usuario_id'])) {
                 <?= htmlspecialchars($pedido['produto'] ?? '') ?> - <?= date('d/m', strtotime($pedido['data_abertura'])) ?> às <?= substr($pedido['hora'], 0, 5) ?>
             </div>
         <?php endforeach; ?>
-       <?php if (count($lista) > 4): ?>
-    <div class="ver-toggle" onclick="togglePedidos(this)">⬇ Ver mais</div>
-<?php endif; ?>
-
+        <?php if (count($lista) > 4): ?>
+            <div class="ver-toggle" onclick="togglePedidos(this)">⬇ Ver mais</div>
+        <?php endif; ?>
     </div>
     <?php endforeach; ?>
 </div>
 
-<!-- Botões -->
 <div class="botoes">
     <div class="botao-acao">
         <h4>Cadastrar Pedido</h4>
@@ -162,29 +219,34 @@ if (!isset($_SESSION['usuario_id'])) {
         <a href="/florV3/public/index.php?rota=logout"><button style="background: red;">Sair</button></a>
     </div>
 </div>
+
 <script>
 function togglePedidos(botao) {
     const coluna = botao.parentElement;
     const ocultos = coluna.querySelectorAll('.pedido.oculto');
-
     const mostrandoMais = botao.dataset.expandido === "true";
 
     if (mostrandoMais) {
-        // Ocultar novamente
         coluna.querySelectorAll('.pedido').forEach((pedido, i) => {
             if (i >= 4) pedido.classList.add('oculto');
         });
         botao.textContent = '⬇ Ver mais';
         botao.dataset.expandido = "false";
     } else {
-        // Mostrar todos
         ocultos.forEach(p => p.classList.remove('oculto'));
         botao.textContent = '⬆ Ver menos';
         botao.dataset.expandido = "true";
     }
 }
-</script>
 
+function abrirMenu() {
+    document.getElementById('menuLateral').classList.add('ativo');
+}
+
+function fecharMenu() {
+    document.getElementById('menuLateral').classList.remove('ativo');
+}
+</script>
 
 </body>
 </html>
