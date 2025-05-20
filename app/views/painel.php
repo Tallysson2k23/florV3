@@ -81,13 +81,13 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
         .status-container {
             display: flex;
             justify-content: center;
-            gap: 12px;
+            gap: 40px;
             flex-wrap: wrap;
             margin: 20px;
         }
 
         .coluna {
-            width: 220px;
+            width: 250px;
             flex: 0 0 auto;
             background: #eee;
             padding: 10px;
@@ -150,10 +150,32 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
             cursor: pointer;
         }
 
-       h1 {
-            font-size: 48px;
-            font-family: 'Segoe UI', cursive;
-        }
+       .menu-lateral {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.menu-conteudo {
+    margin-top: 20px;
+}
+
+.sair-fixado {
+    margin-top: 550px;
+    padding-top: 0;
+    padding-left: 70px;
+}
+
+.btn-sair {
+    width: 50%;
+    padding: 5px;
+    background-color: #B22222;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
 
         .oculto { display: none; }
     </style>
@@ -164,13 +186,29 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
     <button class="menu-btn" onclick="abrirMenu()">☰</button>
     <h1>𝓕𝓵𝓸𝓻 𝓭𝓮 𝓒𝓱𝓮𝓲𝓻𝓸</h1>
 </div>
+    <!-- MENU <br><br>  🙋🏻‍♂️ Olá -->
+
 
 <div class="menu-lateral" id="menuLateral">
     <span class="fechar" onclick="fecharMenu()">&times;</span>
-    <br>
-    <p>🙋🏻‍♂️ Olá <strong><?= htmlspecialchars($usuarioNome) ?></strong></p>
+
+    <div class="perfil">
+        
+        <span><br><br>  🙋🏻‍♂️ Olá <strong><?= htmlspecialchars($usuarioNome) ?></strong></span>
+    </div>
+
+    <div class="menu-conteudo">
+        <!-- Aqui você pode colocar links adicionais no futuro -->
+    </div>
+
+    <div class="sair-fixado">
+        <a href="/florV3/public/index.php?rota=logout">
+            <button class="btn-sair">🚪 Sair</button>
+        </a>
+    </div>
 </div>
 
+<br><br><br>
 <h2 style="text-align: center;">Status dos Pedidos</h2>
 
 <div class="status-container">
@@ -214,12 +252,6 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
         <a href="/florV3/public/index.php?rota=usuarios"><button>Acessar</button></a>
     </div>
     <?php endif; ?>
-    <div class="botao-acao">
-        <h4>Sair</h4>
-        <a href="/florV3/public/index.php?rota=logout"><button style="background: red;">Sair</button></a>
-    </div>
-</div>
-
 <script>
 function togglePedidos(botao) {
     const coluna = botao.parentElement;
