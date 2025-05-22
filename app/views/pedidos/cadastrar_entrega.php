@@ -109,7 +109,8 @@
         <div class="form-group">
             <div>
                 <label>Nº Pedido:</label>
-                <input name="numero_pedido" required>
+                <input name="numero_pedido" id="numero_pedido" required value="L20">
+
             </div>
             <div>
                 <label>Tipo:</label>
@@ -206,6 +207,43 @@ function confirmarCancelamento() {
         window.location.href = "/florV3/public/index.php?rota=painel";
     }
 }
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const campo = document.getElementById("numero_pedido");
+    const prefixo = "L20";
+
+    // Aplica prefixo se estiver vazio
+    if (!campo.value.startsWith(prefixo)) {
+        campo.value = prefixo;
+    }
+
+    // Bloqueia apagar o prefixo
+    campo.addEventListener("keydown", function (e) {
+        const pos = campo.selectionStart;
+
+        // Impede apagar prefixo
+        if ((pos <= prefixo.length) && (e.key === "Backspace" || e.key === "Delete")) {
+            e.preventDefault();
+        }
+
+        // Impede digitar antes do prefixo
+        if (pos < prefixo.length && !["ArrowLeft", "ArrowRight", "Tab"].includes(e.key)) {
+            e.preventDefault();
+            campo.setSelectionRange(campo.value.length, campo.value.length);
+        }
+    });
+
+    // Quando foca, move cursor para depois do prefixo
+    campo.addEventListener("focus", function () {
+        setTimeout(() => {
+            if (campo.selectionStart < prefixo.length) {
+                campo.setSelectionRange(campo.value.length, campo.value.length);
+            }
+        }, 0);
+    });
+});
 </script>
 
 </body>

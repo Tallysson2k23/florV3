@@ -68,6 +68,8 @@
     <table>
         <tr><td><strong>Remetente:</strong></td><td><?= $dados['remetente'] ?></td></tr>
         <tr><td><strong>Destinatário:</strong></td><td><?= $dados['destinatario'] ?></td></tr>
+        <tr><td><strong>Tel. Remetente:</strong></td><td><?= $dados['telefone_remetente'] ?></td></tr>
+<tr><td><strong>Tel. Destinatário:</strong></td><td><?= $dados['telefone_destinatario'] ?></td></tr>
         <tr><td><strong>Endereço:</strong></td><td><?= $dados['endereco'] ?>, Nº <?= $dados['numero_endereco'] ?></td></tr>
         <tr><td><strong>Bairro:</strong></td><td><?= $dados['bairro'] ?></td></tr>
         <tr><td><strong>Referência:</strong></td><td><?= $dados['referencia'] ?></td></tr>

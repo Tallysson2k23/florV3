@@ -251,6 +251,7 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
         <h4>Gerenciar Usuários</h4>
         <a href="/florV3/public/index.php?rota=usuarios"><button>Acessar</button></a>
     </div>
+    
     <?php endif; ?>
 <script>
 function togglePedidos(botao) {
