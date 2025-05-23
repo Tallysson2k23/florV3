@@ -95,7 +95,38 @@ switch ($rota) {
 
  
 
+    case 'retiradas':
+    $controller = new PedidoController();
+    $controller->retiradas();
+    break;
 
+
+    case 'cadastrar-vendedor':
+    $controller->cadastrarVendedor();
+    break;
+
+case 'salvar-vendedor':
+    $controller->salvarVendedor();
+    break;
+
+case 'lista-vendedores':
+    $controller->listaVendedores();
+    break;
+
+case 'cadastrar-vendedor':
+    $controller = new VendedorController();
+    $controller->cadastrar();
+    break;
+
+case 'salvar-vendedor':
+    $controller = new VendedorController();
+    $controller->salvar();
+    break;
+
+case 'lista-vendedores':
+    $controller = new VendedorController();
+    $controller->listar();
+    break;
 
 
 

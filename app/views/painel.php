@@ -251,6 +251,21 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
         <h4>Gerenciar Usuários</h4>
         <a href="/florV3/public/index.php?rota=usuarios"><button>Acessar</button></a>
     </div>
+    <div class="botao-acao">
+    <h4>Retiradas</h4>
+    <a href="/florV3/public/index.php?rota=retiradas"><button>Acessar</button></a>
+</div>
+<div class="botao-acao">
+    <h4>Cadastrar Vendedor</h4>
+    <a href="/florV3/public/index.php?rota=cadastrar-vendedor"><button>Acessar</button></a>
+</div>
+
+<div class="botao-acao">
+    <h4>Lista de Vendedores</h4>
+    <a href="/florV3/public/index.php?rota=lista-vendedores"><button>Acessar</button></a>
+</div>
+
+
     
     <?php endif; ?>
 <script>

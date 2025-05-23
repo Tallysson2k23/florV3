@@ -251,7 +251,73 @@ public function painelComPedidos() {
     require __DIR__ . '/../views/painel.php';
 }
 
+/*public function verRetiradas() {
+    require_once __DIR__ . '/../models/PedidoEntrega.php';
+    require_once __DIR__ . '/../models/PedidoRetirada.php';
 
+    $entregaModel = new PedidoEntrega();
+    $retiradaModel = new PedidoRetirada();
+
+    $entregas = $entregaModel->buscarPorStatus('Entregue');
+    $retiradas = $retiradaModel->buscarPorStatus('Entregue');
+
+    $todosEntregues = array_merge($entregas, $retiradas);
+
+    require __DIR__ . '/../views/pedidos/retiradas.php';
+}*/
+
+public function retiradas() {
+    require_once __DIR__ . '/../models/PedidoEntrega.php';
+    require_once __DIR__ . '/../models/PedidoRetirada.php';
+
+    $pagina = $_GET['pagina'] ?? 1;
+    $limite = 10;
+    $offset = ($pagina - 1) * $limite;
+
+    $entregasModel = new PedidoEntrega();
+    $retiradasModel = new PedidoRetirada();
+
+    $todosEntregues = array_merge(
+        $entregasModel->buscarPorStatus('Entregue'),
+        $retiradasModel->buscarPorStatus('Entregue')
+    );
+
+    // Ordena pela data
+    usort($todosEntregues, function($a, $b) {
+        return strtotime($b['data_abertura']) <=> strtotime($a['data_abertura']);
+    });
+
+    $total = count($todosEntregues);
+    $pedidosPaginados = array_slice($todosEntregues, $offset, $limite);
+
+    require __DIR__ . '/../views/pedidos/retiradas.php';
+}
+
+public function cadastrarVendedor() {
+    require __DIR__ . '/../views/vendedores/cadastrar_vendedor.php';
+}
+
+public function salvarVendedor() {
+    $nome = $_POST['nome'] ?? '';
+    $telefone = $_POST['telefone'] ?? '';
+
+    if ($nome) {
+        $pdo = Database::conectar();
+        $stmt = $pdo->prepare("INSERT INTO vendedores (nome, telefone) VALUES (?, ?)");
+        $stmt->execute([$nome, $telefone]);
+    }
+
+    header('Location: /florV3/public/index.php?rota=lista-vendedores');
+    exit;
+}
+
+public function listaVendedores() {
+    $pdo = Database::conectar();
+    $stmt = $pdo->query("SELECT * FROM vendedores ORDER BY nome ASC");
+    $vendedores = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    require __DIR__ . '/../views/vendedores/lista_vendedores.php';
+}
 
 }
 

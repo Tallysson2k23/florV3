@@ -69,5 +69,13 @@ public function atualizarStatus($id, $status) {
     $stmt->execute([':status' => $status, ':id' => $id]);
 }
 
+public function buscarPorStatus($status) {
+    $sql = "SELECT * FROM {$this->table} WHERE status = :status ORDER BY data_abertura DESC";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindParam(':status', $status);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
 }
