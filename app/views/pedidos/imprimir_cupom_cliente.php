@@ -77,7 +77,8 @@
         <tr><td><strong>Adicionais:</strong></td><td><?= $dados['adicionais'] ?></td></tr>
         <tr><td><strong>Nº Pedido:</strong></td><td><?= $dados['numero_pedido'] ?></td></tr>
         <tr><td><strong>Data:</strong></td><td><?= date('d/m/Y', strtotime($dados['data_abertura'])) ?></td></tr>
-    </table>
+        <tr><td><strong>Vendedor:</strong></td><td><?= htmlspecialchars($dados['codigo_vendedor'] ?? '') ?><?= htmlspecialchars($dados['nome_vendedor'] ?? '') ?></td></tr>
+ </table>
 
 <?php elseif ($tipo === 'retirada'): ?>
     <div class="titulo">Cupom - Retirada</div>
@@ -88,7 +89,14 @@
         <tr><td><strong>Adicionais:</strong></td><td><?= $dados['adicionais'] ?></td></tr>
         <tr><td><strong>Nº Pedido:</strong></td><td><?= $dados['numero_pedido'] ?></td></tr>
         <tr><td><strong>Data/Hora:</strong></td><td><?= date('d/m/Y', strtotime($dados['data_abertura'])) ?> <?= substr($dados['hora'], 0, 5) ?></td></tr>
-    </table>
+        <tr>
+    <td><strong>Vendedor:</strong></td>
+    <td>
+        <?= htmlspecialchars($dados['codigo_vendedor'] ?? '') ?>
+        <?= htmlspecialchars($dados['nome_vendedor'] ?? '') ?>
+    </td>
+</tr>
+</table>
 
     <div class="aviso">
         Atenção: a retirada do pedido só será efetivada<br>

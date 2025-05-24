@@ -1,6 +1,8 @@
 <?php
         require_once __DIR__ . '/../models/PedidoEntrega.php';
         require_once __DIR__ . '/../models/PedidoRetirada.php';
+
+
 class PedidoController {
     public function cadastrar() {
         require_once __DIR__ . '/../views/pedidos/cadastrar.php';
@@ -12,13 +14,22 @@ class PedidoController {
         // A lógica de salvar virá depois
     }
 
-    public function formEntrega() {
-        require __DIR__ . '/../views/pedidos/cadastrar_entrega.php';
-    }
+public function formEntrega() {
+    require_once __DIR__ . '/../models/Vendedor.php';
+    $vendedorModel = new Vendedor(Database::conectar());
+    $vendedores = $vendedorModel->listarTodos();
+    require __DIR__ . '/../views/pedidos/cadastrar_entrega.php';
+}
 
-    public function formRetirada() {
-        require __DIR__ . '/../views/pedidos/cadastrar_retirada.php';
-    }
+public function formRetirada() {
+    require_once __DIR__ . '/../models/Vendedor.php';
+    $vendedorModel = new Vendedor(Database::conectar());
+    $vendedores = $vendedorModel->listarTodos();
+    require __DIR__ . '/../views/pedidos/cadastrar_retirada.php';
+}
+
+
+
 
 public function salvarEntrega() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -299,17 +310,30 @@ public function cadastrarVendedor() {
 
 public function salvarVendedor() {
     $nome = $_POST['nome'] ?? '';
-    $telefone = $_POST['telefone'] ?? '';
 
     if ($nome) {
         $pdo = Database::conectar();
-        $stmt = $pdo->prepare("INSERT INTO vendedores (nome, telefone) VALUES (?, ?)");
-        $stmt->execute([$nome, $telefone]);
+
+        // Buscar o último código
+        $stmt = $pdo->query("SELECT codigo FROM vendedores ORDER BY id DESC LIMIT 1");
+        $ultimo = $stmt->fetch(PDO::FETCH_ASSOC);
+        $proximoCodigo = "V01";
+
+        if ($ultimo && isset($ultimo['codigo'])) {
+            $numero = (int)substr($ultimo['codigo'], 1);
+            $proximoNumero = str_pad($numero + 1, 2, "0", STR_PAD_LEFT);
+            $proximoCodigo = "V" . $proximoNumero;
+        }
+
+        // Inserir novo vendedor com código
+        $stmt = $pdo->prepare("INSERT INTO vendedores (nome, codigo) VALUES (?, ?)");
+        $stmt->execute([$nome, $proximoCodigo]);
     }
 
     header('Location: /florV3/public/index.php?rota=lista-vendedores');
     exit;
 }
+
 
 public function listaVendedores() {
     $pdo = Database::conectar();

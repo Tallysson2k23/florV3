@@ -13,9 +13,10 @@ class Vendedor {
         return $stmt->execute();
     }
 
-    public function listarTodos() {
-        $stmt = $this->conn->query("SELECT * FROM vendedores ORDER BY nome ASC");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+   public function listarTodos() {
+    $sql = "SELECT id, nome, codigo FROM vendedores ORDER BY nome ASC";
+    return $this->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+}
+
 }
 ?>

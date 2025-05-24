@@ -49,12 +49,12 @@
 <table>
     <tr>
         <th>Nome</th>
-        <th>Telefone</th>
+        <th>Codigo</th>
     </tr>
     <?php foreach ($vendedores as $vendedor): ?>
     <tr>
         <td><?= htmlspecialchars($vendedor['nome']) ?></td>
-        <td><?= htmlspecialchars($vendedor['telefone']) ?></td>
+        <td><?= htmlspecialchars($vendedor['codigo']) ?></td>
     </tr>
     <?php endforeach; ?>
 </table>

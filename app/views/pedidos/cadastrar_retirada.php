@@ -149,6 +149,21 @@
             </div>
         </div>
 
+        <!-- Adicione antes do botão -->
+<div class="form-group full">
+    <label>Vendedor:</label>
+    <select name="vendedor_codigo" required>
+        <option value="">Selecione</option>
+        <?php foreach ($vendedores as $v): ?>
+            <option value="<?= htmlspecialchars($v['codigo']) ?>">
+                <?= htmlspecialchars($v['codigo']) ?> - <?= htmlspecialchars($v['nome']) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+</div>
+
+
+
         <input type="hidden" name="imprimir" id="imprimir-retirada" value="0">
 
         <div class="actions">

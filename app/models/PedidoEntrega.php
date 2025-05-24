@@ -16,11 +16,11 @@ public function criar($dados) {
     $ordem = $maxOrdem + 1;
 
     $sql = "INSERT INTO {$this->table} 
-        (numero_pedido, tipo, remetente, telefone_remetente, destinatario, telefone_destinatario,
-         endereco, numero_endereco, bairro, referencia, produtos, adicionais, data_abertura, hora, status, ordem_fila)
-        VALUES 
-        (:numero_pedido, :tipo, :remetente, :telefone_remetente, :destinatario, :telefone_destinatario,
-         :endereco, :numero_endereco, :bairro, :referencia, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila)";
+    (numero_pedido, tipo, remetente, telefone_remetente, destinatario, telefone_destinatario,
+     endereco, numero_endereco, bairro, referencia, produtos, adicionais, data_abertura, hora, status, ordem_fila, vendedor_codigo)
+    VALUES 
+    (:numero_pedido, :tipo, :remetente, :telefone_remetente, :destinatario, :telefone_destinatario,
+     :endereco, :numero_endereco, :bairro, :referencia, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo)";
 
     $stmt = $this->conn->prepare($sql);
 
@@ -52,12 +52,17 @@ public function criar($dados) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 public function buscarPorId($id) {
-    $sql = "SELECT * FROM {$this->table} WHERE id = :id";
+    $sql = "SELECT p.*, v.nome AS nome_vendedor, v.codigo AS codigo_vendedor
+            FROM {$this->table} p
+            LEFT JOIN vendedores v ON p.vendedor_codigo = v.codigo
+            WHERE p.id = :id";
+
     $stmt = $this->conn->prepare($sql);
     $stmt->bindValue(':id', $id, PDO::PARAM_INT);
     $stmt->execute();
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
+
 
 public function listarTodos() {
     $sql = "SELECT id, numero_pedido, tipo, remetente AS nome, status, data_abertura, hora

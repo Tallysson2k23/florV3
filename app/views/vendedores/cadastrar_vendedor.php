@@ -60,16 +60,12 @@
 </head>
 <body>
     <div class="form-container">
-        <h2>Cadastrar Vendedor</h2>
-        <form action="/florV3/public/index.php?rota=salvar-vendedor" method="POST">
-            <label>Nome:</label>
-            <input type="text" name="nome" required>
+        <h2>Cadastro de Vendedor</h2>
+<form action="/florV3/public/index.php?rota=salvar-vendedor" method="POST">
+    <label>Nome: <input type="text" name="nome" required></label><br><br>
+    <button type="submit">Salvar</button>
+</form>
 
-            <label>Telefone:</label>
-            <input type="text" name="telefone">
-
-            <button type="submit">Salvar Vendedor</button>
-        </form>
         <a href="/florV3/public/index.php?rota=painel">← Voltar para o Painel</a>
     </div>
 </body>

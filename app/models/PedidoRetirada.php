@@ -15,20 +15,22 @@ public function criar($dados) {
     $maxOrdem = $stmt->fetch(PDO::FETCH_ASSOC)['max_fila'] ?? 0;
     $ordem = $maxOrdem + 1;
 
-    // ❌ Remova campos extras
-    unset($dados['imprimir']);
-
-    $sql = "INSERT INTO {$this->table} 
-        (numero_pedido, tipo, nome, telefone, produtos, adicionais, data_abertura, hora, status, ordem_fila)
-        VALUES 
-        (:numero_pedido, :tipo, :nome, :telefone, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila)";
-
-    $stmt = $this->conn->prepare($sql);
-
+    // Adiciona campos adicionais obrigatórios
     $dados['status'] = 'Pendente';
     $dados['ordem_fila'] = $ordem;
     $dados['hora'] = date('H:i:s');
 
+    // Corrige vendedor_codigo se não vier
+    $dados['vendedor_codigo'] = $dados['vendedor_codigo'] ?? null;
+
+    unset($dados['imprimir']); // se estiver vindo
+
+    $sql = "INSERT INTO {$this->table} 
+        (numero_pedido, tipo, nome, telefone, produtos, adicionais, data_abertura, hora, status, ordem_fila, vendedor_codigo)
+        VALUES 
+        (:numero_pedido, :tipo, :nome, :telefone, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo)";
+        
+    $stmt = $this->conn->prepare($sql);
     $stmt->execute($dados);
 
     return $this->conn->lastInsertId();
@@ -50,12 +52,17 @@ public function criar($dados) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 public function buscarPorId($id) {
-    $sql = "SELECT * FROM {$this->table} WHERE id = :id";
+    $sql = "SELECT p.*, v.nome AS nome_vendedor, v.codigo AS codigo_vendedor
+            FROM {$this->table} p
+            LEFT JOIN vendedores v ON p.vendedor_codigo = v.codigo
+            WHERE p.id = :id";
+
     $stmt = $this->conn->prepare($sql);
     $stmt->bindValue(':id', $id, PDO::PARAM_INT);
     $stmt->execute();
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
+
 
 public function listarTodos() {
     $sql = "SELECT id, numero_pedido, tipo, nome, status, data_abertura, hora
