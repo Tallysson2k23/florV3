@@ -66,7 +66,7 @@
         }
 
         .status-pendente {
-            background-color: #e74c3c;
+            background-color:rgb(231, 86, 60);
         }
 
         .status-producao {
@@ -81,9 +81,10 @@
             background-color: #2ecc71;
         }
 
-        .status-acaminho {
-            background-color: #9b59b6;
-        }
+        .status-cancelado {
+    background-color:rgb(251, 29, 4); /* vermelho */
+}
+
 
         button {
             padding: 6px 12px;
@@ -143,7 +144,7 @@
                 case 'produção':  $statusClasse = 'status-producao'; break;
                 case 'pronto':    $statusClasse = 'status-pronto'; break;
                 case 'entregue':  $statusClasse = 'status-entregue'; break;
-                case 'a caminho': $statusClasse = 'status-acaminho'; break;
+                case 'cancelado': $statusClasse = 'status-cancelado'; break;
                 default:          $statusClasse = ''; break;
             }
 
@@ -165,7 +166,7 @@
         <select class="<?= $statusClasse ?>"
                 onchange="atualizarStatus(<?= $id ?>, '<?= $tipoLink ?>', this.value)">
             <?php
-            $opcoes = ['Pendente', 'Produção', 'Pronto', 'Entregue', 'A Caminho'];
+            $opcoes = ['Pendente', 'Produção', 'Pronto', 'Entregue', 'Cancelado'];
             foreach ($opcoes as $opcao):
                 $selected = $status === $opcao ? 'selected' : '';
                 echo "<option value=\"$opcao\" $selected>$opcao</option>";
