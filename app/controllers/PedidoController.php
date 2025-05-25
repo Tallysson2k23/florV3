@@ -1,6 +1,7 @@
 <?php
         require_once __DIR__ . '/../models/PedidoEntrega.php';
         require_once __DIR__ . '/../models/PedidoRetirada.php';
+        require_once __DIR__ . '/../../config/database.php'; 
 
 
 class PedidoController {
@@ -342,6 +343,29 @@ public function listaVendedores() {
 
     require __DIR__ . '/../views/vendedores/lista_vendedores.php';
 }
+
+public function cadastrarProduto() {
+    require __DIR__ . '/../views/produtos/cadastrar_produto.php';
+}
+
+public function salvarProduto() {
+    $nome = $_POST['nome'] ?? '';
+    if ($nome) {
+        $pdo = Database::conectar();
+        $produtoModel = new Produto($pdo);
+        $produtoModel->salvar($nome);
+    }
+    header('Location: /florV3/public/index.php?rota=lista-produtos');
+    exit;
+}
+
+public function listaProdutos() {
+    $pdo = Database::conectar();
+    $produtoModel = new Produto($pdo);
+    $produtos = $produtoModel->listarTodos();
+    require __DIR__ . '/../views/produtos/lista_produtos.php';
+}
+
 
 }
 

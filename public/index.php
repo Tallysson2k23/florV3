@@ -1,15 +1,19 @@
 <?php
 require_once __DIR__ . '/../app/controllers/PedidoController.php';
 require_once __DIR__ . '/../app/controllers/UsuarioController.php';
+require_once __DIR__ . '/../app/controllers/ProdutoController.php';
+require_once __DIR__ . '/../app/controllers/VendedorController.php';
 
 $rota = $_GET['rota'] ?? 'painel';
 $controller = new PedidoController();
 $usuarioController = new UsuarioController();
+$produtoController = new ProdutoController();
+$vendedorController = new VendedorController();
 
 switch ($rota) {
-  case 'painel':
-    $controller->painelComPedidos(); // ✅ importante estar esse nome
-    break;
+    case 'painel':
+        $controller->painelComPedidos();
+        break;
 
     case 'escolher-tipo':
         require_once __DIR__ . '/../app/views/pedidos/escolher_tipo.php';
@@ -55,12 +59,10 @@ switch ($rota) {
         $controller->atualizarStatus();
         break;
 
-    // 🔄 Acesso à lista de usuários
     case 'usuarios':
-        $usuarioController->listarUsuarios(); // agora vai direto para a lista
+        $usuarioController->listarUsuarios();
         break;
 
-    // ✅ Cadastro de novo usuário
     case 'novo-usuario':
         $usuarioController->formularioCadastro();
         break;
@@ -82,53 +84,46 @@ switch ($rota) {
         break;
 
     case 'imprimir-pedido':
-    $controller->imprimirPedido();
-    break;
+        $controller->imprimirPedido();
+        break;
 
     case 'imprimir-ordem':
-    $controller->imprimirOrdem();
-    break;
+        $controller->imprimirOrdem();
+        break;
 
-        case 'imprimir-cupom-cliente':
-    $controller->imprimirCupomCliente();
-    break;
-
- 
+    case 'imprimir-cupom-cliente':
+        $controller->imprimirCupomCliente();
+        break;
 
     case 'retiradas':
-    $controller = new PedidoController();
-    $controller->retiradas();
-    break;
+        $controller->retiradas();
+        break;
 
-
+    // ✅ ROTAS DE VENDEDOR (sem duplicidade)
     case 'cadastrar-vendedor':
-    $controller->cadastrarVendedor();
-    break;
+        $vendedorController->cadastrar();
+        break;
 
-case 'salvar-vendedor':
-    $controller->salvarVendedor();
-    break;
+    case 'salvar-vendedor':
+        $vendedorController->salvar();
+        break;
 
-case 'lista-vendedores':
-    $controller->listaVendedores();
-    break;
+    case 'lista-vendedores':
+        $vendedorController->listar();
+        break;
 
-case 'cadastrar-vendedor':
-    $controller = new VendedorController();
-    $controller->cadastrar();
-    break;
+    // ✅ ROTAS DE PRODUTO
+    case 'cadastrar-produto':
+        $produtoController->cadastrarProduto();
+        break;
 
-case 'salvar-vendedor':
-    $controller = new VendedorController();
-    $controller->salvar();
-    break;
+    case 'salvar-produto':
+        $produtoController->salvarProduto();
+        break;
 
-case 'lista-vendedores':
-    $controller = new VendedorController();
-    $controller->listar();
-    break;
-
-
+    case 'lista-produtos':
+        $produtoController->listaProdutos();
+        break;
 
     default:
         echo "Página não encontrada.";

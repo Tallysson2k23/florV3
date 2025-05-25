@@ -75,11 +75,12 @@
 <table>
     <tr>
         <td class="label">Nome</td>
-        <td><?= htmlspecialchars($dados['nome'] ?? '-') ?></td>
+        <td><?= htmlspecialchars($dados['nome'] ?? $dados['remetente'] ?? '-') ?></td>
     </tr>
     <tr>
         <td class="label">Produtos:</td>
-        <td><?= htmlspecialchars($dados['produtos'] ?? '-') ?></td>
+        <td><?= htmlspecialchars(($dados['quantidade'] ?? '1') . 'x ' . ($dados['produtos'] ?? '-')) ?></td>
+
     </tr>
     <tr>
         <td class="label">Complemento</td>

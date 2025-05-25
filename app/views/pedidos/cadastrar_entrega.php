@@ -1,3 +1,13 @@
+<?php
+require_once __DIR__ . '/../../models/Produto.php';
+require_once __DIR__ . '/../../../config/database.php'; 
+
+$pdo = Database::conectar();
+$produtoModel = new Produto($pdo);
+$produtos = $produtoModel->listarTodos();
+?>
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -163,11 +173,27 @@
         </div>
 
         <div class="form-group full">
-            <div>
-                <label>Produtos:</label>
-                <input name="produtos">
-            </div>
-        </div>
+    <div>
+        <label>Produto:</label>
+        <select name="produtos" required>
+            <option value="">Selecione</option>
+            <?php foreach ($produtos as $produto): ?>
+                <option value="<?= htmlspecialchars($produto['nome']) ?>">
+                    <?= htmlspecialchars($produto['nome']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+</div>
+
+
+        <div class="form-group">
+    <div>
+        <label>Quantidade:</label>
+        <input name="quantidade" type="number" min="1" value="1" required>
+    </div>
+</div>
+
 
         <div class="form-group full">
             <div>

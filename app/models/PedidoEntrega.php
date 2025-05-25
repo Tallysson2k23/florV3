@@ -17,10 +17,10 @@ public function criar($dados) {
 
     $sql = "INSERT INTO {$this->table} 
     (numero_pedido, tipo, remetente, telefone_remetente, destinatario, telefone_destinatario,
-     endereco, numero_endereco, bairro, referencia, produtos, adicionais, data_abertura, hora, status, ordem_fila, vendedor_codigo)
+     endereco, numero_endereco, bairro, referencia, produtos, adicionais, data_abertura, hora, status, ordem_fila, vendedor_codigo, quantidade)
     VALUES 
     (:numero_pedido, :tipo, :remetente, :telefone_remetente, :destinatario, :telefone_destinatario,
-     :endereco, :numero_endereco, :bairro, :referencia, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo)";
+     :endereco, :numero_endereco, :bairro, :referencia, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo, :quantidade)";
 
     $stmt = $this->conn->prepare($sql);
 
@@ -30,6 +30,8 @@ public function criar($dados) {
     $dados['status'] = 'Pendente';
     $dados['ordem_fila'] = $ordem;
     $dados['hora'] = date('H:i:s');
+    $dados['quantidade'] = $dados['quantidade'] ?? 1;
+
 
     $stmt->execute($dados);
 

@@ -238,6 +238,21 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
         <h4>Cadastrar Pedido</h4>
         <a href="/florV3/public/index.php?rota=escolher-tipo"><button>Acessar</button></a>
     </div>
+
+    <div class="botao-acao">
+    <h4>Cadastrar Produto</h4>
+    <a href="/florV3/public/index.php?rota=cadastrar-produto">
+        <button>Acessar</button>
+    </a>
+</div>
+
+<div class="botao-acao">
+    <h4>Lista de Produtos</h4>
+    <a href="/florV3/public/index.php?rota=lista-produtos">
+        <button>Acessar</button>
+    </a>
+</div>
+
     <div class="botao-acao">
         <h4>Ver Histórico</h4>
         <a href="/florV3/public/index.php?rota=historico"><button>Acessar</button></a>

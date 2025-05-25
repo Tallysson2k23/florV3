@@ -19,16 +19,17 @@ public function criar($dados) {
     $dados['status'] = 'Pendente';
     $dados['ordem_fila'] = $ordem;
     $dados['hora'] = date('H:i:s');
+    $dados['quantidade'] = $dados['quantidade'] ?? 1;
 
-    // Corrige vendedor_codigo se não vier
     $dados['vendedor_codigo'] = $dados['vendedor_codigo'] ?? null;
+
 
     unset($dados['imprimir']); // se estiver vindo
 
     $sql = "INSERT INTO {$this->table} 
-        (numero_pedido, tipo, nome, telefone, produtos, adicionais, data_abertura, hora, status, ordem_fila, vendedor_codigo)
+        (numero_pedido, tipo, nome, telefone, produtos, adicionais, data_abertura, hora, status, ordem_fila, vendedor_codigo, quantidade)
         VALUES 
-        (:numero_pedido, :tipo, :nome, :telefone, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo)";
+        (:numero_pedido, :tipo, :nome, :telefone, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo, :quantidade)";
         
     $stmt = $this->conn->prepare($sql);
     $stmt->execute($dados);
