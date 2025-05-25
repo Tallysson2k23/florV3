@@ -128,17 +128,13 @@
 
     <table>
         <tr>
-            <th>ID</th>
-            <th>Cliente</th>
-            <th>Tipo</th>
-            <th>Produto</th>
-            <th>Quantidade</th>
-            <th>Complemento</th>
-            <th>Observação</th>
-            <th>Status</th>
-            <th>Data</th>
-            <th>Ações</th>
-        </tr>
+    <th>ID</th>
+    <th>Cliente</th>
+    <th>Status</th>
+    <th>Data</th>
+    <th>Ações</th>
+</tr>
+
 
         <?php foreach ($todosPedidos as $pedido):
             $statusClasse = '';
@@ -162,33 +158,29 @@
             $data        = htmlspecialchars($pedido['data_abertura'] ?? '');
             $tipoLink    = strtolower(substr($tipo, 2));
         ?>
-        <tr>
-            <td><?= $id ?></td>
-            <td><?= $nome ?></td>
-            <td><?= $tipo ?></td>
-            <td><?= $produto ?></td>
-            <td><?= $quantidade ?></td>
-            <td><?= $complemento ?></td>
-            <td><?= $obs ?></td>
-            <td>
-                <select class="<?= $statusClasse ?>"
-                        onchange="atualizarStatus(<?= $id ?>, '<?= $tipoLink ?>', this.value)">
-                    <?php
-                    $opcoes = ['Pendente', 'Produção', 'Pronto', 'Entregue', 'A Caminho'];
-                    foreach ($opcoes as $opcao):
-                        $selected = $status === $opcao ? 'selected' : '';
-                        echo "<option value=\"$opcao\" $selected>$opcao</option>";
-                    endforeach;
-                    ?>
-                </select>
-            </td>
-            <td><?= $data ?></td>
-            <td>
-                <a href="/florV3/public/index.php?rota=imprimir-pedido&id=<?= $id ?>&tipo=<?= $tipoLink ?>" target="_blank">
-                    <button>🖨️ Imprimir</button>
-                </a>
-            </td>
-        </tr>
+       <tr>
+    <td><?= $id ?></td>
+    <td><?= $nome ?></td>
+    <td>
+        <select class="<?= $statusClasse ?>"
+                onchange="atualizarStatus(<?= $id ?>, '<?= $tipoLink ?>', this.value)">
+            <?php
+            $opcoes = ['Pendente', 'Produção', 'Pronto', 'Entregue', 'A Caminho'];
+            foreach ($opcoes as $opcao):
+                $selected = $status === $opcao ? 'selected' : '';
+                echo "<option value=\"$opcao\" $selected>$opcao</option>";
+            endforeach;
+            ?>
+        </select>
+    </td>
+    <td><?= $data ?></td>
+    <td>
+        <a href="/florV3/public/index.php?rota=imprimir-pedido&id=<?= $id ?>&tipo=<?= $tipoLink ?>" target="_blank">
+            <button>🖨️ Imprimir</button>
+        </a>
+    </td>
+</tr>
+
         <?php endforeach; ?>
     </table>
 
