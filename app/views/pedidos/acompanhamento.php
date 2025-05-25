@@ -115,6 +115,18 @@
             transition: background 0.3s;
         }
 
+
+        select option {
+    color: black; /* garante que as opções fiquem visíveis */
+    background-color: white; /* fundo branco */
+}
+
+select {
+    color: black !important;
+}
+
+
+
         .btn-voltar:hover {
             background-color: #222;
         }
@@ -126,6 +138,12 @@
 
 <div class="container">
     <h2>📦 Acompanhamento de Pedidos</h2>
+    <form method="GET" action="/florV3/public/index.php" style="text-align: center; margin-bottom: 20px;">
+    <input type="hidden" name="rota" value="acompanhamento">
+    <input type="text" name="busca" placeholder="Buscar por nome ou número do pedido" style="padding: 8px; width: 300px; border-radius: 8px; border: 1px solid #ccc;">
+    <button type="submit" style="padding: 8px 16px; background-color: #111; color: white; border-radius: 8px; border: none;">🔍 Buscar</button>
+</form>
+
 
     <table>
         <tr>
@@ -139,6 +157,8 @@
 
         <?php foreach ($todosPedidos as $pedido):
             $statusClasse = '';
+           //  $status = $pedido['status'] ?? 'Pendente';
+
             switch (strtolower($pedido['status'] ?? '')) {
                 case 'pendente':  $statusClasse = 'status-pendente'; break;
                 case 'produção':  $statusClasse = 'status-producao'; break;
@@ -168,7 +188,7 @@
             <?php
             $opcoes = ['Pendente', 'Produção', 'Pronto', 'Entregue', 'Cancelado'];
             foreach ($opcoes as $opcao):
-                $selected = $status === $opcao ? 'selected' : '';
+                $selected = strtolower($status) === strtolower($opcao) ? 'selected' : '';
                 echo "<option value=\"$opcao\" $selected>$opcao</option>";
             endforeach;
             ?>

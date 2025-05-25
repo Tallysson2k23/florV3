@@ -41,10 +41,11 @@ public function criar($dados) {
 
 
     public function buscar($termo) {
-    $sql = "SELECT id, numero_pedido, tipo, remetente AS nome, telefone_remetente AS telefone, produtos, data_abertura
+    $sql = "SELECT id, numero_pedido, tipo, remetente AS nome, telefone_remetente AS telefone, produtos, status, data_abertura
         FROM {$this->table}
         WHERE numero_pedido ILIKE :termo OR remetente ILIKE :termo
         ORDER BY data_abertura DESC";
+
 
 
     $stmt = $this->conn->prepare($sql);

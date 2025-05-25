@@ -67,7 +67,7 @@
 </head>
 <body onload="window.print()">
     <body onload="window.print()">
-    <a href="/florV3/public/index.php?rota=painel" class="voltar">⬅ Voltar</a>
+    <a href="/florV3/public/index.php?rota=acompanhamento" class="voltar">⬅ Voltar</a>
 
 
 <div class="titulo">Ordem de Produção</div>

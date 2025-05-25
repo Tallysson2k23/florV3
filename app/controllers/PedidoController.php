@@ -125,25 +125,26 @@ public function acompanharPedidos() {
     $entregaModel = new PedidoEntrega();
     $retiradaModel = new PedidoRetirada();
 
-    $pedidosEntrega = $entregaModel->listarTodos();
-    $pedidosRetirada = $retiradaModel->listarTodos();
+    $busca = $_GET['busca'] ?? '';
 
-    // Unifica as listas
+    // ✅ Se tiver busca, filtra corretamente
+    if (!empty($busca)) {
+        $pedidosEntrega = $entregaModel->buscar($busca);
+        $pedidosRetirada = $retiradaModel->buscar($busca);
+    } else {
+        $pedidosEntrega = $entregaModel->listarTodos();
+        $pedidosRetirada = $retiradaModel->listarTodos();
+    }
+
+    // ✅ Junta e ordena por data
     $todosPedidos = array_merge($pedidosEntrega, $pedidosRetirada);
-
-// Remove os cancelados
-$todosPedidos = array_filter($todosPedidos, function($pedido) {
-    return strtolower($pedido['status']) !== 'cancelado';
-});
-
-
-    // Ordena do mais recente para o mais antigo
-    usort($todosPedidos, function($a, $b) {
+    usort($todosPedidos, function ($a, $b) {
         return strtotime($b['data_abertura']) <=> strtotime($a['data_abertura']);
     });
 
     require __DIR__ . '/../views/pedidos/acompanhamento.php';
 }
+
 
 public function atualizarStatus() {
     require_once __DIR__ . '/../models/PedidoEntrega.php';
