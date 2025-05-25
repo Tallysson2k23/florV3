@@ -11,9 +11,9 @@ class PedidoRetirada {
     }
 
 public function criar($dados) {
-    $stmt = $this->conn->query("SELECT MAX(ordem_fila) as max_fila FROM {$this->table}");
-    $maxOrdem = $stmt->fetch(PDO::FETCH_ASSOC)['max_fila'] ?? 0;
-    $ordem = $maxOrdem + 1;
+   require_once __DIR__ . '/../helpers/OrdemGlobal.php';
+$ordem = OrdemGlobal::getProximaOrdem();
+
 
     // Adiciona campos adicionais obrigatórios
     $dados['status'] = 'Pendente';
