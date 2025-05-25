@@ -163,20 +163,24 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
 }
 
 .sair-fixado {
-    margin-top: 450px; /** para a distancia do botao sair */
-    padding-top: 0;
-    padding-left: 70px;
+    margin-top: 20px;
+    padding-left: 0;
+    text-align: left;
 }
 
+
 .btn-sair {
-    width: 50%;
-    padding: 5px;
-    background-color: #B22222;
+    width: 100%;
+    padding: 10px;
+    background-color:rgb(53, 22, 22);
     color: white;
     border: none;
     border-radius: 10px;
     cursor: pointer;
+    text-align: center;
 }
+
+
 
 
         .oculto { display: none; }
@@ -199,9 +203,19 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
         <span><br><br>  🙋🏻‍♂️ Olá <strong><?= htmlspecialchars($usuarioNome) ?></strong></span>
     </div>
 
-    <div class="menu-conteudo">
-        <!-- Aqui você pode colocar links adicionais no futuro -->
-    </div>
+   <div class="menu-conteudo">
+    <br><br>
+    <a href="/florV3/public/index.php?rota=cadastrar-produto" style="color:white; text-decoration:none;">📦 Cadastrar Produto</a><br><br>
+    <a href="/florV3/public/index.php?rota=lista-produtos" style="color:white; text-decoration:none;">📋 Lista de Produtos</a><br><br>
+    <a href="/florV3/public/index.php?rota=historico" style="color:white; text-decoration:none;">📜 Ver Histórico</a><br><br>
+    <?php if ($_SESSION['usuario_tipo'] === 'admin'): ?>
+        <a href="/florV3/public/index.php?rota=usuarios" style="color:white; text-decoration:none;">👥 Gerenciar Usuários</a><br><br>
+        <a href="/florV3/public/index.php?rota=cadastrar-vendedor" style="color:white; text-decoration:none;">➕ Cadastrar Vendedor</a><br><br>
+        <a href="/florV3/public/index.php?rota=lista-vendedores" style="color:white; text-decoration:none;">📑 Lista de Vendedores</a><br><br>
+        <a href="/florV3/public/index.php?rota=cancelados" style="color:white; text-decoration:none;">❌ Pedidos Cancelados</a><br><br>
+    <?php endif; ?>
+</div>
+
 
     <div class="sair-fixado">
         <button class="btn-sair" onclick="confirmarLogout()">🚪 Sair</button>
@@ -240,7 +254,7 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
         <a href="/florV3/public/index.php?rota=escolher-tipo"><button>Acessar</button></a>
     </div>
 
-    <div class="botao-acao">
+   <!-- <div class="botao-acao">
     <h4>Cadastrar Produto</h4>
     <a href="/florV3/public/index.php?rota=cadastrar-produto">
         <button>Acessar</button>
@@ -257,20 +271,23 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
     <div class="botao-acao">
         <h4>Ver Histórico</h4>
         <a href="/florV3/public/index.php?rota=historico"><button>Acessar</button></a>
-    </div>
+    </div> botoes pronto no painel, desativados-->
+
     <div class="botao-acao">
         <h4>Acompanhar Pedidos</h4>
         <a href="/florV3/public/index.php?rota=acompanhamento"><button>Acessar</button></a>
     </div>
+
     <?php if ($_SESSION['usuario_tipo'] === 'admin'): ?>
-    <div class="botao-acao">
+   <!-- <div class="botao-acao">
         <h4>Gerenciar Usuários</h4>
         <a href="/florV3/public/index.php?rota=usuarios"><button>Acessar</button></a>
-    </div>
+    </div> -->
     <div class="botao-acao">
     <h4>Entregues</h4>
     <a href="/florV3/public/index.php?rota=retiradas"><button>Acessar</button></a>
 </div>
+<!--
 <div class="botao-acao">
     <h4>Cadastrar Vendedor</h4>
     <a href="/florV3/public/index.php?rota=cadastrar-vendedor"><button>Acessar</button></a>
@@ -284,7 +301,7 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
     <h4>Pedidos Cancelados</h4>
     <a href="/florV3/public/index.php?rota=cancelados"><button>Acessar</button></a>
 </div>
-
+    -->
 
 
     
