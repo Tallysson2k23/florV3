@@ -125,6 +125,17 @@ switch ($rota) {
         $produtoController->listaProdutos();
         break;
 
+
+    case 'cancelados':
+    $controller->cancelados();
+    break;
+
+
+
+
+
+
+
     default:
         echo "Página não encontrada.";
         break;

@@ -66,6 +66,8 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
             padding: 20px;
             transition: left 0.3s ease;
             z-index: 999;
+            overflow-y: auto;
+
         }
 
         .menu-lateral.ativo {
@@ -161,7 +163,7 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
 }
 
 .sair-fixado {
-    margin-top: 470px; /** para a distancia do botao sair */
+    margin-top: 450px; /** para a distancia do botao sair */
     padding-top: 0;
     padding-left: 70px;
 }
@@ -202,9 +204,8 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
     </div>
 
     <div class="sair-fixado">
-        <a href="/florV3/public/index.php?rota=logout">
-            <button class="btn-sair">🚪 Sair</button>
-        </a>
+        <button class="btn-sair" onclick="confirmarLogout()">🚪 Sair</button>
+
     </div>
 </div>
 
@@ -267,7 +268,7 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
         <a href="/florV3/public/index.php?rota=usuarios"><button>Acessar</button></a>
     </div>
     <div class="botao-acao">
-    <h4>Retiradas</h4>
+    <h4>Entregues</h4>
     <a href="/florV3/public/index.php?rota=retiradas"><button>Acessar</button></a>
 </div>
 <div class="botao-acao">
@@ -279,6 +280,11 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
     <h4>Lista de Vendedores</h4>
     <a href="/florV3/public/index.php?rota=lista-vendedores"><button>Acessar</button></a>
 </div>
+<div class="botao-acao">
+    <h4>Pedidos Cancelados</h4>
+    <a href="/florV3/public/index.php?rota=cancelados"><button>Acessar</button></a>
+</div>
+
 
 
     
@@ -310,6 +316,15 @@ function fecharMenu() {
     document.getElementById('menuLateral').classList.remove('ativo');
 }
 </script>
+
+<script>
+function confirmarLogout() {
+    if (confirm("Deseja realmente sair do sistema?")) {
+        window.location.href = "/florV3/public/index.php?rota=logout";
+    }
+}
+</script>
+
 
 </body>
 </html>

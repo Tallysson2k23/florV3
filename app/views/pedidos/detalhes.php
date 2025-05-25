@@ -56,10 +56,11 @@
             color: #333;
         }
 
-        .botoes {
-            text-align: center;
-            margin-top: 30px;
-        }
+       .botoes {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
 
         .btn-voltar {
             background: transparent;
@@ -99,9 +100,14 @@
             <?php endforeach; ?>
         </ul>
 
-        <div class="botoes">
-            <a class="btn-voltar" href="/florV3/public/index.php?rota=historico">⬅ Voltar ao Histórico</a>
-        </div>
+
+
+      <div class="botoes">
+    <a class="btn-voltar" href="/florV3/public/index.php?rota=cancelados">⬅ Voltar</a>
+    <a class="btn-voltar" href="/florV3/public/index.php?rota=historico">📜 Histórico</a>
+</div>
+
+        
     <?php else: ?>
         <p class="nao-encontrado">❌ Pedido não encontrado.</p>
     <?php endif; ?>

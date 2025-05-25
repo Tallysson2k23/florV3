@@ -102,19 +102,21 @@ public function detalhesPedido() {
     require_once __DIR__ . '/../models/PedidoRetirada.php';
 
     $id = $_GET['id'] ?? null;
-    $tipo = $_GET['tipo'] ?? null;
+    $tipo = strtolower($_GET['tipo'] ?? '');
+
     $dados = null;
 
-    if ($id && $tipo === 'entrega') {
+    if ($id && ($tipo === 'entrega' || $tipo === '1-entrega')) {
         $model = new PedidoEntrega();
         $dados = $model->buscarPorId($id);
-    } elseif ($id && $tipo === 'retirada') {
+    } elseif ($id && ($tipo === 'retirada' || $tipo === '2-retirada')) {
         $model = new PedidoRetirada();
         $dados = $model->buscarPorId($id);
     }
 
     require __DIR__ . '/../views/pedidos/detalhes.php';
 }
+
 
 public function acompanharPedidos() {
     require_once __DIR__ . '/../models/PedidoEntrega.php';
@@ -128,6 +130,12 @@ public function acompanharPedidos() {
 
     // Unifica as listas
     $todosPedidos = array_merge($pedidosEntrega, $pedidosRetirada);
+
+// Remove os cancelados
+$todosPedidos = array_filter($todosPedidos, function($pedido) {
+    return strtolower($pedido['status']) !== 'cancelado';
+});
+
 
     // Ordena do mais recente para o mais antigo
     usort($todosPedidos, function($a, $b) {
@@ -365,6 +373,22 @@ public function listaProdutos() {
     $produtos = $produtoModel->listarTodos();
     require __DIR__ . '/../views/produtos/lista_produtos.php';
 }
+
+public function cancelados() {
+    require_once __DIR__ . '/../models/PedidoEntrega.php';
+    require_once __DIR__ . '/../models/PedidoRetirada.php';
+
+    $entregaModel = new PedidoEntrega();
+    $retiradaModel = new PedidoRetirada();
+
+    $entregasCanceladas = $entregaModel->buscarPorStatus('Cancelado');
+    $retiradasCanceladas = $retiradaModel->buscarPorStatus('Cancelado');
+
+    $cancelados = array_merge($entregasCanceladas, $retiradasCanceladas);
+
+    require __DIR__ . '/../views/pedidos/cancelados.php';
+}
+
 
 
 }

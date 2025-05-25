@@ -190,15 +190,21 @@
 
 <script>
 function atualizarStatus(id, tipo, status) {
+    if (status === "Cancelado") {
+        const confirmacao = confirm("Tem certeza que deseja cancelar este pedido?");
+        if (!confirmacao) return;
+    }
+
     fetch('/florV3/public/index.php?rota=atualizar-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `id=${id}&tipo=${tipo}&status=${encodeURIComponent(status)}`
     }).then(res => res.text()).then(data => {
         console.log('Status atualizado:', data);
-        location.reload(); // Atualiza a página para aplicar a nova cor
+        location.reload();
     });
 }
+
 </script>
 
 </body>
