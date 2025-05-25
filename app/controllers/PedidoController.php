@@ -85,7 +85,7 @@ public function historico() {
     $todos = array_merge($resultadosEntrega, $resultadosRetirada);
 
     // Ordenar por data decrescente
-    usort($todos, fn($a, $b) => strtotime($b['data_abertura']) <=> strtotime($a['data_abertura']));
+   usort($todos, fn($a, $b) => ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0));
 
     // Paginação
     $total = count($todos);
@@ -139,8 +139,10 @@ public function acompanharPedidos() {
     // ✅ Junta e ordena por data
     $todosPedidos = array_merge($pedidosEntrega, $pedidosRetirada);
     usort($todosPedidos, function ($a, $b) {
-        return strtotime($b['data_abertura']) <=> strtotime($a['data_abertura']);
-    });
+    return ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0);
+});
+
+
 
     require __DIR__ . '/../views/pedidos/acompanhamento.php';
 }

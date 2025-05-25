@@ -44,7 +44,7 @@ public function criar($dados) {
     $sql = "SELECT id, numero_pedido, tipo, remetente AS nome, telefone_remetente AS telefone, produtos, status, data_abertura
         FROM {$this->table}
         WHERE numero_pedido ILIKE :termo OR remetente ILIKE :termo
-        ORDER BY data_abertura DESC";
+        ORDER BY ordem_fila DESC";
 
 
 
@@ -68,10 +68,12 @@ public function buscarPorId($id) {
 
 
 public function listarTodos() {
-    $sql = "SELECT id, numero_pedido, tipo, remetente AS nome, status, data_abertura, hora
-            FROM {$this->table}";
+    $sql = "SELECT id, numero_pedido, tipo, remetente AS nome, status, data_abertura, hora, ordem_fila
+            FROM {$this->table}
+            ORDER BY ordem_fila DESC";
     return $this->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 }
+
 
 public function atualizarStatus($id, $status) {
     $sql = "UPDATE {$this->table} SET status = :status WHERE id = :id";

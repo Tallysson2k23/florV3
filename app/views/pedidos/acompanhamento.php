@@ -2,6 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="5">
+
     <title>Acompanhamento - Flor de Cheiro</title>
     <style>
         * { box-sizing: border-box; }
