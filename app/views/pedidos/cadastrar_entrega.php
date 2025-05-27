@@ -79,6 +79,18 @@ $produtos = $produtoModel->listarTodos();
             font-size: 15px;
         }
 
+        select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    background-color: white;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
         .actions {
             text-align: center;
             margin-top: 30px;

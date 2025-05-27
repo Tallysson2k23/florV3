@@ -130,6 +130,9 @@ switch ($rota) {
     $controller->cancelados();
     break;
 
+    case 'acesso-negado':
+    require_once __DIR__ . '/../app/views/usuarios/acesso_negado.php';
+    break;
 
 
 

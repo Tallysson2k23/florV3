@@ -205,10 +205,12 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
 
    <div class="menu-conteudo">
     <br><br>
-    <a href="/florV3/public/index.php?rota=cadastrar-produto" style="color:white; text-decoration:none;">📦 Cadastrar Produto</a><br><br>
+    
     <a href="/florV3/public/index.php?rota=lista-produtos" style="color:white; text-decoration:none;">📋 Lista de Produtos</a><br><br>
-    <a href="/florV3/public/index.php?rota=historico" style="color:white; text-decoration:none;">📜 Ver Histórico</a><br><br>
+    
     <?php if ($_SESSION['usuario_tipo'] === 'admin'): ?>
+        <a href="/florV3/public/index.php?rota=cadastrar-produto" style="color:white; text-decoration:none;">📦 Cadastrar Produto</a><br><br>
+        <a href="/florV3/public/index.php?rota=historico" style="color:white; text-decoration:none;">📜 Ver Histórico</a><br><br>
         <a href="/florV3/public/index.php?rota=usuarios" style="color:white; text-decoration:none;">👥 Gerenciar Usuários</a><br><br>
         <a href="/florV3/public/index.php?rota=cadastrar-vendedor" style="color:white; text-decoration:none;">➕ Cadastrar Vendedor</a><br><br>
         <a href="/florV3/public/index.php?rota=lista-vendedores" style="color:white; text-decoration:none;">📑 Lista de Vendedores</a><br><br>

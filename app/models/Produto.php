@@ -2,20 +2,20 @@
 require_once __DIR__ . '/../../config/database.php';
 
 class Produto {
-    private $conn;
+    private $db;
 
     public function __construct($db) {
-        $this->conn = $db;
+        $this->db = $db;
     }
 
-    public function salvar($nome) {
-        $stmt = $this->conn->prepare("INSERT INTO produtos (nome) VALUES (:nome)");
-        $stmt->bindParam(':nome', $nome);
-        return $stmt->execute();
-    }
+ public function salvar($nome, $valor, $codigo) {
+    $stmt = $this->db->prepare("INSERT INTO produtos (nome, valor, codigo) VALUES (?, ?, ?)");
+    return $stmt->execute([$nome, $valor, $codigo]);
+}
 
+    // Lista todos os produtos cadastrados
     public function listarTodos() {
-        $stmt = $this->conn->query("SELECT * FROM produtos ORDER BY nome ASC");
+        $stmt = $this->db->query("SELECT * FROM produtos ORDER BY id DESC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
