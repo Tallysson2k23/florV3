@@ -232,6 +232,14 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
 <div class="status-container">
     <?php
     $cores = ['Pendente' => 'pendente', 'Produção' => 'producao', 'Pronto' => 'pronto'];
+    $dataHoje = date('Y-m-d');
+
+// Filtrar pedidos do dia em cada status
+foreach ($agrupados as $status => $listaOriginal) {
+    $agrupados[$status] = array_filter($listaOriginal, function ($pedido) use ($dataHoje) {
+        return isset($pedido['data_abertura']) && $pedido['data_abertura'] === $dataHoje;
+    });
+}
     foreach ($agrupados as $status => $lista):
         $classe = $cores[$status];
     ?>
