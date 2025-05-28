@@ -215,6 +215,7 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
         <a href="/florV3/public/index.php?rota=lista-produtos" style="color:white; text-decoration:none;">📑 Lista de Produtos</a><br><br>
         <a href="/florV3/public/index.php?rota=usuarios" style="color:white; text-decoration:none;">👥 Gerenciar Usuários</a><br><br>
         <a href="/florV3/public/index.php?rota=historico" style="color:white; text-decoration:none;">📜 Ver Histórico</a><br><br>
+        <a href="/florV3/public/index.php?rota=agenda" style="color:white; text-decoration:none;">📆 Agenda</a><br><br>
         <a href="/florV3/public/index.php?rota=cancelados" style="color:white; text-decoration:none;">❌ Pedidos Cancelados</a><br><br>
     <?php endif; ?>
 </div>

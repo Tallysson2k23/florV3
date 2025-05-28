@@ -135,6 +135,10 @@ switch ($rota) {
     break;
 
 
+    case 'agenda':
+    require_once __DIR__ . '/../app/views/agenda.php';
+    break;
+
 
 
 
