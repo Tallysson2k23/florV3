@@ -202,8 +202,6 @@ $produtos = $produtoModel->listarTodos();
     </select>
 </div>
 
-
-
         <input type="hidden" name="imprimir" id="imprimir-retirada" value="0">
 
         <div class="actions">
