@@ -103,7 +103,7 @@
 
 
       <div class="botoes">
-    <a class="btn-voltar" href="/florV3/public/index.php?rota=cancelados">⬅ Voltar</a>
+    <a class="btn-voltar" href="/florV3/public/index.php?rota=cancelados">❌ Cancelados</a>
     <a class="btn-voltar" href="/florV3/public/index.php?rota=historico">📜 Histórico</a>
 </div>
 
