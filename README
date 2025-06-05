@@ -1,17 +1,51 @@
 florV3/
-│
-├── app/
-│   ├── controllers/
-│   ├── models/
-│   └── views/
-│       └── pedidos/
-│           └── cadastrar.php
-│
-├── config/
+├── README
+├── app
+│   ├── controllers
+│   │   ├── PedidoController.php
+│   │   ├── ProdutoController.php
+│   │   ├── UsuarioController.php
+│   │   └── VendedorController.php
+│   ├── helpers
+│   │   ├── OrdemGlobal.php
+│   │   └── auth.php
+│   ├── models
+│   │   ├── Pedido.php
+│   │   ├── PedidoEntrega.php
+│   │   ├── PedidoRetirada.php
+│   │   ├── Produto.php
+│   │   ├── Usuario.php
+│   │   └── Vendedor.php
+│   └── views
+│       ├── agenda.php
+│       ├── painel.php
+│       ├── pedidos
+│       │   ├── acompanhamento.php
+│       │   ├── cadastrar.php
+│       │   ├── cadastrar_entrega.php
+│       │   ├── cadastrar_retirada.php
+│       │   ├── cancelados.php
+│       │   ├── detalhes.php
+│       │   ├── escolher_tipo.php
+│       │   ├── historico.php
+│       │   ├── imprimir_cupom_cliente.php
+│       │   ├── imprimir_ordem.php
+│       │   └── retiradas.php
+│       ├── produtos
+│       │   ├── cadastrar_produto.php
+│       │   └── lista_produtos.php
+│       ├── usuarios
+│       │   ├── acesso_negado.php
+│       │   ├── cadastrar.php
+│       │   ├── listar.php
+│       │   └── login.php
+│       └── vendedores
+│           ├── cadastrar.php
+│           └── lista.php
+├── config
 │   └── database.php
-│
-├── public/
+├── public
+│   ├── gerar_senha.php
 │   └── index.php
-│
-└── routes/
-    └── routes.php (opcional)
+└── routes
+    └── routes.php

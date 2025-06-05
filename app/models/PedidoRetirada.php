@@ -27,10 +27,10 @@ $ordem = OrdemGlobal::getProximaOrdem();
     unset($dados['imprimir']); // se estiver vindo
 
     $sql = "INSERT INTO {$this->table} 
-        (numero_pedido, tipo, nome, telefone, produtos, adicionais, data_abertura, hora, status, ordem_fila, vendedor_codigo, quantidade)
-        VALUES 
-        (:numero_pedido, :tipo, :nome, :telefone, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo, :quantidade)";
-        
+    (numero_pedido, tipo, nome, telefone, produtos, adicionais, data_abertura, hora, status, ordem_fila, vendedor_codigo, quantidade, obs_produto)
+    VALUES 
+    (:numero_pedido, :tipo, :nome, :telefone, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo, :quantidade, :obs_produto)";
+
     $stmt = $this->conn->prepare($sql);
     $stmt->execute($dados);
 

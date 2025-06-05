@@ -197,6 +197,13 @@ $produtos = $produtoModel->listarTodos();
         </select>
     </div>
 </div>
+<div class="form-group full">
+    <div>
+        <label>OBS:</label>
+        <textarea name="obs_produto" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px;"></textarea>
+    </div>
+</div>
+
 
 
         <div class="form-group">

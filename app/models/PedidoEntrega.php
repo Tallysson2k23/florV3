@@ -17,10 +17,10 @@ $ordem = OrdemGlobal::getProximaOrdem();
 
     $sql = "INSERT INTO {$this->table} 
     (numero_pedido, tipo, remetente, telefone_remetente, destinatario, telefone_destinatario,
-     endereco, numero_endereco, bairro, referencia, produtos, adicionais, data_abertura, hora, status, ordem_fila, vendedor_codigo, quantidade)
+     endereco, numero_endereco, bairro, referencia, produtos, adicionais, data_abertura, hora, status, ordem_fila, vendedor_codigo, obs_produto, quantidade)
     VALUES 
     (:numero_pedido, :tipo, :remetente, :telefone_remetente, :destinatario, :telefone_destinatario,
-     :endereco, :numero_endereco, :bairro, :referencia, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo, :quantidade)";
+     :endereco, :numero_endereco, :bairro, :referencia, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo, :obs_produto, :quantidade)";
 
     $stmt = $this->conn->prepare($sql);
 

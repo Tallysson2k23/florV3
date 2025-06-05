@@ -82,10 +82,16 @@
         <td><?= htmlspecialchars(($dados['quantidade'] ?? '1') . 'x ' . ($dados['produtos'] ?? '-')) ?></td>
 
     </tr>
-    <tr>
+<tr>
+        <td class="label">OBS:</td>
+        <td><?= htmlspecialchars($dados['obs_produto'] ?? '-') ?></td>
+    </tr>
+    
+  <!--  <tr>
         <td class="label">Complemento</td>
         <td><?= htmlspecialchars($dados['adicionais'] ?? '-') ?></td>
-    </tr>
+    </tr> --> 
+
     <tr>
         <td class="label">N. pedido</td>
         <td><?= htmlspecialchars($dados['numero_pedido'] ?? '-') ?></td>
