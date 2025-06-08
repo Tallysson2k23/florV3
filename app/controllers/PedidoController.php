@@ -154,12 +154,16 @@ public function acompanhamentoAtendente() {
     $pedidoEntrega = new PedidoEntrega();
     $pedidoRetirada = new PedidoRetirada();
 
-    // buscar apenas os status Pronto e Entregue
-    $entregas = $pedidoEntrega->buscarPorStatus(['Pronto', 'Entregue']);
-    $retiradas = $pedidoRetirada->buscarPorStatus(['Pronto', 'Entregue']);
+    $data = $_GET['data'] ?? date('Y-m-d'); // se não vier data, usa hoje
 
+    // buscar apenas os status Pronto e Entregue para a data selecionada
+    $entregas = $pedidoEntrega->buscarPorStatusEData(['Pronto', 'Entregue'], $data);
+    $retiradas = $pedidoRetirada->buscarPorStatusEData(['Pronto', 'Entregue'], $data);
+
+    // envia as variáveis para a view
     require __DIR__ . '/../views/pedidos/acompanhamento_atendente.php';
 }
+
 
 
 public function atualizarStatus() {

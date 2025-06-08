@@ -46,6 +46,12 @@ if (!isset($_SESSION['usuario_id'])) {
 
 </head>
 <body>
+    <form method="get" action="index.php">
+    <input type="hidden" name="rota" value="acompanhamento-atendente">
+    <label for="data">Selecionar Data:</label>
+    <input type="date" name="data" id="data" value="<?= htmlspecialchars($_GET['data'] ?? date('Y-m-d')) ?>" onchange="this.form.submit()">
+</form>
+
 
 <h1>Acompanhamento do Atendente (Pronto e Entregue)</h1>
 

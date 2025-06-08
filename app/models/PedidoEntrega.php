@@ -96,5 +96,21 @@ public function buscarPorStatus($status) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+public function buscarPorStatusEData($status, $data) {
+    if (is_array($status)) {
+        $placeholders = implode(',', array_fill(0, count($status), '?'));
+        $sql = "SELECT * FROM {$this->table} WHERE status IN ($placeholders) AND data_abertura = ? ORDER BY ordem_fila ASC";
+        $stmt = $this->conn->prepare($sql);
+        $params = array_merge($status, [$data]);
+        $stmt->execute($params);
+    } else {
+        $sql = "SELECT * FROM {$this->table} WHERE status = ? AND data_abertura = ? ORDER BY ordem_fila ASC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$status, $data]);
+    }
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
 }
