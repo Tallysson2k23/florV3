@@ -96,21 +96,28 @@ public function buscarPorStatus($status) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-public function buscarPorStatusEData($status, $data) {
-    if (is_array($status)) {
-        $placeholders = implode(',', array_fill(0, count($status), '?'));
-        $sql = "SELECT * FROM {$this->table} WHERE status IN ($placeholders) AND data_abertura = ? ORDER BY ordem_fila ASC";
-        $stmt = $this->conn->prepare($sql);
-        $params = array_merge($status, [$data]);
-        $stmt->execute($params);
-    } else {
-        $sql = "SELECT * FROM {$this->table} WHERE status = ? AND data_abertura = ? ORDER BY ordem_fila ASC";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->execute([$status, $data]);
-    }
+public function buscarPorStatusEData($statusArray, $data, $busca = '') {
+    $placeholders = implode(',', array_fill(0, count($statusArray), '?'));
+
+    $sql = "SELECT *, 
+                   CASE WHEN tipo IS NULL THEN '2-Retirada' ELSE tipo END as tipo
+            FROM {$this->table} 
+            WHERE status IN ($placeholders)
+              AND data_abertura = ?
+              AND (
+                   numero_pedido ILIKE ? 
+                OR destinatario ILIKE ?
+                OR produtos ILIKE ?
+              )
+            ORDER BY ordem_fila ASC";
+
+    $stmt = $this->conn->prepare($sql);
+    $params = array_merge($statusArray, [$data, "%$busca%", "%$busca%", "%$busca%"]);
+    $stmt->execute($params);
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
 
 
 }
