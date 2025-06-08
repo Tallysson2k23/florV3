@@ -2,12 +2,9 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="5">
-
     <title>Acompanhamento - Flor de Cheiro</title>
     <style>
         * { box-sizing: border-box; }
-
         body {
             font-family: 'Segoe UI', sans-serif;
             background: #f3f4f6;
@@ -16,6 +13,7 @@
         }
 
         .top-bar {
+            width: 100%;
             background-color: #111;
             color: white;
             font-family: "Brush Script MT", cursive;
@@ -36,7 +34,7 @@
         h2 {
             text-align: center;
             color: #111;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         table {
@@ -68,7 +66,7 @@
         }
 
         .status-pendente {
-            background-color:rgb(231, 86, 60);
+            background-color: rgb(231, 86, 60);
         }
 
         .status-producao {
@@ -78,15 +76,6 @@
         .status-pronto {
             background-color: #3498db;
         }
-
-        .status-entregue {
-            background-color: #2ecc71;
-        }
-
-        .status-cancelado {
-    background-color:rgb(251, 29, 4); /* vermelho */
-}
-
 
         button {
             padding: 6px 12px;
@@ -117,20 +106,43 @@
             transition: background 0.3s;
         }
 
-
-        select option {
-    color: black; /* garante que as opções fiquem visíveis */
-    background-color: white; /* fundo branco */
-}
-
-select {
-    color: black !important;
-}
-
-
-
         .btn-voltar:hover {
             background-color: #222;
+        }
+
+        select option {
+            color: black;
+            background-color: white;
+        }
+
+        .filtros {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .filtros input[type="date"] {
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .filtros input[type="text"] {
+            padding: 8px;
+            width: 300px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+
+        .filtros button {
+            padding: 8px 16px;
+            background-color: #111;
+            color: white;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -140,70 +152,69 @@ select {
 
 <div class="container">
     <h2>📦 Acompanhamento de Pedidos</h2>
-    <form method="GET" action="/florV3/public/index.php" style="text-align: center; margin-bottom: 20px;">
-    <input type="hidden" name="rota" value="acompanhamento">
-    <input type="text" name="busca" placeholder="Buscar por nome ou número do pedido" style="padding: 8px; width: 300px; border-radius: 8px; border: 1px solid #ccc;">
-    <button type="submit" style="padding: 8px 16px; background-color: #111; color: white; border-radius: 8px; border: none;">🔍 Buscar</button>
-</form>
 
+    <!-- Filtros -->
+    <form method="GET" action="/florV3/public/index.php" class="filtros">
+        <input type="hidden" name="rota" value="acompanhamento">
+        <input type="date" name="data" value="<?= htmlspecialchars($_GET['data'] ?? date('Y-m-d')) ?>" onchange="this.form.submit()">
+        <input type="text" name="busca" placeholder="Buscar por nome ou número do pedido" value="<?= htmlspecialchars($_GET['busca'] ?? '') ?>">
+        <button type="submit">🔍 Buscar</button>
+    </form>
 
+    <!-- Tabela -->
     <table>
         <tr>
-    <th>ID</th>
-    <th>Cliente</th>
-    <th>Status</th>
-    <th>Data</th>
-    <th>Ações</th>
-</tr>
-
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Status</th>
+            <th>Data</th>
+            <th>Ações</th>
+        </tr>
 
         <?php foreach ($todosPedidos as $pedido):
             $statusClasse = '';
-           //  $status = $pedido['status'] ?? 'Pendente';
 
             switch (strtolower($pedido['status'] ?? '')) {
                 case 'pendente':  $statusClasse = 'status-pendente'; break;
                 case 'produção':  $statusClasse = 'status-producao'; break;
                 case 'pronto':    $statusClasse = 'status-pronto'; break;
-                case 'entregue':  $statusClasse = 'status-entregue'; break;
-                case 'cancelado': $statusClasse = 'status-cancelado'; break;
                 default:          $statusClasse = ''; break;
             }
 
-            $id          = $pedido['id'] ?? '';
-            $nome        = htmlspecialchars($pedido['nome'] ?? '');
-            $tipo        = htmlspecialchars($pedido['tipo'] ?? '');
-            $produto     = htmlspecialchars($pedido['produto'] ?? '');
-            $quantidade  = htmlspecialchars($pedido['quantidade'] ?? '');
-            $complemento = htmlspecialchars($pedido['complemento'] ?? '');
-            $obs         = htmlspecialchars($pedido['obs'] ?? '');
-            $status      = $pedido['status'] ?? '';
-            $data        = htmlspecialchars($pedido['data_abertura'] ?? '');
-            $tipoLink    = strtolower(substr($tipo, 2));
-        ?>
-       <tr>
-    <td><?= $id ?></td>
-    <td><?= $nome ?></td>
-    <td>
-        <select class="<?= $statusClasse ?>"
-                onchange="atualizarStatus(<?= $id ?>, '<?= $tipoLink ?>', this.value)">
-            <?php
-            $opcoes = ['Pendente', 'Produção', 'Pronto', 'Entregue', 'Cancelado'];
-            foreach ($opcoes as $opcao):
-                $selected = strtolower($status) === strtolower($opcao) ? 'selected' : '';
-                echo "<option value=\"$opcao\" $selected>$opcao</option>";
-            endforeach;
-            ?>
-        </select>
-    </td>
-    <td><?= $data ?></td>
-    <td>
-        <a href="/florV3/public/index.php?rota=imprimir-pedido&id=<?= $id ?>&tipo=<?= $tipoLink ?>" target="_blank">
-            <button>🖨️ Imprimir</button>
-        </a>
-    </td>
-</tr>
+            $id    = $pedido['id'] ?? '';
+            $nome  = htmlspecialchars($pedido['nome'] ?? '');
+            $tipo  = htmlspecialchars($pedido['tipo'] ?? '');
+            $status = $pedido['status'] ?? '';
+            $data  = htmlspecialchars($pedido['data_abertura'] ?? '');
+            $tipoLink = strtolower(substr($tipo, 2));
 
+            // NÃO exibe pedidos com status PRONTO
+            if (strtolower($status) === 'pronto') {
+                continue;
+            }
+        ?>
+        <tr>
+            <td><?= $id ?></td>
+            <td><?= $nome ?></td>
+            <td>
+                <select class="<?= $statusClasse ?>"
+                        onchange="atualizarStatus(<?= $id ?>, '<?= $tipoLink ?>', this.value)">
+                    <?php
+                    $opcoes = ['Pendente', 'Produção', 'Pronto'];
+                    foreach ($opcoes as $opcao):
+                        $selected = strtolower($status) === strtolower($opcao) ? 'selected' : '';
+                        echo "<option value=\"$opcao\" $selected>$opcao</option>";
+                    endforeach;
+                    ?>
+                </select>
+            </td>
+            <td><?= $data ?></td>
+            <td>
+                <a href="/florV3/public/index.php?rota=imprimir-pedido&id=<?= $id ?>&tipo=<?= $tipoLink ?>" target="_blank">
+                    <button>🖨️ Imprimir</button>
+                </a>
+            </td>
+        </tr>
         <?php endforeach; ?>
     </table>
 
@@ -213,7 +224,10 @@ select {
 <script>
 function atualizarStatus(id, tipo, status) {
     if (status === "Cancelado") {
-        const confirmacao = confirm("Tem certeza que deseja cancelar este pedido?");
+        const confirmacao = confirm("Tem certeza que deseja CANCELAR este pedido?");
+        if (!confirmacao) return;
+    } else if (status === "Pronto") {
+        const confirmacao = confirm("Você confirma que este pedido está PRONTO? Ao confirmar, ele sairá da lista.");
         if (!confirmacao) return;
     }
 
@@ -226,8 +240,8 @@ function atualizarStatus(id, tipo, status) {
         location.reload();
     });
 }
-
 </script>
+
 
 </body>
 </html>

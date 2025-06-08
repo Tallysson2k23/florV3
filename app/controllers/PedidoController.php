@@ -126,26 +126,24 @@ public function acompanharPedidos() {
     $retiradaModel = new PedidoRetirada();
 
     $busca = $_GET['busca'] ?? '';
+    $dataSelecionada = $_GET['data'] ?? date('Y-m-d');
 
-    // ✅ Se tiver busca, filtra corretamente
-    if (!empty($busca)) {
-        $pedidosEntrega = $entregaModel->buscar($busca);
-        $pedidosRetirada = $retiradaModel->buscar($busca);
-    } else {
-        $pedidosEntrega = $entregaModel->listarTodos();
-        $pedidosRetirada = $retiradaModel->listarTodos();
-    }
+    // Buscar apenas status Pendente, Produção, Pronto e por data
+    $statusFiltro = ['Pendente', 'Produção', 'Pronto'];
 
-    // ✅ Junta e ordena por data
+    // Buscar com filtro de data e busca
+    $pedidosEntrega = $entregaModel->buscarPorStatusEData($statusFiltro, $dataSelecionada, $busca);
+    $pedidosRetirada = $retiradaModel->buscarPorStatusEData($statusFiltro, $dataSelecionada, $busca);
+
+    // Juntar e ordenar por ordem_fila
     $todosPedidos = array_merge($pedidosEntrega, $pedidosRetirada);
     usort($todosPedidos, function ($a, $b) {
-    return ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0);
-});
-
-
+        return ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0);
+    });
 
     require __DIR__ . '/../views/pedidos/acompanhamento.php';
 }
+
 
 public function acompanhamentoAtendente() {
     require_once __DIR__ . '/../models/PedidoEntrega.php';
@@ -160,6 +158,10 @@ public function acompanhamentoAtendente() {
     $entregas = $pedidoEntrega->buscarPorStatusEData(['Pronto', 'Entregue'], $data);
     $retiradas = $pedidoRetirada->buscarPorStatusEData(['Pronto', 'Entregue'], $data);
 
+    // ordenar se quiser (por ordem_fila, opcional):
+usort($todosPedidos, function($a, $b) {
+    return ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0);
+});
     // envia as variáveis para a view
     require __DIR__ . '/../views/pedidos/acompanhamento_atendente.php';
 }
