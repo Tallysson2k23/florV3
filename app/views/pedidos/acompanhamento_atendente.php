@@ -12,108 +12,185 @@ if (!isset($_SESSION['usuario_id'])) {
     <meta charset="UTF-8">
     <title>Acompanhamento do Atendente - Flor de Cheiro</title>
 <style>
-    body { font-family: Arial, sans-serif; background: #f3f4f6; padding: 20px; }
-    h1 { color: #111; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    table, th, td { border: 1px solid #ccc; }
-    th, td { padding: 10px; text-align: left; }
-    th { background: #eee; }
+body {
+    font-family: Arial, sans-serif;
+    background: #f3f4f6;
+    padding: 0px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-    .status-select {
-        width: 100%;
-        padding: 10px;
-        font-weight: bold;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        background-repeat: no-repeat;
-        background-position: right 10px center;
-        background-size: 12px;
-        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'10'%20height%3D'6'%20viewBox%3D'0%200%2010%206'%20fill%3D'none'%20xmlns%3D'http%3A//www.w3.org/2000/svg'%3E%3Cpath%20d%3D'M1%201L5%205L9%201'%20stroke%3D'white'%20stroke-width%3D'2'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'/%3E%3C/svg%3E");
-    }
+h1 {
+    color: #111;
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
 
-    .status-select-pronto {
-        background-color: orange !important;
-    }
+form {
+    text-align: center;
+    margin-bottom: 20px;
+}
 
-    .status-select-entregue {
-        background-color: green !important;
-    }
+input[type="date"] {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 10px;
+}
+
+.table-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 90%;
+    max-width: 1100px;
+    margin-bottom: 30px;
+    padding: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+table th, table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+table th {
+    background: #f8f9fa;
+    font-weight: bold;
+    color: #333;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.status-select {
+    padding: 8px 16px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D'10'%20height%3D'6'%20viewBox%3D'0%200%2010%206'%20fill%3D'none'%20xmlns%3D'http%3A//www.w3.org/2000/svg'%3E%3Cpath%20d%3D'M1%201L5%205L9%201'%20stroke%3D'white'%20stroke-width%3D'2'%20stroke-linecap%3D'round'%20stroke-linejoin%3D'round'/%3E%3C/svg%3E");
+    font-size: 14px;
+    min-width: 120px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.status-select-pronto {
+    background-color: #f59e0b !important;
+}
+
+.status-select-entregue {
+    background-color: #16a34a !important;
+}
+
+h2 {
+    font-size: 18px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+    color: #222;
+    position: relative;
+    font-weight: bold;
+}
+
+h2::before {
+    content: "📋";
+    margin-right: 8px;
+}
+
+.topo {
+    width: 100%;
+    background: #111;
+    color: white;
+    padding: 20px 100px;
+    font-family: "Brush Script MT", cursive;
+    font-size: 28px;
+    text-align: center;
+    margin-bottom: 50px;
+}
+
 </style>
 
 </head>
 <body>
+    <div class="topo">
+    Flor de Cheiro
+</div>
+
     <form method="get" action="index.php">
     <input type="hidden" name="rota" value="acompanhamento-atendente">
     <label for="data">Selecionar Data:</label>
     <input type="date" name="data" id="data" value="<?= htmlspecialchars($_GET['data'] ?? date('Y-m-d')) ?>" onchange="this.form.submit()">
 </form>
 
-
 <h1>Acompanhamento do Atendente (Pronto e Entregue)</h1>
 
-<h2>Pedidos de Entrega</h2>
+<div class="table-card">
+<h2>Pedidos</h2>
 <table>
     <tr>
         <th>Nº Pedido</th>
         <th>Cliente</th>
         <th>Produto</th>
+        <th>Tipo</th>
         <th>Status</th>
     </tr>
-    <?php foreach ($entregas as $pedido): ?>
+    <?php
+    // Mescla os dois arrays
+    $todosPedidos = array_merge($entregas, $retiradas);
+
+    // Ordena se você quiser (opcional, exemplo por ordem_fila):
+    usort($todosPedidos, function($a, $b) {
+        return ($a['ordem_fila'] ?? 0) - ($b['ordem_fila'] ?? 0);
+    });
+
+    foreach ($todosPedidos as $pedido):
+    ?>
     <tr>
         <td><?= htmlspecialchars($pedido['numero_pedido']) ?></td>
-        <td><?= htmlspecialchars($pedido['destinatario']) ?></td>
+        <td>
+            <?php if (isset($pedido['destinatario'])): ?>
+                <?= htmlspecialchars($pedido['destinatario']) ?>
+            <?php else: ?>
+                <?= htmlspecialchars($pedido['nome']) ?>
+            <?php endif; ?>
+        </td>
         <td><?= htmlspecialchars($pedido['produtos']) ?></td>
-        <td class="<?= $pedido['status'] === 'Pronto' ? 'status-td-pronto' : ($pedido['status'] === 'Entregue' ? 'status-td-entregue' : '') ?>">
-    <select
-    onchange="atualizarStatus(this.value, <?= $pedido['id'] ?>, '<?= $pedido['tipo'] === '1-Entrega' ? 'entrega' : 'retirada' ?>')"
-    class="status-select <?= $pedido['status'] === 'Pronto' ? 'status-select-pronto' : ($pedido['status'] === 'Entregue' ? 'status-select-entregue' : '') ?>"
->
-    <option value="Pronto" <?= $pedido['status'] === 'Pronto' ? 'selected' : '' ?>>Pronto</option>
-    <option value="Entregue" <?= $pedido['status'] === 'Entregue' ? 'selected' : '' ?>>Entregue</option>
-</select>
-
-</td>
-
-
-
+        <td>
+            <?= (isset($pedido['tipo']) && ($pedido['tipo'] === '1-Entrega' || strtolower($pedido['tipo']) === 'entrega')) ? 'Entrega' : 'Retirada' ?>
+        </td>
+        <td>
+            <select
+                onchange="atualizarStatus(this.value, <?= $pedido['id'] ?>, '<?= (isset($pedido['tipo']) && ($pedido['tipo'] === '1-Entrega' || strtolower($pedido['tipo']) === 'entrega')) ? 'entrega' : 'retirada' ?>')"
+                class="status-select <?= $pedido['status'] === 'Pronto' ? 'status-select-pronto' : ($pedido['status'] === 'Entregue' ? 'status-select-entregue' : '') ?>"
+            >
+                <option value="Pronto" <?= $pedido['status'] === 'Pronto' ? 'selected' : '' ?>>Pronto</option>
+                <option value="Entregue" <?= $pedido['status'] === 'Entregue' ? 'selected' : '' ?>>Entregue</option>
+            </select>
+        </td>
     </tr>
     <?php endforeach; ?>
 </table>
+</div>
 
-<h2>Pedidos de Retirada</h2>
-<table>
-    <tr>
-        <th>Nº Pedido</th>
-        <th>Cliente</th>
-        <th>Produto</th>
-        <th>Status</th>
-    </tr>
-    <?php foreach ($retiradas as $pedido): ?>
-    <tr>
-        <td><?= htmlspecialchars($pedido['numero_pedido']) ?></td>
-        <td><?= htmlspecialchars($pedido['nome']) ?></td>
-        <td><?= htmlspecialchars($pedido['produtos']) ?></td>
-        <td class="<?= $pedido['status'] === 'Pronto' ? 'status-td-pronto' : ($pedido['status'] === 'Entregue' ? 'status-td-entregue' : '') ?>">
-    <select
-    onchange="atualizarStatus(this.value, <?= $pedido['id'] ?>, '<?= $pedido['tipo'] === '1-Entrega' ? 'entrega' : 'retirada' ?>')"
-    class="status-select <?= $pedido['status'] === 'Pronto' ? 'status-select-pronto' : ($pedido['status'] === 'Entregue' ? 'status-select-entregue' : '') ?>"
->
-    <option value="Pronto" <?= $pedido['status'] === 'Pronto' ? 'selected' : '' ?>>Pronto</option>
-    <option value="Entregue" <?= $pedido['status'] === 'Entregue' ? 'selected' : '' ?>>Entregue</option>
-</select>
-
-</td>
-
-
-
-    </tr>
-    <?php endforeach; ?>
-</table>
 <script>
 function atualizarStatus(novoStatus, id, tipo) {
     const formData = new FormData();
@@ -140,14 +217,9 @@ function atualizarStatus(novoStatus, id, tipo) {
     } else {
         alert('Erro ao atualizar status.');
     }
-})
-
-
+});
 }
 </script>
-
-
-
 
 </body>
 </html>
