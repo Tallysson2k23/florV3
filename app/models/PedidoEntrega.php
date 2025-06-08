@@ -84,11 +84,11 @@ public function atualizarStatus($id, $status) {
 public function buscarPorStatus($status) {
     if (is_array($status)) {
         $placeholders = implode(',', array_fill(0, count($status), '?'));
-        $sql = "SELECT * FROM pedidos_entrega WHERE status IN ($placeholders) ORDER BY ordem_fila ASC";
+        $sql = "SELECT * FROM {$this->table} WHERE status IN ($placeholders) ORDER BY ordem_fila ASC";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute($status);
     } else {
-        $sql = "SELECT * FROM pedidos WHERE status = ? ORDER BY ordem_fila ASC";
+        $sql = "SELECT * FROM {$this->table} WHERE status = ? ORDER BY ordem_fila ASC";
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([$status]);
     }
