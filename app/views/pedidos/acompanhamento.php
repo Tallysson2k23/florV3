@@ -195,7 +195,13 @@
         ?>
         <tr>
             <td><?= $id ?></td>
-            <td><?= $nome ?></td>
+            <td>
+    <a href="/florV3/public/index.php?rota=detalhes&id=<?= $id ?>&tipo=<?= $tipoLink ?>">
+    <?= $nome ?>
+</a>
+
+</td>
+
             <td>
                 <select class="<?= $statusClasse ?>"
                         onchange="atualizarStatus(<?= $id ?>, '<?= $tipoLink ?>', this.value)">
