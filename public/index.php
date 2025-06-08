@@ -55,6 +55,11 @@ switch ($rota) {
         $controller->acompanharPedidos();
         break;
 
+    case 'acompanhamento-atendente':
+    $controller->acompanhamentoAtendente();
+    break;
+
+
     case 'atualizar-status':
         $controller->atualizarStatus();
         break;

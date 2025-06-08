@@ -290,6 +290,11 @@ foreach ($agrupados as $status => $listaOriginal) {
         <a href="/florV3/public/index.php?rota=acompanhamento"><button>Acessar</button></a>
     </div>
 
+ <div class="botao-acao">
+        <h4>Acompanhamento do Atendente</h4>
+        <a href="index.php?rota=acompanhamento-atendente"><button>Acessar</button></a>
+    </div>
+
     <?php if ($_SESSION['usuario_tipo'] === 'admin'): ?>
    <!-- <div class="botao-acao">
         <h4>Gerenciar Usuários</h4>

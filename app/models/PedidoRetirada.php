@@ -82,12 +82,20 @@ public function atualizarStatus($id, $status) {
 }
 
 public function buscarPorStatus($status) {
-    $sql = "SELECT * FROM {$this->table} WHERE status = :status ORDER BY data_abertura DESC";
-    $stmt = $this->conn->prepare($sql);
-    $stmt->bindParam(':status', $status);
-    $stmt->execute();
+    if (is_array($status)) {
+        $placeholders = implode(',', array_fill(0, count($status), '?'));
+        $sql = "SELECT * FROM pedidos_retirada WHERE status IN ($placeholders) ORDER BY ordem_fila ASC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($status);
+    } else {
+        $sql = "SELECT * FROM pedidos_retirada WHERE status = ? ORDER BY ordem_fila ASC";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$status]);
+    }
+
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
 
 
 }
