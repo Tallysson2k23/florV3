@@ -80,7 +80,7 @@
     <table>
         <tr>
             <td class="label">Nome</td>
-            <td class="cliente-destaque"><?= htmlspecialchars($dados['nome'] ?? $dados['remetente'] ?? '-') ?></td>
+            <td class="cliente-destaque"><?= htmlspecialchars($dados['nome'] ?? $dados['destinatario'] ?? '-') ?></td>
         </tr>
         <tr>
             <td class="label">Produtos:</td>

@@ -173,7 +173,7 @@ h2::before {
                 <?= htmlspecialchars($pedido['nome']) ?>
             <?php endif; ?>
         </td>
-        <td><?= htmlspecialchars($pedido['produtos']) ?></td>
+        <td><?= htmlspecialchars($pedido['produtos'] ?? '') ?></td>
         <td>
             <?= (isset($pedido['tipo']) && ($pedido['tipo'] === '1-Entrega' || strtolower($pedido['tipo']) === 'entrega')) ? 'Entrega' : 'Retirada' ?>
         </td>
@@ -198,28 +198,43 @@ function atualizarStatus(novoStatus, id, tipo) {
     formData.append('tipo', tipo);
     formData.append('status', novoStatus);
 
+    // Se for para ENTREGUE, perguntar se quer adicionar uma mensagem
+    if (novoStatus === 'Entregue') {
+        const confirmaMensagem = confirm("Deseja registrar uma mensagem para este pedido? (Ela ficará salva no histórico)");
+
+        if (confirmaMensagem) {
+            const mensagem = prompt("Digite a mensagem que deseja registrar:");
+
+            if (mensagem !== null && mensagem.trim() !== "") {
+                formData.append('mensagem', mensagem.trim());
+            }
+            // Se a pessoa clicou "Cancelar" no prompt ou deixou em branco, envia sem mensagem
+        }
+    }
+
     fetch('/florV3/public/index.php?rota=atualizar-status', {
         method: 'POST',
         body: formData
     })
     .then(response => response.text())
     .then(result => {
-    if (result === 'OK') {
-        const selectElement = document.querySelector(`select[onchange*="atualizarStatus(this.value, ${id},"]`);
-        
-        selectElement.classList.remove('status-select-pronto', 'status-select-entregue');
+        if (result === 'OK') {
+            const selectElement = document.querySelector(`select[onchange*="atualizarStatus(this.value, ${id},"]`);
 
-        if (novoStatus === 'Pronto') {
-            selectElement.classList.add('status-select-pronto');
-        } else if (novoStatus === 'Entregue') {
-            selectElement.classList.add('status-select-entregue');
+            selectElement.classList.remove('status-select-pronto', 'status-select-entregue');
+
+            if (novoStatus === 'Pronto') {
+                selectElement.classList.add('status-select-pronto');
+            } else if (novoStatus === 'Entregue') {
+                selectElement.classList.add('status-select-entregue');
+            }
+        } else {
+            alert('Erro ao atualizar status.');
         }
-    } else {
-        alert('Erro ao atualizar status.');
-    }
-});
+    });
 }
 </script>
+
 
 </body>
 </html>

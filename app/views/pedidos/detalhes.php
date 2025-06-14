@@ -56,11 +56,11 @@
             color: #333;
         }
 
-       .botoes {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 30px;
-}
+        .botoes {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
 
         .btn-voltar {
             background: transparent;
@@ -84,6 +84,23 @@
             color: #a00;
             margin-top: 40px;
         }
+
+        .mensagem-box {
+            background: #fef7e0;
+            border: 1px solid #f1c40f;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .mensagem-box strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 16px;
+            color: #e67e22;
+        }
     </style>
 </head>
 <body>
@@ -94,20 +111,29 @@
     <h2>Detalhes do Pedido</h2>
 
     <?php if ($dados): ?>
+
+        <!-- Mostrar a MENSAGEM se existir -->
+        <?php if (!empty($dados['mensagem_entrega'])): ?>
+            <div class="mensagem-box">
+                <strong>Mensagem registrada na entrega:</strong>
+                <?= nl2br(htmlspecialchars($dados['mensagem_entrega'])) ?>
+            </div>
+        <?php endif; ?>
+
+        <!-- Continua mostrando os outros campos -->
         <ul>
             <?php foreach ($dados as $campo => $valor): ?>
-                <li><strong><?= ucfirst(str_replace('_', ' ', $campo)) ?>:</strong> <?= htmlspecialchars($valor) ?></li>
+                <?php if ($campo !== 'mensagem_entrega'): // evita mostrar a mensagem duplicada no loop ?>
+                    <li><strong><?= ucfirst(str_replace('_', ' ', $campo)) ?>:</strong> <?= htmlspecialchars($valor) ?></li>
+                <?php endif; ?>
             <?php endforeach; ?>
         </ul>
 
+        <div class="botoes">
+            <a class="btn-voltar" href="/florV3/public/index.php?rota=cancelados">❌ Cancelados</a>
+            <a class="btn-voltar" href="/florV3/public/index.php?rota=historico">📜 Histórico</a>
+        </div>
 
-
-      <div class="botoes">
-    <a class="btn-voltar" href="/florV3/public/index.php?rota=cancelados">❌ Cancelados</a>
-    <a class="btn-voltar" href="/florV3/public/index.php?rota=historico">📜 Histórico</a>
-</div>
-
-        
     <?php else: ?>
         <p class="nao-encontrado">❌ Pedido não encontrado.</p>
     <?php endif; ?>

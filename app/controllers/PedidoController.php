@@ -158,13 +158,22 @@ public function acompanhamentoAtendente() {
     $entregas = $pedidoEntrega->buscarPorStatusEData(['Pronto', 'Entregue'], $data);
     $retiradas = $pedidoRetirada->buscarPorStatusEData(['Pronto', 'Entregue'], $data);
 
-    // ordenar se quiser (por ordem_fila, opcional):
-usort($todosPedidos, function($a, $b) {
-    return ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0);
-});
-    // envia as variáveis para a view
+    // garantir que sejam array (evita o erro do usort)
+    $entregas = is_array($entregas) ? $entregas : [];
+    $retiradas = is_array($retiradas) ? $retiradas : [];
+
+    // juntar tudo
+    $todosPedidos = array_merge($entregas, $retiradas);
+
+    // ordenar por ordem_fila
+    usort($todosPedidos, function($a, $b) {
+        return ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0);
+    });
+
+    // envia para a view
     require __DIR__ . '/../views/pedidos/acompanhamento_atendente.php';
 }
+
 
 
 
@@ -175,6 +184,7 @@ public function atualizarStatus() {
     $id = $_POST['id'] ?? null;
     $tipo = $_POST['tipo'] ?? null;
     $status = $_POST['status'] ?? null;
+    $mensagem = $_POST['mensagem'] ?? null;
 
     if ($id && $tipo && $status) {
         if ($tipo === 'entrega') {

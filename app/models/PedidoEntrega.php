@@ -68,7 +68,9 @@ public function buscarPorId($id) {
 
 
 public function listarTodos() {
-    $sql = "SELECT id, numero_pedido, tipo, remetente AS nome, status, data_abertura, hora, ordem_fila
+    $sql = "SELECT id, numero_pedido, tipo, 
+                   COALESCE(destinatario, remetente) AS nome, 
+                   status, data_abertura, hora, ordem_fila
             FROM {$this->table}
             ORDER BY ordem_fila DESC";
     return $this->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
@@ -99,8 +101,9 @@ public function buscarPorStatus($status) {
 public function buscarPorStatusEData($statusArray, $data, $busca = '') {
     $placeholders = implode(',', array_fill(0, count($statusArray), '?'));
 
-    $sql = "SELECT *, 
-                   CASE WHEN tipo IS NULL THEN '2-Retirada' ELSE tipo END as tipo
+    $sql = "SELECT id, numero_pedido, tipo,
+                   COALESCE(destinatario, remetente) AS nome,
+                   status, data_abertura, hora, ordem_fila
             FROM {$this->table} 
             WHERE status IN ($placeholders)
               AND data_abertura = ?
@@ -117,7 +120,6 @@ public function buscarPorStatusEData($statusArray, $data, $busca = '') {
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
-
 
 
 }
