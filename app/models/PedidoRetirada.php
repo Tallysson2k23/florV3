@@ -75,10 +75,18 @@ public function listarTodos() {
 }
 
 
-public function atualizarStatus($id, $status) {
-    $sql = "UPDATE {$this->table} SET status = :status WHERE id = :id";
+public function atualizarStatus($id, $status, $mensagem = null) {
+    $campos = 'status = :status';
+    $params = [':status' => $status, ':id' => $id];
+
+    if ($status === 'Entregue' && $mensagem !== null) {
+        $campos .= ', mensagem_entrega = :mensagem';
+        $params[':mensagem'] = $mensagem;
+    }
+
+    $sql = "UPDATE {$this->table} SET $campos WHERE id = :id";
     $stmt = $this->conn->prepare($sql);
-    $stmt->execute([':status' => $status, ':id' => $id]);
+    $stmt->execute($params);
 }
 
 public function buscarPorStatus($status) {

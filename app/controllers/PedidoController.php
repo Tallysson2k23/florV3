@@ -181,23 +181,27 @@ public function atualizarStatus() {
     require_once __DIR__ . '/../models/PedidoEntrega.php';
     require_once __DIR__ . '/../models/PedidoRetirada.php';
 
-    $id = $_POST['id'] ?? null;
-    $tipo = $_POST['tipo'] ?? null;
-    $status = $_POST['status'] ?? null;
-    $mensagem = $_POST['mensagem'] ?? null;
+    $id       = $_POST['id']       ?? null;
+    $tipo     = $_POST['tipo']     ?? null;   // 'entrega' ou 'retirada'
+    $status   = $_POST['status']   ?? null;   // 'Pronto', 'Entregue'…
+    $mensagem = $_POST['mensagem'] ?? null;   // pode vir null
 
-    if ($id && $tipo && $status) {
-        if ($tipo === 'entrega') {
-            $model = new PedidoEntrega();
-        } else {
-            $model = new PedidoRetirada();
-        }
-
-        $model->atualizarStatus($id, $status);
+    if (!$id || !$tipo || !$status) {
+        http_response_code(400);
+        echo 'Dados incompletos';
+        return;
     }
+
+    // Escolhe o model uma única vez
+    $model = ($tipo === 'entrega') ? new PedidoEntrega()
+                                   : new PedidoRetirada();
+
+    // Passa sempre $mensagem (pode ser null, o model decide o que fazer)
+    $model->atualizarStatus($id, $status, $mensagem);
 
     echo 'OK';
 }
+
 
 public function imprimirPedido() {
     require_once __DIR__ . '/../models/PedidoEntrega.php';

@@ -113,12 +113,13 @@
     <?php if ($dados): ?>
 
         <!-- Mostrar a MENSAGEM se existir -->
-        <?php if (!empty($dados['mensagem_entrega'])): ?>
-            <div class="mensagem-box">
-                <strong>Mensagem registrada na entrega:</strong>
-                <?= nl2br(htmlspecialchars($dados['mensagem_entrega'])) ?>
-            </div>
-        <?php endif; ?>
+<?php if (isset($dados['mensagem_entrega'])): ?>
+    <div class="mensagem-box">
+        <strong>Mensagem registrada na entrega:</strong>
+        <?= nl2br(htmlspecialchars($dados['mensagem_entrega'] ?: '❌ Nenhuma mensagem informada')) ?>
+    </div>
+<?php endif; ?>
+
 
         <!-- Continua mostrando os outros campos -->
         <ul>

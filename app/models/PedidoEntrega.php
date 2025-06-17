@@ -41,7 +41,7 @@ $ordem = OrdemGlobal::getProximaOrdem();
 
 
     public function buscar($termo) {
-    $sql = "SELECT id, numero_pedido, tipo, remetente AS nome, telefone_remetente AS telefone, produtos, status, data_abertura
+    $sql = "SELECT id, numero_pedido, tipo, remetente AS nome, telefone_remetente AS telefone, produtos, status,  mensagem_entrega, data_abertura
         FROM {$this->table}
         WHERE numero_pedido ILIKE :termo OR remetente ILIKE :termo
         ORDER BY ordem_fila DESC";
@@ -77,12 +77,19 @@ public function listarTodos() {
 }
 
 
-public function atualizarStatus($id, $status) {
-    $sql = "UPDATE {$this->table} SET status = :status WHERE id = :id";
-    $stmt = $this->conn->prepare($sql);
-    $stmt->execute([':status' => $status, ':id' => $id]);
-}
+public function atualizarStatus($id, $status, $mensagem = null) {
+    $campos = 'status = :status';
+    $params = [':status' => $status, ':id' => $id];
 
+    if ($status === 'Entregue' && $mensagem !== null) {
+        $campos .= ', mensagem_entrega = :mensagem';
+        $params[':mensagem'] = $mensagem;
+    }
+
+    $sql = "UPDATE {$this->table} SET $campos WHERE id = :id";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute($params);
+}
 public function buscarPorStatus($status) {
     if (is_array($status)) {
         $placeholders = implode(',', array_fill(0, count($status), '?'));
