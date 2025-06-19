@@ -109,10 +109,12 @@
         </label>
 
         <label>Tipo:
-            <select name="tipo">
-                <option value="admin">Admin</option>
-                <option value="colaborador">Colaborador</option>
-            </select>
+            <select name="tipo" required>
+    <option value="admin">Admin</option>
+    <option value="colaborador">Colaborador</option>
+    <option value="colaborador-producao">Colaborador Produção</option>
+</select>
+
         </label>
 
         <button type="submit" class="btn-enviar">Cadastrar</button>
