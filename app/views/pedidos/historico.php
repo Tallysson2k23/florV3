@@ -218,7 +218,7 @@
             </tr>
 
             <?php foreach ($resultados as $index => $pedido): ?>
-                <tr class="pedido-linha <?= $index >= 5 ? 'oculto' : '' ?>">
+                <tr class="pedido-linha">
                     <td><?= htmlspecialchars($pedido['tipo']) ?></td>
                     <td><?= htmlspecialchars($pedido['numero_pedido']) ?></td>
                     <td>

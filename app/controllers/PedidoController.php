@@ -77,7 +77,7 @@ public function historico() {
 
     $busca = $_GET['busca'] ?? '';
     $pagina = isset($_GET['pagina']) ? max(1, (int)$_GET['pagina']) : 1;
-    $porPagina = 10;
+    $porPagina = 20;
 
     // Buscar dados combinados
     $resultadosEntrega = $entregaModel->buscar($busca);
