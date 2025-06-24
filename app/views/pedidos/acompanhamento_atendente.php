@@ -139,9 +139,10 @@ h2::before {
     <input type="hidden" name="rota" value="acompanhamento-atendente">
     <label for="data">Selecionar Data:</label>
     <input type="date" name="data" id="data" value="<?= htmlspecialchars($_GET['data'] ?? date('Y-m-d')) ?>" onchange="this.form.submit()">
+
 </form>
 
-<h1>Acompanhamento do Atendente (Pronto e Entregue)</h1>
+<h1>Acompanhamento do Atendente</h1>
 
 <div class="table-card">
 <h2>Pedidos</h2>
@@ -189,7 +190,29 @@ h2::before {
     </tr>
     <?php endforeach; ?>
 </table>
+
 </div>
+ 
+<a href="/florV3/public/index.php?rota=painel" class="voltar-simples">← Voltar</a>
+
+<style>
+.voltar-simples {
+    display: inline-block;
+    padding: 8px 20px;
+    background-color: #111;
+    color: #fff;
+    font-size: 14px;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+}
+.voltar-simples:hover {
+    background-color: #333;
+}
+</style>
+
+
+
 
 <script>
 function atualizarStatus(novoStatus, id, tipo) {

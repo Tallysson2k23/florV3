@@ -362,5 +362,37 @@ public function excluirOperador() {
     exit;
 }
 
+
+
+public function retiradas() {
+    require_once __DIR__ . '/../models/PedidoRetirada.php';
+    require_once __DIR__ . '/../models/PedidoEntrega.php';
+
+    $pedidoRetirada = new PedidoRetirada();
+    $pedidoEntrega = new PedidoEntrega();
+
+    $retiradas = $pedidoRetirada->buscarPorStatus('Entregue');
+    $entregas  = $pedidoEntrega->buscarPorStatus('Entregue');
+
+    // Junta as duas listas
+    $todosPedidos = array_merge($retiradas, $entregas);
+
+    // Ordena pela data de abertura (opcional)
+    usort($todosPedidos, function($a, $b) {
+        return strtotime($b['data_abertura']) - strtotime($a['data_abertura']);
+    });
+
+    // Paginação (10 por página)
+    $pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+    $porPagina = 10;
+    $total = count($todosPedidos);
+    $inicio = ($pagina - 1) * $porPagina;
+    $pedidosPaginados = array_slice($todosPedidos, $inicio, $porPagina);
+
+    require __DIR__ . '/../views/pedidos/retiradas.php';
+}
+
+
+
     // Aqui permanecem seus métodos de vendedores, produtos e cancelados como no backup original
 }

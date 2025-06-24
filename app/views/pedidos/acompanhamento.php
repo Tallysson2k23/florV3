@@ -179,13 +179,13 @@ $operadores = $operadorModel->listarTodos();
 </div>
 
 
-    <!-- Filtros -->
+    <!-- Filtro
     <form method="GET" action="/florV3/public/index.php" class="filtros">
         <input type="hidden" name="rota" value="acompanhamento">
         <input type="date" name="data" value="<?= htmlspecialchars($_GET['data'] ?? date('Y-m-d')) ?>" onchange="this.form.submit()">
         <input type="text" name="busca" placeholder="Buscar por nome ou número do pedido" value="<?= htmlspecialchars($_GET['busca'] ?? '') ?>">
         <button type="submit">🔍 Buscar</button>
-    </form>
+    </form> -->
 
     <!-- Tabela -->
     <table>
@@ -208,7 +208,16 @@ $operadores = $operadorModel->listarTodos();
             }
 
             $id    = $pedido['id'] ?? '';
-            $nome  = htmlspecialchars($pedido['nome'] ?? '');
+            $nome = '';
+
+if (!empty($pedido['nome'])) {
+    $nome = htmlspecialchars($pedido['nome']);
+} elseif (!empty($pedido['remetente'])) {
+    $nome = htmlspecialchars($pedido['remetente']);
+} elseif (!empty($pedido['destinatario'])) {
+    $nome = htmlspecialchars($pedido['destinatario']);
+}
+
             $tipo  = htmlspecialchars($pedido['tipo'] ?? '');
             $status = $pedido['status'] ?? '';
             $data  = htmlspecialchars($pedido['data_abertura'] ?? '');

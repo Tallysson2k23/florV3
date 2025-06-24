@@ -73,7 +73,7 @@
         <table>
             <tr>
                 <th>Operador</th>
-                <th>Total de Pedidos em Produção</th>
+                <th>Total de Pedidos Produzido</th>
             </tr>
             <?php foreach ($resultados as $linha): ?>
             <tr>
@@ -86,6 +86,22 @@
         <p>Nenhum registro encontrado para o período informado.</p>
     <?php endif; ?>
 </div>
+<a href="/florV3/public/index.php?rota=painel" class="voltar-simples">← Voltar</a>
 
+<style>
+.voltar-simples {
+    display: inline-block;
+    padding: 8px 20px;
+    background-color: #111;
+    color: #fff;
+    font-size: 14px;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+}
+.voltar-simples:hover {
+    background-color: #333;
+}
+</style>
 </body>
 </html>

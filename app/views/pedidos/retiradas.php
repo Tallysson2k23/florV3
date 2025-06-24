@@ -60,24 +60,25 @@
 
 <?php if (isset($pedidosPaginados) && count($pedidosPaginados) > 0): ?>
 
-    <table>
+<table>
+    <tr>
+        <th>Tipo</th>
+        <th>Nº Pedido</th>
+        <th>Nome</th>
+        <th>Produto</th>
+        <th>Data</th>
+    </tr>
+    <?php foreach ($pedidosPaginados as $pedido): ?>
         <tr>
-            <th>Tipo</th>
-            <th>Nº Pedido</th>
-            <th>Nome</th>
-            <th>Produto</th>
-            <th>Data</th>
+            <td><?= htmlspecialchars($pedido['tipo']) ?></td>
+            <td><?= htmlspecialchars($pedido['numero_pedido']) ?></td>
+            <td><?= htmlspecialchars($pedido['nome'] ?? ($pedido['remetente'] ?? '')) ?></td>
+            <td><?= htmlspecialchars($pedido['produto'] ?? $pedido['produtos']) ?></td>
+            <td><?= htmlspecialchars(date('d/m/Y', strtotime($pedido['data_abertura']))) ?></td>
         </tr>
-        <?php foreach ($pedidosPaginados as $pedido): ?>
-            <tr>
-                <td><?= htmlspecialchars($pedido['tipo']) ?></td>
-                <td><?= htmlspecialchars($pedido['numero_pedido']) ?></td>
-                <td><?= htmlspecialchars($pedido['nome'] ?? $pedido['remetente']) ?></td>
-                <td><?= htmlspecialchars($pedido['produto'] ?? $pedido['produtos']) ?></td>
-                <td><?= htmlspecialchars(date('d/m/Y', strtotime($pedido['data_abertura']))) ?></td>
-            </tr>
-        <?php endforeach; ?>
-    </table>
+    <?php endforeach; ?>
+</table>
+
 
     <div class="paginacao">
         <?php
@@ -92,7 +93,7 @@
 <?php endif; ?>
 
 <div class="botoes">
-    <a href="/florV3/public/index.php?rota=acompanhamento">Ver todos os pedidos</a>
+    <a href="/florV3/public/index.php?rota=historico">Ver Historico</a>
     <a href="/florV3/public/index.php?rota=painel" class="voltar">← Voltar</a>
 </div>
 

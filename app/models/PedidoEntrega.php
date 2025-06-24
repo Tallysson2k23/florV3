@@ -137,33 +137,31 @@ public function buscarPorStatusEData($statusArray, $data, $busca = '') {
 
 
 
-public function buscarPorStatusEDataEEnvio($statusArray, $data, $enviarPara, $busca = '') {
-    $sql = "SELECT * FROM {$this->table} WHERE status IN (" . implode(',', array_fill(0, count($statusArray), '?')) . ")
-            AND data_abertura = ? AND enviar_para = ?";
+public function buscarPorStatusEDataEEnvio(array $statusArray, $data, $enviarPara, $busca = '') {
+    $statusPlaceholders = [];
+    $params = [];
 
-    if (!empty($busca)) {
-        $sql .= " AND (nome ILIKE ? OR numero_pedido ILIKE ?)";
+    foreach ($statusArray as $index => $status) {
+        $paramName = ":status{$index}";
+        $statusPlaceholders[] = $paramName;
+        $params[$paramName] = $status;
     }
+
+    $sql = "SELECT * FROM {$this->table} 
+            WHERE status IN (" . implode(",", $statusPlaceholders) . ") 
+            AND data_abertura = :data 
+            AND enviar_para = :enviar_para 
+            AND (remetente ILIKE :busca)";
 
     $stmt = $this->conn->prepare($sql);
+    $params[':data'] = $data;
+    $params[':enviar_para'] = $enviarPara;
+    $params[':busca'] = "%{$busca}%";
 
-
-    $i = 1;
-    foreach ($statusArray as $status) {
-        $stmt->bindValue($i++, $status);
-    }
-    $stmt->bindValue($i++, $data);
-    $stmt->bindValue($i++, $enviarPara);
-
-    if (!empty($busca)) {
-        $likeBusca = "%$busca%";
-        $stmt->bindValue($i++, $likeBusca);
-        $stmt->bindValue($i++, $likeBusca);
-    }
-
-    $stmt->execute();
+    $stmt->execute($params);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
 
 public function atualizarStatusComResponsavel($id, $status, $responsavel) {
     $sql = "UPDATE {$this->table} SET status = :status, responsavel_producao = :responsavel WHERE id = :id";
