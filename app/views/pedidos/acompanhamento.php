@@ -164,7 +164,7 @@ $operadores = $operadorModel->listarTodos();
 <div id="modalResponsavel" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999;">
     <div style="background:white; padding:20px; border-radius:8px; width:400px; margin:100px auto; position:relative;">
         <h3>Selecione o Operador</h3>
-        <select id="responsavelSelect" style="width:100%; padding:10px; font-size:16px; background-color:white; color:black; border: 1px solid #ccc; border-radius: 8px;">
+        <select id="responsavelSelect" style="width:100%; padding:10px; font-size:16px; background-color:white; color:black;">
 
             <option value="">Selecione...</option>
             <?php foreach ($operadores as $op): ?>
@@ -289,12 +289,21 @@ function confirmarResponsavel() {
 
     const modal = document.getElementById("modalResponsavel");
     const acao = modal.getAttribute("data-acao");
-
     modal.style.display = "none";
 
     if (acao === "impressao") {
-        // Redireciona para impressão, passando o operador via GET
-        window.open(`/florV3/public/index.php?rota=imprimir-pedido&id=${idImpressaoTemp}&tipo=${tipoImpressaoTemp}&operador=${encodeURIComponent(responsavel)}`, '_blank');
+        // Aqui registramos no banco ANTES de imprimir
+        fetch('/florV3/public/index.php?rota=registrar-responsavel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${idImpressaoTemp}&tipo=${tipoImpressaoTemp}&responsavel=${encodeURIComponent(responsavel)}`
+        })
+        .then(res => res.text())
+        .then(data => {
+            // Após registrar, redireciona para impressão
+            window.open(`/florV3/public/index.php?rota=imprimir-pedido&id=${idImpressaoTemp}&tipo=${tipoImpressaoTemp}`, '_blank');
+        })
+        .catch(err => alert("Erro ao registrar responsável!"));
     } else {
         // Fluxo normal de alteração de status
         let dados = `id=${idTemp}&tipo=${tipoTemp}&status=${encodeURIComponent(statusTemp)}&responsavel=${encodeURIComponent(responsavel)}`;
@@ -307,6 +316,7 @@ function confirmarResponsavel() {
         });
     }
 }
+
 
 
 function fecharModal() {

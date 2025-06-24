@@ -143,13 +143,12 @@ if ($dados['enviar_para'] === 'pronta_entrega') {
         require __DIR__ . '/../views/pedidos/acompanhamento_atendente.php';
     }
 
-    
 public function atualizarStatus() {
     $id = $_POST['id'] ?? null;
     $tipo = $_POST['tipo'] ?? null;
     $status = $_POST['status'] ?? null;
     $mensagem = $_POST['mensagem'] ?? null;
-    $responsavel = $_POST['responsavel'] ?? null;  // <-- AQUI CAPTURA O OPERADOR
+    $responsavel = $_POST['responsavel'] ?? null;
 
     if (!$id || !$tipo || !$status) {
         http_response_code(400);
@@ -160,15 +159,16 @@ public function atualizarStatus() {
     $model = ($tipo === 'entrega') ? new PedidoEntrega() : new PedidoRetirada();
     $model->atualizarStatus($id, $status, $mensagem);
 
-    // Agora salvamos o operador SOMENTE se o status for "Produção" e o operador estiver preenchido:
-    if ($status === 'Produção' && !empty($responsavel)) {
+    // 🚩 AQUI FAZEMOS O REGISTRO NO BANCO DE RESPONSAVEL
+    if ($status === 'Produção' && $responsavel) {
         require_once __DIR__ . '/../models/ResponsavelProducao.php';
         $responsavelModel = new ResponsavelProducao();
-        $responsavelModel->registrar($id, $tipo, $responsavel);
+        $responsavelModel->criar($id, $tipo, $responsavel);
     }
 
     echo 'OK';
 }
+
 
 
 
@@ -304,19 +304,20 @@ public function listarOperadores() {
     require __DIR__ . '/../views/operadores/lista_operadores.php';
 }
 
-public function relatorioOperadores() {
-    $pdo = Database::conectar();
-    $data = $_GET['data'] ?? date('Y-m-d');
+public function registrarResponsavel() {
+    require_once __DIR__ . '/../models/ResponsavelProducao.php';
+    $pedidoId = $_POST['id'] ?? null;
+    $tipo = $_POST['tipo'] ?? null;
+    $responsavel = $_POST['responsavel'] ?? null;
 
-    $stmt = $pdo->prepare("SELECT operador, COUNT(*) as total 
-                            FROM producao_operadores 
-                            WHERE data = :data 
-                            GROUP BY operador 
-                            ORDER BY total DESC");
-    $stmt->execute([':data' => $data]);
-    $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    require __DIR__ . '/../views/operadores/relatorio_operadores.php';
+    if ($pedidoId && $tipo && $responsavel) {
+        $registro = new ResponsavelProducao();
+        $registro->criar($pedidoId, $tipo, $responsavel);
+        echo 'Registrado';
+    } else {
+        http_response_code(400);
+        echo 'Dados incompletos';
+    }
 }
 
     // Aqui permanecem seus métodos de vendedores, produtos e cancelados como no backup original

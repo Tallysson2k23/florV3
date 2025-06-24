@@ -55,7 +55,8 @@
 <div class="container">
     <h2>Relatório de Produção</h2>
 
-    <form method="GET">
+    <form method="GET" action="/florV3/public/index.php">
+    <input type="hidden" name="rota" value="relatorio-operadores">
     <label>Data Inicial: </label>
     <input type="date" name="data_inicio" value="<?= htmlspecialchars($dataInicio ?? '') ?>">
     &nbsp;&nbsp;
@@ -64,6 +65,7 @@
     &nbsp;&nbsp;
     <button type="submit">Buscar</button>
 </form>
+
 
 
 

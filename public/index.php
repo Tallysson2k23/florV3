@@ -168,6 +168,10 @@ case 'relatorio-operadores':
     $operadorController->relatorioOperadores();
     break;
 
+case 'registrar-responsavel':
+    $controller->registrarResponsavel();
+    break;
+
 
     default:
         echo "Página não encontrada.";
