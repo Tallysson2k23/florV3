@@ -190,7 +190,7 @@ $operadores = $operadorModel->listarTodos();
     <!-- Tabela -->
     <table>
         <tr>
-            <th>ID</th>
+            <th>Código</th>
             <th>Cliente</th>
             <th>Status</th>
             <th>Data</th>
@@ -229,7 +229,7 @@ if (!empty($pedido['nome'])) {
             }
         ?>
         <tr>
-            <td><?= $id ?></td>
+           <td><?= htmlspecialchars($pedido['numero_pedido'] ?? '') ?></td>
             <td>
     <a href="/florV3/public/index.php?rota=detalhes&id=<?= $id ?>&tipo=<?= $tipoLink ?>">
     <?= $nome ?>
