@@ -172,6 +172,23 @@ case 'registrar-responsavel':
     $controller->registrarResponsavel();
     break;
 
+case 'editar-operador':
+    $controller->editarOperador();
+    break;
+
+case 'atualizar-operador':
+    $controller->atualizarOperador();
+    break;
+
+case 'excluir-operador':
+    $controller->excluirOperador();
+    break;
+
+
+
+
+
+
 
     default:
         echo "Página não encontrada.";

@@ -53,5 +53,13 @@
             <button type="submit">Salvar</button>
         </form>
     </div>
+    <br><br>
+
+<div style="text-align:center;">
+    <a href="/florV3/public/index.php?rota=lista-operadores">
+        <button style="padding: 10px 20px; font-size: 16px;">📄 Ver Lista de Operadores</button>
+    </a>
+</div>
+
 </body>
 </html>

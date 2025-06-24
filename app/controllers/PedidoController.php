@@ -320,5 +320,47 @@ public function registrarResponsavel() {
     }
 }
 
+
+public function editarOperador() {
+    $id = $_GET['id'] ?? null;
+    if (!$id) {
+        header('Location: /florV3/public/index.php?rota=lista-operadores');
+        exit;
+    }
+
+    $pdo = Database::conectar();
+    $stmt = $pdo->prepare("SELECT * FROM operadores WHERE id = :id");
+    $stmt->execute([':id' => $id]);
+    $operador = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    require __DIR__ . '/../views/operadores/editar_operador.php';
+}
+
+public function atualizarOperador() {
+    $id = $_POST['id'] ?? null;
+    $nome = $_POST['nome'] ?? '';
+
+    if ($id && $nome) {
+        $pdo = Database::conectar();
+        $stmt = $pdo->prepare("UPDATE operadores SET nome = :nome WHERE id = :id");
+        $stmt->execute([':nome' => $nome, ':id' => $id]);
+    }
+
+    header('Location: /florV3/public/index.php?rota=lista-operadores');
+    exit;
+}
+
+public function excluirOperador() {
+    $id = $_GET['id'] ?? null;
+    if ($id) {
+        $pdo = Database::conectar();
+        $stmt = $pdo->prepare("DELETE FROM operadores WHERE id = :id");
+        $stmt->execute([':id' => $id]);
+    }
+
+    header('Location: /florV3/public/index.php?rota=lista-operadores');
+    exit;
+}
+
     // Aqui permanecem seus métodos de vendedores, produtos e cancelados como no backup original
 }
