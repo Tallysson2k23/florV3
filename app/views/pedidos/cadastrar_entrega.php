@@ -240,6 +240,10 @@ $produtos = $produtoModel->listarTodos();
         <?php endforeach; ?>
     </select>
 </div>
+<label><strong>Enviar para:</strong></label><br>
+<input type="radio" name="enviar_para" value="producao" required> Mandar para Produção<br>
+<input type="radio" name="enviar_para" value="pronta_entrega" required> Pronta Entrega<br><br>
+
 
 
 

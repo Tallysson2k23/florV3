@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 if (!isset($_SESSION['usuario_id'])) {
     header('Location: /florV3/public/index.php?rota=login');

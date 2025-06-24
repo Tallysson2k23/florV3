@@ -16,7 +16,7 @@ $ordem = OrdemGlobal::getProximaOrdem();
 
 
     // Adiciona campos adicionais obrigatórios
-    $dados['status'] = 'Pendente';
+    $dados['status'] = $dados['status'] ?? 'Pendente';
     $dados['ordem_fila'] = $ordem;
     $dados['hora'] = date('H:i:s');
     $dados['quantidade'] = $dados['quantidade'] ?? 1;
@@ -27,9 +27,9 @@ $ordem = OrdemGlobal::getProximaOrdem();
     unset($dados['imprimir']); // se estiver vindo
 
     $sql = "INSERT INTO {$this->table} 
-    (numero_pedido, tipo, nome, telefone, produtos, adicionais, data_abertura, hora, status, ordem_fila, vendedor_codigo, quantidade, obs_produto)
+    (numero_pedido, tipo, nome, telefone, produtos, adicionais, data_abertura, hora, status, ordem_fila, vendedor_codigo, quantidade, obs_produto, enviar_para)
     VALUES 
-    (:numero_pedido, :tipo, :nome, :telefone, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo, :quantidade, :obs_produto)";
+    (:numero_pedido, :tipo, :nome, :telefone, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo, :quantidade, :obs_produto, :enviar_para)";
 
     $stmt = $this->conn->prepare($sql);
     $stmt->execute($dados);
@@ -111,21 +111,55 @@ public function buscarPorStatusEData($statusArray, $data, $busca = '') {
                    CASE WHEN tipo IS NULL THEN '2-Retirada' ELSE tipo END as tipo
             FROM {$this->table} 
             WHERE status IN ($placeholders)
-              AND data_abertura = ?
-              AND (
-                   numero_pedido ILIKE ? 
-                OR nome ILIKE ?
-                OR produtos ILIKE ?
-              )
-            ORDER BY ordem_fila ASC";
+              AND data_abertura = ?";
+
+    $params = array_merge($statusArray, [$data]);
+
+    if (!empty($busca)) {
+        $sql .= " AND (
+                    numero_pedido ILIKE ? 
+                    OR nome ILIKE ?
+                    OR produtos ILIKE ?
+                )";
+        $params = array_merge($params, ["%$busca%", "%$busca%", "%$busca%"]);
+    }
+
+    $sql .= " ORDER BY ordem_fila ASC";
 
     $stmt = $this->conn->prepare($sql);
-    $params = array_merge($statusArray, [$data, "%$busca%", "%$busca%", "%$busca%"]);
     $stmt->execute($params);
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+
+public function buscarPorStatusEDataEEnvio($statusArray, $data, $enviarPara, $busca = '') {
+    $sql = "SELECT * FROM {$this->table} WHERE status IN (" . implode(',', array_fill(0, count($statusArray), '?')) . ")
+            AND data_abertura = ? AND enviar_para = ?";
+
+    if (!empty($busca)) {
+        $sql .= " AND (nome ILIKE ? OR numero_pedido ILIKE ?)";
+    }
+
+    $stmt = $this->conn->prepare($sql);
+
+
+    $i = 1;
+    foreach ($statusArray as $status) {
+        $stmt->bindValue($i++, $status);
+    }
+    $stmt->bindValue($i++, $data);
+    $stmt->bindValue($i++, $enviarPara);
+
+    if (!empty($busca)) {
+        $likeBusca = "%$busca%";
+        $stmt->bindValue($i++, $likeBusca);
+        $stmt->bindValue($i++, $likeBusca);
+    }
+
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
 
 
