@@ -240,9 +240,14 @@ $produtos = $produtoModel->listarTodos();
         <?php endforeach; ?>
     </select>
 </div>
-<label><strong>Enviar para:</strong></label><br>
-<input type="radio" name="enviar_para" value="producao" required> Mandar para Produção<br>
-<input type="radio" name="enviar_para" value="pronta_entrega" required> Pronta Entrega<br><br>
+<label><strong>Enviar para: <span style="color:red;">*</span></strong></label><br>
+<div style="margin-left:20px;">
+    <input type="radio" name="enviar_para" id="producao" value="producao" required>
+    <label for="producao">Mandar para Produção</label><br>
+    
+    <input type="radio" name="enviar_para" id="pronta_entrega" value="pronta_entrega" required>
+    <label for="pronta_entrega">Pronta Entrega</label>
+</div><br>
 
 
 
@@ -258,6 +263,13 @@ $produtos = $produtoModel->listarTodos();
 
 <script>
 function confirmarEnvioEntrega() {
+    // Verifica se um radio foi selecionado
+    const enviarParaSelecionado = document.querySelector('input[name="enviar_para"]:checked');
+    if (!enviarParaSelecionado) {
+        alert("Por favor, selecione uma opção em 'Enviar para'.");
+        return;
+    }
+
     const confirmar = confirm("Deseja realmente enviar o pedido?");
     if (!confirmar) return;
 
@@ -265,6 +277,7 @@ function confirmarEnvioEntrega() {
     document.getElementById("imprimir").value = desejaImprimir ? "1" : "0";
     document.getElementById("form-entrega").submit();
 }
+
 
 function confirmarCancelamento() {
     if (confirm("Deseja realmente cancelar? Os dados serão perdidos.")) {
