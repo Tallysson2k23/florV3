@@ -143,22 +143,34 @@ if ($dados['enviar_para'] === 'pronta_entrega') {
         require __DIR__ . '/../views/pedidos/acompanhamento_atendente.php';
     }
 
-    public function atualizarStatus() {
-        $id = $_POST['id'] ?? null;
-        $tipo = $_POST['tipo'] ?? null;
-        $status = $_POST['status'] ?? null;
-        $mensagem = $_POST['mensagem'] ?? null;
+    
+public function atualizarStatus() {
+    $id = $_POST['id'] ?? null;
+    $tipo = $_POST['tipo'] ?? null;
+    $status = $_POST['status'] ?? null;
+    $mensagem = $_POST['mensagem'] ?? null;
+    $responsavel = $_POST['responsavel'] ?? null;  // <-- AQUI CAPTURA O OPERADOR
 
-        if (!$id || !$tipo || !$status) {
-            http_response_code(400);
-            echo 'Dados incompletos';
-            return;
-        }
-
-        $model = ($tipo === 'entrega') ? new PedidoEntrega() : new PedidoRetirada();
-        $model->atualizarStatus($id, $status, $mensagem);
-        echo 'OK';
+    if (!$id || !$tipo || !$status) {
+        http_response_code(400);
+        echo 'Dados incompletos';
+        return;
     }
+
+    $model = ($tipo === 'entrega') ? new PedidoEntrega() : new PedidoRetirada();
+    $model->atualizarStatus($id, $status, $mensagem);
+
+    // Agora salvamos o operador SOMENTE se o status for "Produção" e o operador estiver preenchido:
+    if ($status === 'Produção' && !empty($responsavel)) {
+        require_once __DIR__ . '/../models/ResponsavelProducao.php';
+        $responsavelModel = new ResponsavelProducao();
+        $responsavelModel->registrar($id, $tipo, $responsavel);
+    }
+
+    echo 'OK';
+}
+
+
 
     public function imprimirPedido() {
         $id = $_GET['id'] ?? null;
@@ -267,6 +279,44 @@ public function cancelados() {
     $cancelados = array_merge($entregasCanceladas, $retiradasCanceladas);
 
     require __DIR__ . '/../views/pedidos/cancelados.php';
+}
+
+public function cadastrarOperador() {
+    require __DIR__ . '/../views/operadores/cadastrar_operador.php';
+}
+
+public function salvarOperador() {
+    $nome = $_POST['nome'] ?? '';
+    if ($nome) {
+        $pdo = Database::conectar();
+        $stmt = $pdo->prepare("INSERT INTO operadores (nome) VALUES (:nome)");
+        $stmt->execute([':nome' => $nome]);
+    }
+    header('Location: /florV3/public/index.php?rota=lista-operadores');
+    exit;
+}
+
+
+public function listarOperadores() {
+    $pdo = Database::conectar();
+    $stmt = $pdo->query("SELECT * FROM operadores ORDER BY nome ASC");
+    $operadores = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    require __DIR__ . '/../views/operadores/lista_operadores.php';
+}
+
+public function relatorioOperadores() {
+    $pdo = Database::conectar();
+    $data = $_GET['data'] ?? date('Y-m-d');
+
+    $stmt = $pdo->prepare("SELECT operador, COUNT(*) as total 
+                            FROM producao_operadores 
+                            WHERE data = :data 
+                            GROUP BY operador 
+                            ORDER BY total DESC");
+    $stmt->execute([':data' => $data]);
+    $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    require __DIR__ . '/../views/operadores/relatorio_operadores.php';
 }
 
     // Aqui permanecem seus métodos de vendedores, produtos e cancelados como no backup original

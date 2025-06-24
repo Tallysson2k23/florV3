@@ -153,6 +153,32 @@
 <div class="container">
     <h2>📦 Acompanhamento de Pedidos</h2>
 
+    <?php
+require_once __DIR__ . '/../../models/Operador.php';
+
+$operadorModel = new Operador();
+$operadores = $operadorModel->listarTodos();
+?>
+
+<!-- Modal de Seleção de Operador -->
+<div id="modalResponsavel" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999;">
+    <div style="background:white; padding:20px; border-radius:8px; width:400px; margin:100px auto; position:relative;">
+        <h3>Selecione o Operador</h3>
+        <select id="responsavelSelect" style="width:100%; padding:10px; font-size:16px; background-color:white; color:black; border: 1px solid #ccc; border-radius: 8px;">
+
+            <option value="">Selecione...</option>
+            <?php foreach ($operadores as $op): ?>
+                <option value="<?= htmlspecialchars($op['nome']) ?>"><?= htmlspecialchars($op['nome']) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <div style="margin-top:20px; text-align:right;">
+            <button onclick="confirmarResponsavel()">Confirmar</button>
+            <button onclick="fecharModal()">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+
     <!-- Filtros -->
     <form method="GET" action="/florV3/public/index.php" class="filtros">
         <input type="hidden" name="rota" value="acompanhamento">
@@ -216,9 +242,8 @@
             </td>
             <td><?= $data ?></td>
             <td>
-                <a href="/florV3/public/index.php?rota=imprimir-pedido&id=<?= $id ?>&tipo=<?= $tipoLink ?>" target="_blank">
-                    <button>🖨️ Imprimir</button>
-                </a>
+                <button onclick="confirmarImpressao(<?= $id ?>, '<?= $tipoLink ?>')">🖨️ Imprimir</button>
+
             </td>
         </tr>
         <?php endforeach; ?>
@@ -228,6 +253,10 @@
 </div>
 
 <script>
+let statusTemp = null;
+let idTemp = null;
+let tipoTemp = null;
+
 function atualizarStatus(id, tipo, status) {
     if (status === "Cancelado") {
         const confirmacao = confirm("Tem certeza que deseja CANCELAR este pedido?");
@@ -237,15 +266,82 @@ function atualizarStatus(id, tipo, status) {
         if (!confirmacao) return;
     }
 
+    if (status === "Produção") {
+        // Abre o modal e guarda temporariamente as infos
+        statusTemp = status;
+        idTemp = id;
+        tipoTemp = tipo;
+        document.getElementById("responsavelSelect").value = "";
+        document.getElementById("modalResponsavel").style.display = "block";
+        return;
+    }
+
+    // Se não for produção, envia normalmente
+    enviarStatus(id, tipo, status);
+}
+
+function confirmarResponsavel() {
+    const responsavel = document.getElementById("responsavelSelect").value;
+    if (!responsavel) {
+        alert("Selecione um operador!");
+        return;
+    }
+
+    const modal = document.getElementById("modalResponsavel");
+    const acao = modal.getAttribute("data-acao");
+
+    modal.style.display = "none";
+
+    if (acao === "impressao") {
+        // Redireciona para impressão, passando o operador via GET
+        window.open(`/florV3/public/index.php?rota=imprimir-pedido&id=${idImpressaoTemp}&tipo=${tipoImpressaoTemp}&operador=${encodeURIComponent(responsavel)}`, '_blank');
+    } else {
+        // Fluxo normal de alteração de status
+        let dados = `id=${idTemp}&tipo=${tipoTemp}&status=${encodeURIComponent(statusTemp)}&responsavel=${encodeURIComponent(responsavel)}`;
+        fetch('/florV3/public/index.php?rota=atualizar-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: dados
+        }).then(res => res.text()).then(data => {
+            location.reload();
+        });
+    }
+}
+
+
+function fecharModal() {
+    document.getElementById("modalResponsavel").style.display = "none";
+}
+
+// Função padrão para status que não são Produção
+function enviarStatus(id, tipo, status) {
+    let dados = `id=${id}&tipo=${tipo}&status=${encodeURIComponent(status)}`;
+
     fetch('/florV3/public/index.php?rota=atualizar-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `id=${id}&tipo=${tipo}&status=${encodeURIComponent(status)}`
+        body: dados
     }).then(res => res.text()).then(data => {
-        console.log('Status atualizado:', data);
         location.reload();
     });
 }
+
+let idImpressaoTemp = null;
+let tipoImpressaoTemp = null;
+
+function confirmarImpressao(id, tipo) {
+    idImpressaoTemp = id;
+    tipoImpressaoTemp = tipo;
+
+    // Mostra o mesmo modal de operador que já usamos
+    document.getElementById("responsavelSelect").value = "";
+    document.getElementById("modalResponsavel").style.display = "block";
+
+    // Só que agora ele irá para um fluxo de impressão
+    // Vamos diferenciar isso colocando um flag no modal:
+    document.getElementById("modalResponsavel").setAttribute("data-acao", "impressao");
+}
+
 </script>
 
 

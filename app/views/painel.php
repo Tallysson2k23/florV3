@@ -206,9 +206,7 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
 
    <div class="menu-conteudo">
     <br><br>
-    
-    
-    
+
     <?php if ($_SESSION['usuario_tipo'] === 'admin'): ?>
         <a href="/florV3/public/index.php?rota=cadastrar-produto" style="color:white; text-decoration:none;">➕ Cadastrar Produto</a><br><br>
         <a href="/florV3/public/index.php?rota=cadastrar-vendedor" style="color:white; text-decoration:none;">➕ Cadastrar Vendedor</a><br><br>
@@ -218,8 +216,14 @@ $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
         <a href="/florV3/public/index.php?rota=historico" style="color:white; text-decoration:none;">📜 Ver Histórico</a><br><br>
         <a href="/florV3/public/index.php?rota=agenda" style="color:white; text-decoration:none;">📆 Agenda</a><br><br>
         <a href="/florV3/public/index.php?rota=cancelados" style="color:white; text-decoration:none;">❌ Pedidos Cancelados</a><br><br>
+
+        <!-- NOVAS OPÇÕES: -->
+        <a href="/florV3/public/index.php?rota=cadastrar-operador" style="color:white; text-decoration:none;">➕ Cadastrar Operador</a><br><br>
+        <a href="/florV3/public/index.php?rota=lista-operadores" style="color:white; text-decoration:none;">📑 Lista de Operadores</a><br><br>
+        <a href="/florV3/public/index.php?rota=relatorio-operadores" style="color:white; text-decoration:none;">📊 Relatório de Produção</a><br><br>
     <?php endif; ?>
 </div>
+
 
 
     <div class="sair-fixado">

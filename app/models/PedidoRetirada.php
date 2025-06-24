@@ -161,6 +161,15 @@ public function buscarPorStatusEDataEEnvio($statusArray, $data, $enviarPara, $bu
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+public function atualizarStatusComResponsavel($id, $status, $responsavel) {
+    $sql = "UPDATE {$this->table} SET status = :status, responsavel_producao = :responsavel WHERE id = :id";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute([
+        ':status' => $status,
+        ':responsavel' => $responsavel,
+        ':id' => $id
+    ]);
+}
 
 
 }

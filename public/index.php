@@ -5,6 +5,7 @@ require_once __DIR__ . '/../app/controllers/PedidoController.php';
 require_once __DIR__ . '/../app/controllers/UsuarioController.php';
 require_once __DIR__ . '/../app/controllers/ProdutoController.php';
 require_once __DIR__ . '/../app/controllers/VendedorController.php';
+require_once __DIR__ . '/../app/controllers/OperadorController.php';
 
 $rota = $_GET['rota'] ?? 'painel';
 $controller = new PedidoController();
@@ -147,7 +148,25 @@ switch ($rota) {
     break;
 
 
+case 'cadastrar-operador':
+    $operadorController = new OperadorController();
+    $operadorController->cadastrarOperador();
+    break;
 
+case 'salvar-operador':
+    $operadorController = new OperadorController();
+    $operadorController->salvarOperador();
+    break;
+
+case 'lista-operadores':
+    $operadorController = new OperadorController();
+    $operadorController->listaOperadores();
+    break;
+
+case 'relatorio-operadores':
+    $operadorController = new OperadorController();
+    $operadorController->relatorioOperadores();
+    break;
 
 
     default:
