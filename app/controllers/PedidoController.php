@@ -26,59 +26,70 @@ class PedidoController {
         require __DIR__ . '/../views/pedidos/cadastrar_retirada.php';
     }
 
-    public function salvarEntrega() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $dados = $_POST;
-$dados['enviar_para'] = $_POST['enviar_para'] ?? null;
+public function salvarEntrega() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $dados = $_POST;
 
-// Aqui aplicamos a lógica nova:
-if ($dados['enviar_para'] === 'pronta_entrega') {
-    $dados['status'] = 'Pronto';
-} else {
-    $dados['status'] = 'Pendente';
+        // Convertendo o array de produtos em string para salvar
+        $produtosArray = $_POST['produtos'] ?? [];
+        $produtosTexto = implode(', ', $produtosArray);
+        $dados['produtos'] = $produtosTexto;
+
+        // Garantir o status conforme seleção do usuário
+        $dados['enviar_para'] = $_POST['enviar_para'] ?? null;
+        if ($dados['enviar_para'] === 'pronta_entrega') {
+            $dados['status'] = 'Pronto';
+        } else {
+            $dados['status'] = 'Pendente';
+        }
+
+        // Salvar no banco
+        $model = new PedidoEntrega();
+        $id = $model->criar($dados);
+
+        // Impressão opcional
+        $desejaImprimir = isset($_POST['imprimir']) && $_POST['imprimir'] == '1';
+        if ($desejaImprimir) {
+            header("Location: /florV3/public/index.php?rota=imprimir-cupom-cliente&id={$id}&tipo=entrega");
+        } else {
+            header('Location: /florV3/public/index.php?rota=painel&sucesso=1');
+        }
+        exit;
+    }
 }
 
 
-            $model = new PedidoEntrega();
-            $id = $model->criar($dados);
+public function salvarRetirada() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $dados = $_POST;
 
-            $desejaImprimir = isset($_POST['imprimir']) && $_POST['imprimir'] == '1';
-
-            if ($desejaImprimir) {
-                header("Location: /florV3/public/index.php?rota=imprimir-cupom-cliente&id={$id}&tipo=entrega");
-            } else {
-                header('Location: /florV3/public/index.php?rota=painel&sucesso=1');
-            }
-            exit;
+        // Transformar o array de produtos em string (se existir e for array)
+        if (isset($dados['produtos']) && is_array($dados['produtos'])) {
+            $dados['produtos'] = implode(', ', $dados['produtos']);
         }
+
+        $dados['enviar_para'] = $_POST['enviar_para'] ?? null;
+
+        if ($dados['enviar_para'] === 'pronta_entrega') {
+            $dados['status'] = 'Pronto';
+        } else {
+            $dados['status'] = 'Pendente';
+        }
+
+        $model = new PedidoRetirada();
+        $id = $model->criar($dados);
+
+        $desejaImprimir = isset($_POST['imprimir']) && $_POST['imprimir'] == '1';
+
+        if ($desejaImprimir) {
+            header("Location: /florV3/public/index.php?rota=imprimir-cupom-cliente&id={$id}&tipo=retirada");
+        } else {
+            header('Location: /florV3/public/index.php?rota=painel&sucesso=1');
+        }
+        exit;
     }
-
-    public function salvarRetirada() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $dados = $_POST;
-$dados['enviar_para'] = $_POST['enviar_para'] ?? null;
-
-// Aqui aplicamos a lógica nova:
-if ($dados['enviar_para'] === 'pronta_entrega') {
-    $dados['status'] = 'Pronto';
-} else {
-    $dados['status'] = 'Pendente';
 }
 
-
-            $model = new PedidoRetirada();
-            $id = $model->criar($dados);
-
-            $desejaImprimir = isset($_POST['imprimir']) && $_POST['imprimir'] == '1';
-
-            if ($desejaImprimir) {
-                header("Location: /florV3/public/index.php?rota=imprimir-cupom-cliente&id={$id}&tipo=retirada");
-            } else {
-                header('Location: /florV3/public/index.php?rota=painel&sucesso=1');
-            }
-            exit;
-        }
-    }
 
     public function historico() {
         $entregaModel = new PedidoEntrega();

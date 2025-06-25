@@ -120,6 +120,12 @@ $produtos = $produtoModel->listarTodos();
             }
         }
     </style>
+    <!-- Choices CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+
+<!-- Choices JS -->
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
 </head>
 <body>
 
@@ -152,19 +158,17 @@ $produtos = $produtoModel->listarTodos();
             </div>
         </div>
 
-       <div class="form-group full">
-    <div>
-        <label>Produto:</label>
-        <select name="produtos" required>
-            <option value="">Selecione</option>
-            <?php foreach ($produtos as $produto): ?>
-                <option value="<?= htmlspecialchars($produto['nome']) ?>">
-                    <?= htmlspecialchars($produto['nome']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-    </div>
+<div class="form-group full">
+    <label>Produto: <span style="color:red;">*</span></label>
+    <select id="produtos" name="produtos[]" multiple required>
+        <?php foreach ($produtos as $produto): ?>
+            <option value="<?= htmlspecialchars($produto['nome']) ?>">
+                <?= htmlspecialchars($produto['nome']) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
 </div>
+
 <div class="form-group full">
     <div>
         <label>OBS:</label>
@@ -283,6 +287,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 campo.setSelectionRange(campo.value.length, campo.value.length);
             }
         }, 0);
+    });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const element = document.getElementById('produtos');
+    const choices = new Choices(element, {
+        removeItemButton: true,
+        searchEnabled: true,
+        placeholderValue: 'Selecione os produtos',
+        searchPlaceholderValue: 'Buscar produto...'
     });
 });
 </script>

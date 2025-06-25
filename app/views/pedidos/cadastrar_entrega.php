@@ -7,7 +7,6 @@ $produtoModel = new Produto($pdo);
 $produtos = $produtoModel->listarTodos();
 ?>
 
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -71,25 +70,13 @@ $produtos = $produtoModel->listarTodos();
             display: block;
         }
 
-        input {
+        input, select, textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 8px;
             font-size: 15px;
         }
-
-        select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 15px;
-    background-color: white;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-}
 
         .actions {
             text-align: center;
@@ -118,6 +105,9 @@ $produtos = $produtoModel->listarTodos();
             }
         }
     </style>
+
+    <!-- Importa o Choices CSS -->
+    <link rel="stylesheet" href="/florV3/public/assets/css/choices.min.css">
 </head>
 <body>
 
@@ -132,7 +122,6 @@ $produtos = $produtoModel->listarTodos();
             <div>
                 <label>Nº Pedido:</label>
                 <input name="numero_pedido" id="numero_pedido" required value="L20">
-
             </div>
             <div>
                 <label>Tipo:</label>
@@ -185,34 +174,31 @@ $produtos = $produtoModel->listarTodos();
         </div>
 
         <div class="form-group full">
-    <div>
-        <label>Produto:</label>
-        <select name="produtos" required>
-            <option value="">Selecione</option>
-            <?php foreach ($produtos as $produto): ?>
-                <option value="<?= htmlspecialchars($produto['nome']) ?>">
-                    <?= htmlspecialchars($produto['nome']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-    </div>
-</div>
-<div class="form-group full">
-    <div>
-        <label>OBS:</label>
-        <textarea name="obs_produto" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px;"></textarea>
-    </div>
-</div>
+            <div>
+                <label>Produto:</label>
+                <select id="produtos" name="produtos[]" multiple required>
+                    <?php foreach ($produtos as $produto): ?>
+                        <option value="<?= htmlspecialchars($produto['nome']) ?>">
+                            <?= htmlspecialchars($produto['nome']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
 
-
+        <div class="form-group full">
+            <div>
+                <label>OBS:</label>
+                <textarea name="obs_produto" rows="3"></textarea>
+            </div>
+        </div>
 
         <div class="form-group">
-    <div>
-        <label>Quantidade:</label>
-        <input name="quantidade" type="number" min="1" value="1" required>
-    </div>
-</div>
-
+            <div>
+                <label>Quantidade:</label>
+                <input name="quantidade" type="number" min="1" value="1" required>
+            </div>
+        </div>
 
         <div class="form-group full">
             <div>
@@ -228,29 +214,28 @@ $produtos = $produtoModel->listarTodos();
             </div>
         </div>
 
-        <!-- Adicione antes do botão -->
-<div class="form-group full">
-    <label>Vendedor:</label>
-    <select name="vendedor_codigo" required>
-        <option value="">Selecione</option>
-        <?php foreach ($vendedores as $v): ?>
-            <option value="<?= htmlspecialchars($v['codigo']) ?>">
-                <?= htmlspecialchars($v['codigo']) ?> - <?= htmlspecialchars($v['nome']) ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
-</div>
-<label><strong>Enviar para: <span style="color:red;">*</span></strong></label><br>
-<div style="margin-left:20px;">
-    <input type="radio" name="enviar_para" id="producao" value="producao" required>
-    <label for="producao">Mandar para Produção</label><br>
-    
-    <input type="radio" name="enviar_para" id="pronta_entrega" value="pronta_entrega" required>
-    <label for="pronta_entrega">Pronta Entrega</label>
-</div><br>
+        <div class="form-group full">
+            <div>
+                <label>Vendedor:</label>
+                <select name="vendedor_codigo" required>
+                    <option value="">Selecione</option>
+                    <?php foreach ($vendedores as $v): ?>
+                        <option value="<?= htmlspecialchars($v['codigo']) ?>">
+                            <?= htmlspecialchars($v['codigo']) ?> - <?= htmlspecialchars($v['nome']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
 
-
-
+        <label><strong>Enviar para: <span style="color:red;">*</span></strong></label><br>
+        <div style="margin-left:20px;">
+            <input type="radio" name="enviar_para" id="producao" value="producao" required>
+            <label for="producao">Mandar para Produção</label><br>
+            
+            <input type="radio" name="enviar_para" id="pronta_entrega" value="pronta_entrega" required>
+            <label for="pronta_entrega">Pronta Entrega</label>
+        </div><br>
 
         <input type="hidden" name="imprimir" id="imprimir" value="0">
 
@@ -263,21 +248,17 @@ $produtos = $produtoModel->listarTodos();
 
 <script>
 function confirmarEnvioEntrega() {
-    // Verifica se um radio foi selecionado
     const enviarParaSelecionado = document.querySelector('input[name="enviar_para"]:checked');
     if (!enviarParaSelecionado) {
         alert("Por favor, selecione uma opção em 'Enviar para'.");
         return;
     }
 
-    const confirmar = confirm("Deseja realmente enviar o pedido?");
-    if (!confirmar) return;
+    if (!confirm("Deseja realmente enviar o pedido?")) return;
 
-    const desejaImprimir = confirm("Deseja imprimir o cupom?");
-    document.getElementById("imprimir").value = desejaImprimir ? "1" : "0";
+    document.getElementById("imprimir").value = confirm("Deseja imprimir o cupom?") ? "1" : "0";
     document.getElementById("form-entrega").submit();
 }
-
 
 function confirmarCancelamento() {
     if (confirm("Deseja realmente cancelar? Os dados serão perdidos.")) {
@@ -291,34 +272,41 @@ document.addEventListener("DOMContentLoaded", function () {
     const campo = document.getElementById("numero_pedido");
     const prefixo = "L20";
 
-    // Aplica prefixo se estiver vazio
     if (!campo.value.startsWith(prefixo)) {
         campo.value = prefixo;
     }
 
-    // Bloqueia apagar o prefixo
     campo.addEventListener("keydown", function (e) {
         const pos = campo.selectionStart;
-
-        // Impede apagar prefixo
         if ((pos <= prefixo.length) && (e.key === "Backspace" || e.key === "Delete")) {
             e.preventDefault();
         }
-
-        // Impede digitar antes do prefixo
         if (pos < prefixo.length && !["ArrowLeft", "ArrowRight", "Tab"].includes(e.key)) {
             e.preventDefault();
             campo.setSelectionRange(campo.value.length, campo.value.length);
         }
     });
 
-    // Quando foca, move cursor para depois do prefixo
     campo.addEventListener("focus", function () {
         setTimeout(() => {
             if (campo.selectionStart < prefixo.length) {
                 campo.setSelectionRange(campo.value.length, campo.value.length);
             }
         }, 0);
+    });
+});
+</script>
+
+<!-- Carrega o JS do Choices no final -->
+<script src="/florV3/public/assets/js/choices.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const element = document.getElementById('produtos');
+    new Choices(element, {
+        removeItemButton: true,
+        searchEnabled: true,
+        placeholderValue: 'Selecione os produtos',
+        searchPlaceholderValue: 'Buscar produto...'
     });
 });
 </script>
