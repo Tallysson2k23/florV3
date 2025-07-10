@@ -123,12 +123,39 @@
 
         <!-- Continua mostrando os outros campos -->
         <ul>
-            <?php foreach ($dados as $campo => $valor): ?>
-                <?php if ($campo !== 'mensagem_entrega'): // evita mostrar a mensagem duplicada no loop ?>
-                    <li><strong><?= ucfirst(str_replace('_', ' ', $campo)) ?>:</strong> <?= htmlspecialchars($valor) ?></li>
-                <?php endif; ?>
-            <?php endforeach; ?>
-        </ul>
+    <?php
+        // Ignorar os campos que serão tratados separadamente no final
+        $ignorar = ['mensagem_entrega', 'nome_vendedor', 'vendedor_codigo', 'codigo_vendedor', 'data_abertura', 'hora'];
+
+        // Exibir todos os outros campos primeiro
+        foreach ($dados as $campo => $valor):
+            if (in_array($campo, $ignorar)) continue;
+    ?>
+        <li><strong><?= ucfirst(str_replace('_', ' ', $campo)) ?>:</strong> <?= htmlspecialchars($valor) ?></li>
+    <?php endforeach; ?>
+
+    <?php
+        // Montar "Vendedor/código"
+        $nomeVendedor = $dados['nome_vendedor'] ?? '';
+        $codigoVendedor = $dados['vendedor_codigo'] ?? '';
+        $vendedorFinal = trim($nomeVendedor . ($codigoVendedor ? " ($codigoVendedor)" : ''));
+
+        if ($vendedorFinal):
+    ?>
+        <li><strong>Vendedor:</strong> <?= htmlspecialchars($vendedorFinal) ?></li>
+    <?php endif; ?>
+
+    <?php
+        // Exibir data + hora juntos
+        $data = $dados['data_abertura'] ?? '';
+        $hora = $dados['hora'] ?? '';
+
+        if ($data || $hora):
+    ?>
+        <li><strong>Data/Hora de abertura:</strong> <?= htmlspecialchars(trim("$data $hora")) ?></li>
+    <?php endif; ?>
+</ul>
+
 
         <div class="botoes">
             <a class="btn-voltar" href="/florV3/public/index.php?rota=painel"><- Voltar</a>
