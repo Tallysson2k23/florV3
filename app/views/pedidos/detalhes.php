@@ -156,6 +156,18 @@
     <?php endif; ?>
 </ul>
 
+<?php if (!empty($historico)): ?>
+    <h3 style="margin-top: 30px; color: #444;">📌 Histórico de Status</h3>
+    <ul>
+        <?php foreach ($historico as $h): ?>
+            <li>
+                <strong><?= ucfirst($h['status']) ?>:</strong> 
+                <?= date('d/m/Y H:i', strtotime($h['data_hora'])) ?>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+<?php endif; ?>
+
 
         <div class="botoes">
             <a class="btn-voltar" href="/florV3/public/index.php?rota=painel"><- Voltar</a>

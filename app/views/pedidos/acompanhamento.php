@@ -251,7 +251,9 @@ if (!empty($pedido['nome'])) {
             </td>
             <td><?= $data ?></td>
             <td>
-                <button onclick="confirmarImpressao(<?= $id ?>, '<?= $tipoLink ?>')">🖨️ Imprimir</button>
+                <button onclick="confirmarImpressao(<?= $pedido['id'] ?>, '<?= $tipoLink ?>')">🖨️ Imprimir</button>
+
+
 
             </td>
         </tr>
@@ -302,16 +304,16 @@ function confirmarResponsavel() {
 
     if (acao === "impressao") {
         // Aqui registramos no banco ANTES de imprimir
-        fetch('/florV3/public/index.php?rota=registrar-responsavel', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id=${idImpressaoTemp}&tipo=${tipoImpressaoTemp}&responsavel=${encodeURIComponent(responsavel)}`
-        })
-        .then(res => res.text())
-        .then(data => {
-            // Após registrar, redireciona para impressão
-            window.open(`/florV3/public/index.php?rota=imprimir-pedido&id=${idImpressaoTemp}&tipo=${tipoImpressaoTemp}`, '_blank');
-        })
+fetch('/florV3/public/index.php?rota=atualizar-status', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `id=${idImpressaoTemp}&tipo=${tipoImpressaoTemp}&status=Produção&responsavel=${encodeURIComponent(responsavel)}`
+})
+.then(res => res.text())
+.then(data => {
+    window.open(`/florV3/public/index.php?rota=imprimir-pedido&id=${idImpressaoTemp}&tipo=${tipoImpressaoTemp}`, '_blank');
+})
+
         .catch(err => alert("Erro ao registrar responsável!"));
     } else {
         // Fluxo normal de alteração de status
@@ -363,6 +365,33 @@ function confirmarImpressao(id, tipo) {
 
 </script>
 
+<script>
+function imprimirPedido(id, tipo) {
+    // Altera status para Produção
+    fetch('index.php?rota=atualizar-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+            id: id,
+            tipo: tipo,
+            status: 'Produção'
+        })
+    })
+    .then(response => response.text())
+    .then(data => {
+        if (data.trim() === 'OK') {
+            // Redireciona para a página de impressão depois de alterar o status
+            window.location.href = `index.php?rota=imprimir-pedido&id=${id}&tipo=${tipo}`;
+        } else {
+            alert('Erro ao alterar status');
+        }
+    })
+    .catch(err => {
+        alert('Erro ao conectar com o servidor');
+        console.error(err);
+    });
+}
+</script>
 
 </body>
 </html>

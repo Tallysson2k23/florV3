@@ -167,15 +167,21 @@ public function atualizarStatus() {
         return;
     }
 
+    // Define o model correto
     $model = ($tipo === 'entrega') ? new PedidoEntrega() : new PedidoRetirada();
     $model->atualizarStatus($id, $status, $mensagem);
 
-    // 🚩 AQUI FAZEMOS O REGISTRO NO BANCO DE RESPONSAVEL
+    // Registra o responsável pela produção (caso aplicável)
     if ($status === 'Produção' && $responsavel) {
         require_once __DIR__ . '/../models/ResponsavelProducao.php';
         $responsavelModel = new ResponsavelProducao();
         $responsavelModel->criar($id, $tipo, $responsavel);
     }
+
+    // ✅ REGISTRAR NO HISTÓRICO DE STATUS
+    require_once __DIR__ . '/../models/HistoricoStatus.php';
+    $historicoModel = new HistoricoStatus(Database::conectar());
+    $historicoModel->registrar($id, $tipo, $status);
 
     echo 'OK';
 }
@@ -257,25 +263,37 @@ public function atualizarStatus() {
         require __DIR__ . '/../views/painel.php';
     }
 
-    public function detalhesPedido() {
+public function detalhesPedido() {
     require_once __DIR__ . '/../models/PedidoEntrega.php';
     require_once __DIR__ . '/../models/PedidoRetirada.php';
+    require_once __DIR__ . '/../models/HistoricoStatus.php';
 
     $id = $_GET['id'] ?? null;
-    $tipo = strtolower($_GET['tipo'] ?? '');
+    $tipoRaw = strtolower($_GET['tipo'] ?? '');
 
     $dados = null;
+    $historico = [];
 
-    if ($id && ($tipo === 'entrega' || $tipo === '1-entrega')) {
+    // Limpa o tipo para garantir que será 'entrega' ou 'retirada'
+    if (str_contains($tipoRaw, 'entrega')) {
+        $tipoLimpo = 'entrega';
         $model = new PedidoEntrega();
         $dados = $model->buscarPorId($id);
-    } elseif ($id && ($tipo === 'retirada' || $tipo === '2-retirada')) {
+    } elseif (str_contains($tipoRaw, 'retirada')) {
+        $tipoLimpo = 'retirada';
         $model = new PedidoRetirada();
         $dados = $model->buscarPorId($id);
     }
 
+    // Buscar histórico apenas se tiver dados válidos
+    if ($dados && isset($tipoLimpo)) {
+        $historicoModel = new HistoricoStatus(Database::conectar());
+        $historico = $historicoModel->buscarPorPedido($id, $tipoLimpo);
+    }
+
     require __DIR__ . '/../views/pedidos/detalhes.php';
 }
+
 
 public function cancelados() {
     require_once __DIR__ . '/../models/PedidoEntrega.php';
