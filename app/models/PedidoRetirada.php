@@ -75,7 +75,7 @@ public function listarTodos() {
 }
 
 
-public function atualizarStatus($id, $status, $mensagem = null) {
+public function atualizarStatus($id, $status, $mensagem = null, $responsavel = null) {
     $campos = 'status = :status';
     $params = [':status' => $status, ':id' => $id];
 
@@ -84,10 +84,16 @@ public function atualizarStatus($id, $status, $mensagem = null) {
         $params[':mensagem'] = $mensagem;
     }
 
+    if ($responsavel !== null) {
+        $campos .= ', responsavel = :responsavel';
+        $params[':responsavel'] = $responsavel;
+    }
+
     $sql = "UPDATE {$this->table} SET $campos WHERE id = :id";
     $stmt = $this->conn->prepare($sql);
     $stmt->execute($params);
 }
+
 
 public function buscarPorStatus($status) {
     if (is_array($status)) {

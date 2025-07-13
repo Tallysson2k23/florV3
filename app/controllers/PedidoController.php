@@ -169,7 +169,7 @@ public function atualizarStatus() {
 
     // Define o model correto
     $model = ($tipo === 'entrega') ? new PedidoEntrega() : new PedidoRetirada();
-    $model->atualizarStatus($id, $status, $mensagem);
+    $model->atualizarStatus($id, $status, $mensagem, $responsavel);
 
     // Registra o responsável pela produção (caso aplicável)
     if ($status === 'Produção' && $responsavel) {

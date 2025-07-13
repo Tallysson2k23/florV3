@@ -125,7 +125,7 @@
         <ul>
     <?php
         // Ignorar os campos que serão tratados separadamente no final
-        $ignorar = ['mensagem_entrega', 'nome_vendedor', 'vendedor_codigo', 'codigo_vendedor', 'data_abertura', 'hora'];
+     $ignorar = ['mensagem_entrega', 'nome_vendedor', 'vendedor_codigo', 'codigo_vendedor', 'data_abertura', 'hora', 'responsavel', 'responsavel_producao', 'responsavel_produção'];
 
         // Exibir todos os outros campos primeiro
         foreach ($dados as $campo => $valor):
@@ -145,6 +145,16 @@
         <li><strong>Vendedor:</strong> <?= htmlspecialchars($vendedorFinal) ?></li>
     <?php endif; ?>
 
+        <?php
+    // Verificar os possíveis campos de responsável
+    $responsavel = $dados['responsavel'] ?? ($dados['responsavel_producao'] ?? null);
+
+    if (!empty($responsavel)):
+?>
+    <li><strong>Responsável pela Produção:</strong> <?= htmlspecialchars($responsavel) ?></li>
+<?php endif; ?>
+
+
     <?php
         // Exibir data + hora juntos
         $data = $dados['data_abertura'] ?? '';
@@ -154,6 +164,7 @@
     ?>
         <li><strong>Data/Hora de abertura:</strong> <?= htmlspecialchars(trim("$data $hora")) ?></li>
     <?php endif; ?>
+    
 </ul>
 
 <?php if (!empty($historico)): ?>
