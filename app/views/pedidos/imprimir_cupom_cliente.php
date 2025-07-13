@@ -72,20 +72,30 @@
     <div class="titulo">Cupom - Entrega</div>
     <table>
         <tr>
-            <td><strong>Destinatário:</strong></td>
-            <td class="cliente-destaque"><?= $dados['destinatario'] ?></td>
+            <td><strong>Remetente:</strong></td>
+            <td class="cliente-destaque"><?= $dados['remetente'] ?></td>
         </tr>
-        <tr><td><strong>Contato:</strong></td><td><?= $dados['telefone_destinatario'] ?></td></tr>
-
-        <tr><td><strong>Remetente:</strong></td><td><?= $dados['remetente'] ?></td></tr>
         <tr><td><strong>Contato:</strong></td><td><?= $dados['telefone_remetente'] ?></td></tr>
+
+        <tr><td><strong>Destinatario:</strong></td><td><?= $dados['destinatario'] ?></td></tr>
+        <tr><td><strong>Contato:</strong></td><td><?= $dados['telefone_destinatario'] ?></td></tr>
 
         <tr><td><strong>Endereço:</strong></td><td><?= $dados['endereco'] ?>, Nº <?= $dados['numero_endereco'] ?></td></tr>
         <tr><td><strong>Bairro:</strong></td><td><?= $dados['bairro'] ?></td></tr>
         <tr><td><strong>Referência:</strong></td><td><?= $dados['referencia'] ?></td></tr>
-        <tr><td><strong>Produtos:</strong></td>
-            <td><?= htmlspecialchars(($dados['quantidade'] ?? '1') . 'x ' . ($dados['produtos'] ?? '-')) ?></td></tr>
-        <tr><td><strong>Adicionais:</strong></td><td><?= $dados['adicionais'] ?></td></tr>
+        <?php
+$produtos = explode(',', $dados['produtos'] ?? '');
+foreach ($produtos as $produto) :
+    $produto = trim($produto);
+    if (!empty($produto)):
+?>
+<tr>
+    <td><strong>Produto:</strong></td>
+    <td><?= htmlspecialchars($produto) ?></td>
+</tr>
+<?php endif; endforeach; ?>
+
+ 
         <tr><td><strong>Nº Pedido:</strong></td><td><?= $dados['numero_pedido'] ?></td></tr>
         <tr><td><strong>Data:</strong></td><td><?= date('d/m/Y', strtotime($dados['data_abertura'])) ?></td></tr>
         <tr><td><strong>Vendedor:</strong></td><td><?= htmlspecialchars($dados['codigo_vendedor'] ?? '') ?> <?= htmlspecialchars($dados['nome_vendedor'] ?? '') ?></td></tr>
@@ -99,9 +109,18 @@
             <td class="cliente-destaque"><?= $dados['nome'] ?></td>
         </tr>
         <tr><td><strong>Contato:</strong></td><td><?= $dados['telefone'] ?></td></tr>
-        <tr><td><strong>Produtos:</strong></td>
-            <td><?= htmlspecialchars(($dados['quantidade'] ?? '1') . 'x ' . ($dados['produtos'] ?? '-')) ?></td></tr>
-        <tr><td><strong>Adicionais:</strong></td><td><?= $dados['adicionais'] ?></td></tr>
+<?php
+$produtos = explode(',', $dados['produtos'] ?? '');
+foreach ($produtos as $produto) :
+    $produto = trim($produto);
+    if (!empty($produto)):
+?>
+<tr>
+    <td><strong>Produto:</strong></td>
+    <td><?= htmlspecialchars($produto) ?></td>
+</tr>
+<?php endif; endforeach; ?>
+
         <tr><td><strong>Nº Pedido:</strong></td><td><?= $dados['numero_pedido'] ?></td></tr>
         <tr><td><strong>Data/Hora:</strong></td><td><?= date('d/m/Y', strtotime($dados['data_abertura'])) ?> <?= substr($dados['hora'], 0, 5) ?></td></tr>
         <tr>

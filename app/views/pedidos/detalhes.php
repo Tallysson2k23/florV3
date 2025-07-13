@@ -125,7 +125,13 @@
         <ul>
     <?php
         // Ignorar os campos que serão tratados separadamente no final
-     $ignorar = ['mensagem_entrega', 'nome_vendedor', 'vendedor_codigo', 'codigo_vendedor', 'data_abertura', 'hora', 'responsavel', 'responsavel_producao', 'responsavel_produção'];
+$ignorar = [
+    'mensagem_entrega', 'nome_vendedor', 'vendedor_codigo',
+    'codigo_vendedor', 'data_abertura', 'hora',
+    'responsavel', 'responsavel_producao', 'responsavel_produção',
+    'adicionais', 'obs_produto', 'quantidade' // agora sempre ocultos
+];
+
 
         // Exibir todos os outros campos primeiro
         foreach ($dados as $campo => $valor):

@@ -173,39 +173,31 @@ $produtos = $produtoModel->listarTodos();
             </div>
         </div>
 
-        <div class="form-group full">
-            <div>
-                <label>Produto:</label>
-                <select id="produtos" name="produtos[]" multiple required>
-                    <?php foreach ($produtos as $produto): ?>
-                        <option value="<?= htmlspecialchars($produto['nome']) ?>">
-                            <?= htmlspecialchars($produto['nome']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-        </div>
+<div class="form-group full">
+    <label>Produto:</label>
+    <select id="produto-seletor">
+        <option value="">Selecione...</option>
+        <?php foreach ($produtos as $produto): ?>
+            <option value="<?= htmlspecialchars($produto['nome']) ?>">
+                <?= htmlspecialchars($produto['nome']) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+</div>
 
-        <div class="form-group full">
-            <div>
-                <label>OBS:</label>
-                <textarea name="obs_produto" rows="3"></textarea>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <div>
-                <label>Quantidade:</label>
-                <input name="quantidade" type="number" min="1" value="1" required>
-            </div>
-        </div>
-
-        <div class="form-group full">
-            <div>
-                <label>Adicionais:</label>
-                <input name="adicionais">
-            </div>
-        </div>
+<!-- Tabela para exibir os produtos com quantidade e observação -->
+<table style="width:100%; border-collapse: collapse;" id="tabela-produtos">
+    <thead>
+        <tr style="background: #f0f0f0;">
+            <th style="padding: 10px; border: 1px solid #ddd;">Produto</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Quantidade</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Observação</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Remover</th>
+        </tr>
+    </thead>
+    <tbody id="lista-produtos"></tbody>
+</table>
+<br>
 
         <div class="form-group full">
             <div>
@@ -299,14 +291,41 @@ document.addEventListener("DOMContentLoaded", function () {
 
 <!-- Carrega o JS do Choices no final -->
 <script src="/florV3/public/assets/js/choices.min.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const element = document.getElementById('produtos');
-    new Choices(element, {
-        removeItemButton: true,
-        searchEnabled: true,
-        placeholderValue: 'Selecione os produtos',
-        searchPlaceholderValue: 'Buscar produto...'
+    const seletor = document.getElementById('produto-seletor');
+    const lista = document.getElementById('lista-produtos');
+
+    seletor.addEventListener('change', function () {
+        const nome = seletor.value;
+        if (!nome) return;
+
+        // Impedir duplicados
+        if (document.querySelector(`tr[data-produto="${nome}"]`)) {
+            alert("Este produto já foi adicionado.");
+            return;
+        }
+
+        const linha = document.createElement('tr');
+        linha.setAttribute('data-produto', nome);
+        linha.innerHTML = `
+            <td style="border: 1px solid #ddd; padding: 8px;">
+                <input type="hidden" name="produtos[${nome}][nome]" value="${nome}">
+                ${nome}
+            </td>
+            <td style="border: 1px solid #ddd; padding: 8px;">
+                <input type="number" name="produtos[${nome}][quantidade]" value="1" min="1" required style="width: 60px;">
+            </td>
+            <td style="border: 1px solid #ddd; padding: 8px;">
+                <input type="text" name="produtos[${nome}][observacao]" placeholder="Observação...">
+            </td>
+            <td style="border: 1px solid #ddd; padding: 8px;">
+                <button type="button" onclick="this.closest('tr').remove()">❌</button>
+            </td>
+        `;
+        lista.appendChild(linha);
+        seletor.value = "";
     });
 });
 </script>

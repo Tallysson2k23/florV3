@@ -11,33 +11,37 @@ class PedidoRetirada {
     }
 
 public function criar($dados) {
-   require_once __DIR__ . '/../helpers/OrdemGlobal.php';
-$ordem = OrdemGlobal::getProximaOrdem();
+    require_once __DIR__ . '/../helpers/OrdemGlobal.php';
+    $ordem = OrdemGlobal::getProximaOrdem();
 
+    // Preenche todos os campos obrigatórios
+    $dados['numero_pedido']     = $dados['numero_pedido'] ?? '';
+    $dados['tipo']              = $dados['tipo'] ?? '';
+    $dados['nome']              = $dados['nome'] ?? '';
+    $dados['telefone']          = $dados['telefone'] ?? '';
+    $dados['produtos']          = $dados['produtos'] ?? '';
+    $dados['adicionais']        = $dados['adicionais'] ?? ''; // <- ESSENCIAL
+    $dados['data_abertura']     = $dados['data_abertura'] ?? date('Y-m-d');
+    $dados['hora']              = date('H:i:s');
+    $dados['status']            = $dados['status'] ?? 'Pendente';
+    $dados['ordem_fila']        = $ordem;
+    $dados['vendedor_codigo']   = $dados['vendedor_codigo'] ?? null;
+    $dados['quantidade']        = $dados['quantidade'] ?? 1;
+    $dados['obs_produto']       = $dados['obs_produto'] ?? null;
+    $dados['enviar_para']       = $dados['enviar_para'] ?? null;
 
-    // Adiciona campos adicionais obrigatórios
-    $dados['status'] = $dados['status'] ?? 'Pendente';
-    $dados['ordem_fila'] = $ordem;
-    $dados['hora'] = date('H:i:s');
-    $dados['quantidade'] = $dados['quantidade'] ?? 1;
-
-    $dados['vendedor_codigo'] = $dados['vendedor_codigo'] ?? null;
-
-
-    unset($dados['imprimir']); // se estiver vindo
+    unset($dados['imprimir']);
 
     $sql = "INSERT INTO {$this->table} 
-    (numero_pedido, tipo, nome, telefone, produtos, adicionais, data_abertura, hora, status, ordem_fila, vendedor_codigo, quantidade, obs_produto, enviar_para)
-    VALUES 
-    (:numero_pedido, :tipo, :nome, :telefone, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo, :quantidade, :obs_produto, :enviar_para)";
+        (numero_pedido, tipo, nome, telefone, produtos, adicionais, data_abertura, hora, status, ordem_fila, vendedor_codigo, quantidade, obs_produto, enviar_para)
+        VALUES 
+        (:numero_pedido, :tipo, :nome, :telefone, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo, :quantidade, :obs_produto, :enviar_para)";
 
     $stmt = $this->conn->prepare($sql);
     $stmt->execute($dados);
 
     return $this->conn->lastInsertId();
 }
-
-
 
     public function buscar($termo) {
    $sql = "SELECT id, numero_pedido, tipo, nome, telefone, produtos AS produtos, status, data_abertura

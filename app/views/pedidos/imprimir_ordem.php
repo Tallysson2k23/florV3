@@ -80,16 +80,23 @@
     <table>
         <tr>
             <td class="label">Nome</td>
-            <td class="cliente-destaque"><?= htmlspecialchars($dados['nome'] ?? $dados['destinatario'] ?? '-') ?></td>
+            <td class="cliente-destaque"><?= htmlspecialchars($dados['nome'] ?? $dados['remetente'] ?? '-') ?></td>
         </tr>
         <tr>
-            <td class="label">Produtos:</td>
-            <td><?= htmlspecialchars(($dados['quantidade'] ?? '1') . 'x ' . ($dados['produtos'] ?? '-')) ?></td>
-        </tr>
-        <tr>
-            <td class="label">OBS:</td>
-            <td><?= htmlspecialchars($dados['obs_produto'] ?? '-') ?></td>
-        </tr>
+<?php
+$produtos = explode(',', $dados['produtos'] ?? '');
+$observacoes = explode("\n", $dados['obs_produto'] ?? '');
+foreach ($produtos as $index => $produto) :
+    $produto = trim($produto);
+    $obs = isset($observacoes[$index]) ? trim($observacoes[$index]) : '';
+    if (!empty($produto)):
+?>
+<tr>
+    <td class="label">Produto:</td>
+    <td><?= htmlspecialchars($produto . (!empty($obs) ? " ({$obs})" : '')) ?></td>
+</tr>
+<?php endif; endforeach; ?>
+
         <!--
         <tr>
             <td class="label">Complemento</td>
@@ -97,7 +104,7 @@
         </tr>
         -->
         <tr>
-            <td class="label">N. pedido</td>
+            <td class="label">Pedido</td>
             <td><?= htmlspecialchars($dados['numero_pedido'] ?? '-') ?></td>
         </tr>
         <tr>

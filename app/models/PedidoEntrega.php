@@ -12,8 +12,7 @@ class PedidoEntrega {
 
 public function criar($dados) {
     require_once __DIR__ . '/../helpers/OrdemGlobal.php';
-$ordem = OrdemGlobal::getProximaOrdem();
-
+    $ordem = OrdemGlobal::getProximaOrdem();
 
     $sql = "INSERT INTO {$this->table} 
     (numero_pedido, tipo, remetente, telefone_remetente, destinatario, telefone_destinatario,
@@ -22,22 +21,36 @@ $ordem = OrdemGlobal::getProximaOrdem();
     (:numero_pedido, :tipo, :remetente, :telefone_remetente, :destinatario, :telefone_destinatario,
      :endereco, :numero_endereco, :bairro, :referencia, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo, :obs_produto, :quantidade, :enviar_para)";
 
-    $stmt = $this->conn->prepare($sql);
+    unset($dados['imprimir']); // Remove campos extras
 
-    // ✅ Remover campo extra que não faz parte do SQL
-    unset($dados['imprimir']);
-
+    // ✅ Garante todos os campos usados no SQL
+    $dados['numero_pedido'] = $dados['numero_pedido'] ?? '';
+    $dados['tipo'] = $dados['tipo'] ?? '';
+    $dados['remetente'] = $dados['remetente'] ?? null;
+    $dados['telefone_remetente'] = $dados['telefone_remetente'] ?? null;
+    $dados['destinatario'] = $dados['destinatario'] ?? null;
+    $dados['telefone_destinatario'] = $dados['telefone_destinatario'] ?? null;
+    $dados['endereco'] = $dados['endereco'] ?? null;
+    $dados['numero_endereco'] = $dados['numero_endereco'] ?? null;
+    $dados['bairro'] = $dados['bairro'] ?? null;
+    $dados['referencia'] = $dados['referencia'] ?? null;
+    $dados['produtos'] = $dados['produtos'] ?? '';
+    $dados['adicionais'] = $dados['adicionais'] ?? null;
+    $dados['data_abertura'] = $dados['data_abertura'] ?? date('Y-m-d');
+    $dados['hora'] = date('H:i:s');
     $dados['status'] = $dados['status'] ?? 'Pendente';
     $dados['ordem_fila'] = $ordem;
-    $dados['hora'] = date('H:i:s');
+    $dados['vendedor_codigo'] = $dados['vendedor_codigo'] ?? null;
+    $dados['obs_produto'] = $dados['obs_produto'] ?? null;
     $dados['quantidade'] = $dados['quantidade'] ?? 1;
+    $dados['enviar_para'] = $dados['enviar_para'] ?? null;
 
     $stmt = $this->conn->prepare($sql);
     $stmt->execute($dados);
 
-
     return $this->conn->lastInsertId();
 }
+
 
 
 

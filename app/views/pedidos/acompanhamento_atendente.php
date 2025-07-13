@@ -81,8 +81,6 @@ table th {
     border: none;
     border-radius: 20px;
     appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
     background-repeat: no-repeat;
     background-position: right 12px center;
     background-size: 12px;
@@ -126,20 +124,17 @@ h2::before {
     text-align: center;
     margin-bottom: 50px;
 }
-
 </style>
-
 </head>
 <body>
-    <div class="topo">
+<div class="topo">
     Flor de Cheiro
 </div>
 
-    <form method="get" action="index.php">
+<form method="get" action="index.php">
     <input type="hidden" name="rota" value="acompanhamento-atendente">
     <label for="data">Selecionar Data:</label>
     <input type="date" name="data" id="data" value="<?= htmlspecialchars($_GET['data'] ?? date('Y-m-d')) ?>" onchange="this.form.submit()">
-
 </form>
 
 <h1>Acompanhamento do Atendente</h1>
@@ -150,15 +145,11 @@ h2::before {
     <tr>
         <th>Nº Pedido</th>
         <th>Cliente</th>
-        <th>Produto</th>
         <th>Tipo</th>
         <th>Status</th>
     </tr>
     <?php
-    // Mescla os dois arrays
     $todosPedidos = array_merge($entregas, $retiradas);
-
-    // Ordena se você quiser (opcional, exemplo por ordem_fila):
     usort($todosPedidos, function($a, $b) {
         return ($a['ordem_fila'] ?? 0) - ($b['ordem_fila'] ?? 0);
     });
@@ -174,7 +165,6 @@ h2::before {
                 <?= htmlspecialchars($pedido['nome']) ?>
             <?php endif; ?>
         </td>
-        <td><?= htmlspecialchars($pedido['produtos'] ?? '') ?></td>
         <td>
             <?= (isset($pedido['tipo']) && ($pedido['tipo'] === '1-Entrega' || strtolower($pedido['tipo']) === 'entrega')) ? 'Entrega' : 'Retirada' ?>
         </td>
@@ -190,9 +180,8 @@ h2::before {
     </tr>
     <?php endforeach; ?>
 </table>
-
 </div>
- 
+
 <a href="/florV3/public/index.php?rota=painel" class="voltar-simples">← Voltar</a>
 
 <style>
@@ -211,9 +200,6 @@ h2::before {
 }
 </style>
 
-
-
-
 <script>
 function atualizarStatus(novoStatus, id, tipo) {
     const formData = new FormData();
@@ -221,17 +207,13 @@ function atualizarStatus(novoStatus, id, tipo) {
     formData.append('tipo', tipo);
     formData.append('status', novoStatus);
 
-    // Se for para ENTREGUE, perguntar se quer adicionar uma mensagem
     if (novoStatus === 'Entregue') {
         const confirmaMensagem = confirm("Deseja registrar uma mensagem para este pedido? (Ela ficará salva no histórico)");
-
         if (confirmaMensagem) {
             const mensagem = prompt("Digite a mensagem que deseja registrar:");
-
             if (mensagem !== null && mensagem.trim() !== "") {
                 formData.append('mensagem', mensagem.trim());
             }
-            // Se a pessoa clicou "Cancelar" no prompt ou deixou em branco, envia sem mensagem
         }
     }
 
@@ -240,24 +222,29 @@ function atualizarStatus(novoStatus, id, tipo) {
         body: formData
     })
     .then(response => response.text())
-    .then(result => {
-        if (result === 'OK') {
-            const selectElement = document.querySelector(`select[onchange*="atualizarStatus(this.value, ${id},"]`);
-
-            selectElement.classList.remove('status-select-pronto', 'status-select-entregue');
-
-            if (novoStatus === 'Pronto') {
-                selectElement.classList.add('status-select-pronto');
-            } else if (novoStatus === 'Entregue') {
-                selectElement.classList.add('status-select-entregue');
-            }
-        } else {
-            alert('Erro ao atualizar status.');
+.then(result => {
+    if (result === 'OK') {
+        const selectElement = document.querySelector(`select[onchange*="atualizarStatus(this.value, ${id},"]`);
+        selectElement.classList.remove('status-select-pronto', 'status-select-entregue');
+        if (novoStatus === 'Pronto') {
+            selectElement.classList.add('status-select-pronto');
+        } else if (novoStatus === 'Entregue') {
+            selectElement.classList.add('status-select-entregue');
         }
-    });
+
+        // Forçar atualização visual
+        selectElement.style.display = 'none';
+        setTimeout(() => {
+            selectElement.style.display = 'inline-block';
+        }, 10);
+
+    } else {
+        alert('Erro ao atualizar status.');
+    }
+});
+
 }
 </script>
-
 
 </body>
 </html>

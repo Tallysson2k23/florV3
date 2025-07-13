@@ -30,10 +30,21 @@ public function salvarEntrega() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $dados = $_POST;
 
-        // Convertendo o array de produtos em string para salvar
-        $produtosArray = $_POST['produtos'] ?? [];
-        $produtosTexto = implode(', ', $produtosArray);
-        $dados['produtos'] = $produtosTexto;
+        // Corrigir formato dos produtos (nome, qtd, obs)
+if (isset($dados['produtos']) && is_array($dados['produtos'])) {
+    $itensFormatados = [];
+
+    foreach ($dados['produtos'] as $produto) {
+        $nome = $produto['nome'] ?? '';
+        $qtd = $produto['quantidade'] ?? '1';
+        $obs = trim($produto['observacao'] ?? '');
+
+        $texto = "$qtd x $nome" . ($obs ? " ($obs)" : "");
+        $itensFormatados[] = $texto;
+    }
+
+    $dados['produtos'] = implode(', ', $itensFormatados);
+}
 
         // Garantir o status conforme seleção do usuário
         $dados['enviar_para'] = $_POST['enviar_para'] ?? null;
@@ -63,10 +74,22 @@ public function salvarRetirada() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $dados = $_POST;
 
-        // Transformar o array de produtos em string (se existir e for array)
-        if (isset($dados['produtos']) && is_array($dados['produtos'])) {
-            $dados['produtos'] = implode(', ', $dados['produtos']);
-        }
+        // Corrigir formato dos produtos (nome, qtd, obs)
+       if (isset($dados['produtos']) && is_array($dados['produtos'])) {
+    $itensFormatados = [];
+
+    foreach ($dados['produtos'] as $produto) {
+        $nome = $produto['nome'] ?? '';
+        $qtd = $produto['quantidade'] ?? '1';
+        $obs = trim($produto['observacao'] ?? '');
+
+        $texto = "$qtd x $nome" . ($obs ? " ($obs)" : "");
+        $itensFormatados[] = $texto;
+    }
+
+    $dados['produtos'] = implode(', ', $itensFormatados);
+}
+
 
         $dados['enviar_para'] = $_POST['enviar_para'] ?? null;
 
