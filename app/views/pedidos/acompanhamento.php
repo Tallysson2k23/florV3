@@ -152,6 +152,11 @@
 
 <div class="container">
     <h2>📦 Acompanhamento de Pedidos</h2>
+    <form method="GET" action="/florV3/public/index.php" class="filtros">
+    <input type="hidden" name="rota" value="acompanhamento">
+    <input type="date" name="data" value="<?= htmlspecialchars($_GET['data'] ?? date('Y-m-d')) ?>" onchange="this.form.submit()">
+</form>
+
 
     <?php
 require_once __DIR__ . '/../../models/Operador.php';
@@ -188,6 +193,10 @@ $operadores = $operadorModel->listarTodos();
     </form> -->
 
     <!-- Tabela -->
+     <?php if (empty($todosPedidos)): ?>
+    <p style="text-align: center; font-weight: bold; color: red;">Nenhum pedido pendente para hoje.</p>
+<?php endif; ?>
+
     <table>
         <tr>
             <th>Código</th>
