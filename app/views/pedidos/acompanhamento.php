@@ -144,6 +144,13 @@
             border: none;
             cursor: pointer;
         }
+
+        .botoes-acoes {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
     </style>
 </head>
 <body>
@@ -260,9 +267,10 @@ if (!empty($pedido['nome'])) {
             </td>
             <td><?= $data ?></td>
             <td>
+                <div>
                 <button onclick="confirmarImpressao(<?= $pedido['id'] ?>, '<?= $tipoLink ?>')">🖨️ Imprimir</button>
-
-
+                <button onclick="imprimirSegundaVia(<?= $pedido['id'] ?>, '<?= $tipoLink ?>')" style="background-color: #000000;"> 🖨️  2ª via </button>
+                </div>
 
             </td>
         </tr>
@@ -293,6 +301,7 @@ function atualizarStatus(id, tipo, status) {
         tipoTemp = tipo;
         document.getElementById("responsavelSelect").value = "";
         document.getElementById("modalResponsavel").style.display = "block";
+        document.getElementById("modalResponsavel").setAttribute("data-acao", "status"); // <<< ESSENCIAL
         return;
     }
 
@@ -300,32 +309,38 @@ function atualizarStatus(id, tipo, status) {
     enviarStatus(id, tipo, status);
 }
 
+
 function confirmarResponsavel() {
+    const modal = document.getElementById("modalResponsavel");
+    const acao = modal.getAttribute("data-acao");
+
+    if (!acao || (acao !== "impressao" && acao !== "status")) {
+        fecharModal();
+        return;
+    }
+
     const responsavel = document.getElementById("responsavelSelect").value;
     if (!responsavel) {
         alert("Selecione um operador!");
         return;
     }
 
-    const modal = document.getElementById("modalResponsavel");
-    const acao = modal.getAttribute("data-acao");
     modal.style.display = "none";
 
-    if (acao === "impressao") {
-        // Aqui registramos no banco ANTES de imprimir
-fetch('/florV3/public/index.php?rota=atualizar-status', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `id=${idImpressaoTemp}&tipo=${tipoImpressaoTemp}&status=Produção&responsavel=${encodeURIComponent(responsavel)}`
-})
-.then(res => res.text())
-.then(data => {
-    window.open(`/florV3/public/index.php?rota=imprimir-pedido&id=${idImpressaoTemp}&tipo=${tipoImpressaoTemp}`, '_blank');
-})
-
+    if (acao === "impressao" && idImpressaoTemp && tipoImpressaoTemp) {
+        // Impressão principal (com alteração de status)
+        fetch('/florV3/public/index.php?rota=atualizar-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${idImpressaoTemp}&tipo=${tipoImpressaoTemp}&status=Produção&responsavel=${encodeURIComponent(responsavel)}`
+        })
+        .then(res => res.text())
+        .then(data => {
+            window.open(`/florV3/public/index.php?rota=imprimir-pedido&id=${idImpressaoTemp}&tipo=${tipoImpressaoTemp}`, '_blank');
+        })
         .catch(err => alert("Erro ao registrar responsável!"));
-    } else {
-        // Fluxo normal de alteração de status
+    } else if (acao === "status") {
+        // Alteração de status para Produção
         let dados = `id=${idTemp}&tipo=${tipoTemp}&status=${encodeURIComponent(statusTemp)}&responsavel=${encodeURIComponent(responsavel)}`;
         fetch('/florV3/public/index.php?rota=atualizar-status', {
             method: 'POST',
@@ -360,6 +375,12 @@ let idImpressaoTemp = null;
 let tipoImpressaoTemp = null;
 
 function confirmarImpressao(id, tipo) {
+
+        // Limpa qualquer dado antigo
+    statusTemp = null;
+    idTemp = null;
+    tipoTemp = null;
+
     idImpressaoTemp = id;
     tipoImpressaoTemp = tipo;
 
@@ -373,7 +394,28 @@ function confirmarImpressao(id, tipo) {
 }
 
 </script>
+<script>
+function imprimirSegundaVia(id, tipo) {
+    // Garante que a ação anterior não interfira
+    const modal = document.getElementById("modalResponsavel");
+    modal.removeAttribute("data-acao"); // remove qualquer ação anterior
+    modal.style.display = "none";
 
+    // Zera variáveis temporárias
+    idImpressaoTemp = null;
+    tipoImpressaoTemp = null;
+    statusTemp = null;
+    idTemp = null;
+    tipoTemp = null;
+
+    // Vai direto pra impressão sem alterar nada no banco
+    window.open(`/florV3/public/index.php?rota=imprimir-pedido&id=${id}&tipo=${tipo}`, '_blank');
+}
+
+
+</script>
+
+<!--
 <script>
 function imprimirPedido(id, tipo) {
     // Altera status para Produção
@@ -400,7 +442,7 @@ function imprimirPedido(id, tipo) {
         console.error(err);
     });
 }
-</script>
+</script> -->
 
 </body>
 </html>
