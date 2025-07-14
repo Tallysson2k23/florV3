@@ -34,7 +34,7 @@
         .rodape {
             text-align: center;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 28px; /* Aumenta o nome entrega ou retiada */
             padding-top: 10px;
         }
 
@@ -64,7 +64,7 @@
         }
 
         .cliente-destaque {
-            font-size: 24px !important;
+            font-size: 38px !important; /* Aumenta o nome do cliente no cupom*/
             font-weight: bold !important;
             color: #000;
             text-align: center;

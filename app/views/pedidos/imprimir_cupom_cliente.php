@@ -26,6 +26,7 @@
         .titulo {
             text-align: center;
             font-weight: bold;
+            font-size: 20px;
             margin-bottom: 10px;
         }
 
@@ -57,7 +58,7 @@
         }
 
         .cliente-destaque {
-            font-size: 24px !important;
+            font-size: 38px !important;
             font-weight: bold !important;
             color: #000;
             text-align: center;
