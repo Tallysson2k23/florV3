@@ -186,10 +186,18 @@ $ignorar = [
 <?php endif; ?>
 
 
-        <div class="botoes">
-            <a class="btn-voltar" href="/florV3/public/index.php?rota=painel"><- Voltar</a>
-            <a class="btn-voltar" href="/florV3/public/index.php?rota=historico">📜 Histórico</a>
-        </div>
+<div class="botoes">
+    <a class="btn-voltar" href="/florV3/public/index.php?rota=painel"><- Voltar</a>
+    <a class="btn-voltar" href="/florV3/public/index.php?rota=historico">📜 Histórico</a>
+
+    <?php if (isset($_GET['id']) && isset($_GET['tipo'])): ?>
+        <a class="btn-voltar" target="_blank"
+           href="/florV3/public/index.php?rota=imprimir-cupom-cliente&id=<?= htmlspecialchars($_GET['id']) ?>&tipo=<?= htmlspecialchars($_GET['tipo']) ?>">
+            🧾 Cupom do Cliente
+        </a>
+    <?php endif; ?>
+</div>
+
 
     <?php else: ?>
         <p class="nao-encontrado">❌ Pedido não encontrado.</p>
