@@ -134,103 +134,110 @@ $produtos = $produtoModel->listarTodos();
 <div class="form-wrapper">
     <h2>Cadastro de Retirada</h2>
 
-    <form id="form-retirada" method="post" action="/florV3/public/index.php?rota=salvar-retirada">
-        <div class="form-group">
-            <div>
-                <label>Nº Pedido:</label>
-                <input name="numero_pedido" id="numero_pedido" required value="L20">
+<!-- AJUSTADO -->
+<form id="form-retirada" method="post" action="/florV3/public/index.php?rota=salvar-retirada">
 
-            </div>
-            <div>
-                <label>Tipo:</label>
-                <input name="tipo" value="2-Retirada" readonly>
-            </div>
+    <div class="form-group">
+        <div>
+            <label>Nº Pedido: <span style="color:red">*</span></label>
+            <input name="numero_pedido" id="numero_pedido" required value="L20">
         </div>
-
-        <div class="form-group">
-            <div>
-                <label>Nome:</label>
-                <input name="nome" required>
-            </div>
-            <div>
-                <label>Telefone:</label>
-                <input name="telefone">
-            </div>
+        <div>
+            <label>Tipo:</label>
+            <input name="tipo" value="2-Retirada" readonly>
         </div>
+    </div>
 
-<div class="form-group full">
-    <label>Adicionar Produto:</label>
-    <select id="produto-seletor">
-        <option value="">Selecione...</option>
-        <?php foreach ($produtos as $produto): ?>
-            <option value="<?= htmlspecialchars($produto['nome']) ?>">
-                <?= htmlspecialchars($produto['nome']) ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
-</div>
-
-<table style="width:100%; border-collapse: collapse;" id="tabela-produtos">
-    <thead>
-        <tr style="background: #f0f0f0;">
-            <th style="padding: 10px; border: 1px solid #ddd;">Produto</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Quantidade</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Observação</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Remover</th>
-        </tr>
-    </thead>
-    <tbody id="lista-produtos"></tbody>
-</table>
-
-        <div class="form-group full">
-            <div>
-                <label>Data:</label>
-                <input type="date" name="data_abertura" value="<?= date('Y-m-d') ?>">
-            </div>
+    <div class="form-group">
+        <div>
+            <label>Nome: <span style="color:red">*</span></label>
+            <input name="nome" required>
         </div>
-
-        <!-- Adicione antes do botão -->
-<div class="form-group full">
-    <label>Vendedor:</label>
-    <select name="vendedor_codigo" required>
-        <option value="">Selecione</option>
-        <?php foreach ($vendedores as $v): ?>
-            <option value="<?= htmlspecialchars($v['codigo']) ?>">
-                <?= htmlspecialchars($v['codigo']) ?> - <?= htmlspecialchars($v['nome']) ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
-</div>
-<label><strong>Enviar para: <span style="color:red;">*</span></strong></label><br>
-<div style="margin-left:20px;">
-    <input type="radio" name="enviar_para" id="producao" value="producao" required>
-    <label for="producao">Mandar para Produção</label><br>
-    
-    <input type="radio" name="enviar_para" id="pronta_entrega" value="pronta_entrega" required>
-    <label for="pronta_entrega">Pronta Entrega</label>
-</div><br>
-
-        <input type="hidden" name="imprimir" id="imprimir-retirada" value="0">
-
-        <div class="actions">
-            <button type="button" onclick="confirmarEnvioRetirada()">Enviar</button>
-            <button type="button" onclick="confirmarCancelamento()">Cancelar</button>
+        <div>
+            <label>Telefone:</label>
+            <input name="telefone">
         </div>
-    </form>
-</div>
+    </div>
+
+    <div class="form-group full">
+        <label>Adicionar Produto: <span style="color:red">*</span></label>
+        <select id="produto-seletor">
+            <option value="">Selecione...</option>
+            <?php foreach ($produtos as $produto): ?>
+                <option value="<?= htmlspecialchars($produto['nome']) ?>">
+                    <?= htmlspecialchars($produto['nome']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+
+    <table style="width:100%; border-collapse: collapse;" id="tabela-produtos">
+        <thead>
+            <tr style="background: #f0f0f0;">
+                <th style="padding: 10px; border: 1px solid #ddd;">Produto</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Quantidade</span></th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Observação</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Remover</th>
+            </tr>
+        </thead>
+        <tbody id="lista-produtos"></tbody>
+    </table>
+
+    <div class="form-group full">
+        <div>
+            <label>Data: <span style="color:red">*</span></label>
+            <input type="date" name="data_abertura" value="<?= date('Y-m-d') ?>" required>
+        </div>
+    </div>
+
+    <div class="form-group full">
+        <label>Vendedor: <span style="color:red">*</span></label>
+        <select name="vendedor_codigo" required>
+            <option value="">Selecione</option>
+            <?php foreach ($vendedores as $v): ?>
+                <option value="<?= htmlspecialchars($v['codigo']) ?>">
+                    <?= htmlspecialchars($v['codigo']) ?> - <?= htmlspecialchars($v['nome']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+
+    <label><strong>Enviar para: <span style="color:red;">*</span></strong></label><br>
+    <div style="margin-left:20px;">
+        <input type="radio" name="enviar_para" id="producao" value="producao" required>
+        <label for="producao">Mandar para Produção</label><br>
+        
+        <input type="radio" name="enviar_para" id="pronta_entrega" value="pronta_entrega" required>
+        <label for="pronta_entrega">Pronta Entrega</label>
+    </div><br>
+
+    <input type="hidden" name="imprimir" id="imprimir-retirada" value="0">
+
+    <div class="actions">
+        <button type="button" onclick="confirmarEnvioRetirada()">Enviar</button>
+        <button type="button" onclick="confirmarCancelamento()">Cancelar</button>
+    </div>
+</form>
 
 <script>
-function confirmarEnvioRetirada() {
-    // Verifica se um radio foi selecionado
-    const enviarParaSelecionado = document.querySelector('input[name="enviar_para"]:checked');
-    if (!enviarParaSelecionado) {
-        alert("Por favor, selecione uma opção em 'Enviar para'.");
-        return;
+function camposMinimosRetiradaOk() {
+    const form = document.getElementById('form-retirada');
+
+    if (!form.reportValidity()) return false;
+
+    if (!document.querySelector('#lista-produtos tr')) {
+        alert('Adicione pelo menos um produto.');
+        return false;
     }
 
+    return true;
+}
+
+function confirmarEnvioRetirada() {
+    if (!camposMinimosRetiradaOk()) return;
+
     if (confirm("Deseja realmente enviar o pedido?")) {
-        const imprimir = confirm("Deseja imprimir o cupom?");
-        document.getElementById("imprimir-retirada").value = imprimir ? "1" : "0";
+        document.getElementById("imprimir-retirada").value = confirm("Deseja imprimir o cupom?") ? "1" : "0";
         document.getElementById("form-retirada").submit();
     }
 }
