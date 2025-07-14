@@ -184,6 +184,9 @@ case 'excluir-operador':
     $controller->excluirOperador();
     break;
 
+case 'permissoes':
+    require_once __DIR__ . '/../app/views/permissoes/permissoes.php';
+    break;
 
 
 

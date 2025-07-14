@@ -1,12 +1,40 @@
 <?php
 session_start();
-if (!isset($_SESSION['usuario_id'])) {
-    header('Location: /florV3/public/index.php?rota=login');
-    exit;
-}
+
+use app\models\Permissao;
+require_once __DIR__ . '/../models/Permissao.php';
+require_once __DIR__ . '/../../config/database.php';
+
 $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
-$usuarioTipo = $_SESSION['usuario_tipo'] ?? 'colaborador';
+$usuarioTipo = strtolower($_SESSION['usuario_tipo'] ?? 'colaborador');
+
+$permissaoModel = new Permissao();
+$permissoes = $permissaoModel->listarTodas();
+
+
+// Função para verificar permissão
+function pode($chave) {
+    $usuarioTipo = strtolower($_SESSION['usuario_tipo'] ?? 'colaborador');
+
+    // Se quiser depurar:
+    echo "<!-- verificando acesso a: $chave para tipo $usuarioTipo -->";
+
+    if ($usuarioTipo === 'admin') return true;
+
+    $permissaoModel = new \app\models\Permissao();
+    $permissoes = $permissaoModel->listarTodas();
+
+    foreach ($permissoes as $p) {
+        if ($p['pagina'] === $chave && $p['tipo_usuario'] === $usuarioTipo) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -56,22 +84,54 @@ $usuarioTipo = $_SESSION['usuario_tipo'] ?? 'colaborador';
     <div class="menu-conteudo">
         <br><br>
 
-        <?php if ($usuarioTipo === 'admin'): ?>
-            <a href="/florV3/public/index.php?rota=cadastrar-produto" style="color:white; text-decoration:none;">➕ Cadastrar Produto</a><br><br>
-            <a href="/florV3/public/index.php?rota=cadastrar-vendedor" style="color:white; text-decoration:none;">➕ Cadastrar Vendedor</a><br><br>
-            <a href="/florV3/public/index.php?rota=lista-vendedores" style="color:white; text-decoration:none;">📑 Lista de Vendedores</a><br><br>
-            <a href="/florV3/public/index.php?rota=lista-produtos" style="color:white; text-decoration:none;">📑 Lista de Produtos</a><br><br>
-            <a href="/florV3/public/index.php?rota=usuarios" style="color:white; text-decoration:none;">👥 Gerenciar Usuários</a><br><br>
-            <a href="/florV3/public/index.php?rota=historico" style="color:white; text-decoration:none;">📜 Ver Histórico</a><br><br>
-            <a href="/florV3/public/index.php?rota=agenda" style="color:white; text-decoration:none;">📆 Agenda</a><br><br>
-            <a href="/florV3/public/index.php?rota=cancelados" style="color:white; text-decoration:none;">❌ Pedidos Cancelados</a><br><br>
-            <a href="/florV3/public/index.php?rota=cadastrar-operador" style="color:white; text-decoration:none;">➕ Cadastrar Operador</a><br><br>
-            <a href="/florV3/public/index.php?rota=lista-operadores" style="color:white; text-decoration:none;">📑 Lista de Operadores</a><br><br>
-            <a href="/florV3/public/index.php?rota=relatorio-operadores" style="color:white; text-decoration:none;">📊 Relatório de Produção</a><br><br>
+<?php if (pode('cadastrar-produto')): ?>
+    <a href="/florV3/public/index.php?rota=cadastrar-produto" style="color:white; text-decoration:none;">➕ Cadastrar Produto</a><br><br>
+<?php endif; ?>
 
-        <?php elseif ($usuarioTipo === 'colaborador' || $usuarioTipo === 'colaborador-producao'): ?>
-            <a href="/florV3/public/index.php?rota=historico" style="color:white; text-decoration:none;">📜 Ver Histórico</a><br><br>
-        <?php endif; ?>
+<?php if (pode('cadastrar-vendedor')): ?>
+    <a href="/florV3/public/index.php?rota=cadastrar-vendedor" style="color:white; text-decoration:none;">➕ Cadastrar Vendedor</a><br><br>
+<?php endif; ?>
+
+<?php if (pode('lista-vendedores')): ?>
+    <a href="/florV3/public/index.php?rota=lista-vendedores" style="color:white; text-decoration:none;">📑 Lista de Vendedores</a><br><br>
+<?php endif; ?>
+
+<?php if (pode('lista-produtos')): ?>
+    <a href="/florV3/public/index.php?rota=lista-produtos" style="color:white; text-decoration:none;">📑 Lista de Produtos</a><br><br>
+<?php endif; ?>
+
+<?php if (pode('usuarios')): ?>
+    <a href="/florV3/public/index.php?rota=usuarios" style="color:white; text-decoration:none;">👥 Gerenciar Usuários</a><br><br>
+<?php endif; ?>
+
+<?php if (pode('historico')): ?>
+    <a href="/florV3/public/index.php?rota=historico" style="color:white; text-decoration:none;">📜 Ver Histórico</a><br><br>
+<?php endif; ?>
+
+<?php if (pode('agenda')): ?>
+    <a href="/florV3/public/index.php?rota=agenda" style="color:white; text-decoration:none;">📆 Agenda</a><br><br>
+<?php endif; ?>
+
+<?php if (pode('cancelados')): ?>
+    <a href="/florV3/public/index.php?rota=cancelados" style="color:white; text-decoration:none;">❌ Pedidos Cancelados</a><br><br>
+<?php endif; ?>
+
+<?php if (pode('cadastrar-operador')): ?>
+    <a href="/florV3/public/index.php?rota=cadastrar-operador" style="color:white; text-decoration:none;">➕ Cadastrar Operador</a><br><br>
+<?php endif; ?>
+
+<?php if (pode('lista-operadores')): ?>
+    <a href="/florV3/public/index.php?rota=lista-operadores" style="color:white; text-decoration:none;">📑 Lista de Operadores</a><br><br>
+<?php endif; ?>
+
+<?php if (pode('relatorio-operadores')): ?>
+    <a href="/florV3/public/index.php?rota=relatorio-operadores" style="color:white; text-decoration:none;">📊 Relatório de Produção</a><br><br>
+<?php endif; ?>
+
+<?php if (pode('permissoes')): ?>
+    <a href="/florV3/public/index.php?rota=permissoes" style="color:white; text-decoration:none;">🔒 Permissões</a><br><br>
+<?php endif; ?>
+
     </div>
 
     <div class="sair-fixado">
@@ -115,32 +175,37 @@ $usuarioTipo = $_SESSION['usuario_tipo'] ?? 'colaborador';
 </div>
 
 <div class="botoes">
-    <?php if ($usuarioTipo === 'admin' || $usuarioTipo === 'colaborador'): ?>
+
+    <?php if (pode('cadastrar-pedido')): ?>
         <div class="botao-acao">
             <h4>Cadastrar Pedido</h4>
             <a href="/florV3/public/index.php?rota=escolher-tipo"><button>Acessar</button></a>
         </div>
     <?php endif; ?>
 
-    <?php if ($usuarioTipo === 'admin' || $usuarioTipo === 'colaborador-producao'): ?>
+    <?php if (pode('acompanhamento')): ?>
         <div class="botao-acao">
             <h4>Acompanhar Pedidos</h4>
             <a href="/florV3/public/index.php?rota=acompanhamento"><button>Acessar</button></a>
         </div>
     <?php endif; ?>
 
-    <?php if ($usuarioTipo === 'admin' || $usuarioTipo === 'colaborador'): ?>
+    <?php if (pode('acompanhamento-atendente')): ?>
         <div class="botao-acao">
             <h4>Acompanhamento do Atendente</h4>
-            <a href="index.php?rota=acompanhamento-atendente"><button>Acessar</button></a>
+            <a href="/florV3/public/index.php?rota=acompanhamento-atendente"><button>Acessar</button></a>
         </div>
+    <?php endif; ?>
 
+    <?php if (pode('retiradas')): ?>
         <div class="botao-acao">
             <h4>Entregues</h4>
             <a href="/florV3/public/index.php?rota=retiradas"><button>Acessar</button></a>
         </div>
     <?php endif; ?>
+
 </div>
+
 
 <script>
 function togglePedidos(botao) {
