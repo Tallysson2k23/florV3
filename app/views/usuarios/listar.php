@@ -109,12 +109,19 @@
             <th>Nome</th>
             <th>Email</th>
             <th>Tipo</th>
+            <th>Inativo</th>
         </tr>
         <?php foreach ($usuarios as $usuario): ?>
             <tr>
                 <td><?= htmlspecialchars($usuario['nome']) ?></td>
                 <td><?= htmlspecialchars($usuario['email']) ?></td>
                 <td><?= ucfirst($usuario['tipo']) ?></td>
+                <td>
+<input type="checkbox"
+       <?= isset($usuario['ativo']) && !$usuario['ativo'] ? 'checked' : '' ?>
+       onchange="atualizarStatus(<?= isset($usuario['id']) ? (int)$usuario['id'] : 0 ?>, this.checked)">
+
+        </td>
             </tr>
         <?php endforeach; ?>
     </table>
@@ -124,6 +131,25 @@
         <a href="/florV3/public/index.php?rota=novo-usuario" class="btn btn-novo">➕ Cadastrar Novo Usuário</a>
     </div>
 </div>
+<script>
+function atualizarStatus(usuarioId, inativo) {
+    const valorAtivo = inativo ? 0 : 1;
+
+    fetch('/florV3/public/index.php?rota=atualizar-status-usuario', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `id=${encodeURIComponent(usuarioId)}&ativo=${valorAtivo}`
+    })
+    .then(res => res.text())
+    .then(msg => {
+        alert(msg);
+    });
+}
+
+</script>
+
 
 </body>
 </html>

@@ -4,6 +4,8 @@ session_start();
 use app\models\Permissao;
 require_once __DIR__ . '/../models/Permissao.php';
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../helpers/verifica_login.php';
+
 
 $usuarioNome = $_SESSION['usuario_nome'] ?? 'Usuário';
 $usuarioTipo = strtolower($_SESSION['usuario_tipo'] ?? 'colaborador');

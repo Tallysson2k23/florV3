@@ -35,11 +35,31 @@ class Usuario {
         return null;
     }
 
-    public function listarTodos() {
-    $sql = "SELECT nome, email, tipo FROM {$this->table} ORDER BY nome ASC";
+public function listarTodos() {
+    $sql = "SELECT id, nome, email, tipo, ativo FROM {$this->table} ORDER BY nome ASC";
     $stmt = $this->conn->query($sql);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+public function atualizarAtivo($id, $ativo) {
+    $stmt = $this->conn->prepare("UPDATE {$this->table} SET ativo = :ativo WHERE id = :id");
+
+    // Garante que seja 0 ou 1 (número), não string vazia
+    $ativo = ($ativo == 1) ? 1 : 0;
+
+    $stmt->execute([
+        ':ativo' => $ativo,
+        ':id' => $id
+    ]);
+}
+public function buscarPorId($id) {
+    $sql = "SELECT * FROM {$this->table} WHERE id = :id";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->execute(['id' => $id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+
 
 
 

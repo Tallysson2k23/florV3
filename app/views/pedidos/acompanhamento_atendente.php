@@ -4,6 +4,7 @@ if (!isset($_SESSION['usuario_id'])) {
     header('Location: /florV3/public/index.php?rota=login');
     exit;
 }
+require_once __DIR__ . '/../helpers/verifica_login.php';
 ?>
 
 <!DOCTYPE html>

@@ -193,6 +193,11 @@ case 'editar-numero-pedido':
     break;
 
 
+case 'atualizar-status-usuario':
+    $usuarioController->atualizarStatusUsuario();
+    break;
+
+
 
 
 
