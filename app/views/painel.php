@@ -142,6 +142,7 @@ function pode($chave) {
 <br><br><br>
 <h2 style="text-align: center;">Status dos Pedidos</h2>
 
+<div id="conteudo">
 <div class="status-container">
     <?php
     $cores = ['Pendente' => 'pendente', 'Produção' => 'producao', 'Pronto' => 'pronto'];
@@ -205,6 +206,7 @@ function pode($chave) {
     <?php endif; ?>
 
 </div>
+</div>
 
 
 <script>
@@ -232,6 +234,22 @@ function confirmarLogout() {
     }
 }
 </script>
+<script>
+    // Detectar clique fora do menu para fechar
+    document.addEventListener('click', function(event) {
+        const menu = document.getElementById('menuLateral');
+        const botaoMenu = document.querySelector('.menu-btn');
+
+        // Verifica se o menu está aberto
+        if (menu.classList.contains('ativo')) {
+            // Verifica se o clique foi fora do menu e fora do botão que abre o menu
+            if (!menu.contains(event.target) && !botaoMenu.contains(event.target)) {
+                fecharMenu();
+            }
+        }
+    });
+</script>
+
 
 </body>
 </html>
