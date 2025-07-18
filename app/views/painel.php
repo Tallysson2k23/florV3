@@ -84,6 +84,8 @@ function pode($chave) {
     <div class="menu-conteudo">
         <br><br>
 
+
+
 <?php if (pode('cadastrar-produto')): ?>
     <a href="/florV3/public/index.php?rota=cadastrar-produto" style="color:white; text-decoration:none;">➕ Cadastrar Produto</a><br><br>
 <?php endif; ?>
@@ -130,6 +132,11 @@ function pode($chave) {
 
 <?php if (pode('permissoes')): ?>
     <a href="/florV3/public/index.php?rota=permissoes" style="color:white; text-decoration:none;">🔒 Permissões</a><br><br>
+<?php endif; ?>
+
+        
+<?php if ($usuarioTipo === 'admin'): ?>
+    <a href="/florV3/public/index.php?rota=editar-numero-pedido" style="color:white; text-decoration:none;">🔧 Nº Pedido Padrão</a><br><br>
 <?php endif; ?>
 
     </div>

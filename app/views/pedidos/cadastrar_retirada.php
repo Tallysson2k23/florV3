@@ -1,10 +1,13 @@
 <?php
 require_once __DIR__ . '/../../models/Produto.php';
 require_once __DIR__ . '/../../../config/database.php'; 
+require_once __DIR__ . '/../../models/Configuracao.php';
 
 $pdo = Database::conectar();
 $produtoModel = new Produto($pdo);
 $produtos = $produtoModel->listarTodos();
+$configModel = new \app\models\Configuracao($pdo);
+$numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
 ?>
 
 
@@ -140,7 +143,8 @@ $produtos = $produtoModel->listarTodos();
     <div class="form-group">
         <div>
             <label>Nº Pedido: <span style="color:red">*</span></label>
-            <input name="numero_pedido" id="numero_pedido" required value="L20">
+            <input name="numero_pedido" id="numero_pedido" required value="<?= htmlspecialchars($numeroPedidoPadrao) ?>">
+
         </div>
         <div>
             <label>Tipo:</label>
@@ -253,7 +257,7 @@ function confirmarCancelamento() {
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const campo = document.getElementById("numero_pedido");
-    const prefixo = "L20";
+    const prefixo = "<?= $numeroPedidoPadrao ?>";
 
     // Aplica prefixo se estiver vazio
     if (!campo.value.startsWith(prefixo)) {

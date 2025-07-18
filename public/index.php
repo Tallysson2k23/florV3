@@ -188,6 +188,9 @@ case 'permissoes':
     require_once __DIR__ . '/../app/views/permissoes/permissoes.php';
     break;
 
+case 'editar-numero-pedido':
+    require_once __DIR__ . '/../app/views/configuracoes/editar_numero_pedido.php';
+    break;
 
 
 
