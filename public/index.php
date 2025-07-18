@@ -122,7 +122,7 @@ switch ($rota) {
 
     // ✅ ROTAS DE PRODUTO
     case 'cadastrar-produto':
-        $produtoController->cadastrarProduto();
+        $produtoController->formularioCadastro();
         break;
 
     case 'salvar-produto':
@@ -196,6 +196,35 @@ case 'editar-numero-pedido':
 case 'atualizar-status-usuario':
     $usuarioController->atualizarStatusUsuario();
     break;
+
+case 'cadastrar-grupo':
+    $produtoController->formularioCadastrarGrupo();
+    break;
+
+case 'salvar-grupo':
+    $produtoController->salvarGrupo();
+    break;
+
+case 'formulario-cadastro':
+    $produtoController->formularioCadastro();
+    break;
+
+case 'lista-grupos':
+    $produtoController->listarGrupos();
+    break;
+
+case 'inativar-grupo':
+    $produtoController->inativarGrupo();
+    break;
+
+case 'excluir-grupo':
+    $produtoController->excluirGrupo();
+    break;
+
+case 'ativar-grupo':
+    $produtoController->ativarGrupo();
+    break;
+
 
 
 

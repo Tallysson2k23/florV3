@@ -96,6 +96,10 @@ function pode($chave) {
     <a href="/florV3/public/index.php?rota=cadastrar-vendedor" style="color:white; text-decoration:none;">➕ Cadastrar Vendedor</a><br><br>
 <?php endif; ?>
 
+<?php if (pode('cadastrar-grupo')): ?>
+    <a href="/florV3/public/index.php?rota=cadastrar-grupo" style="color:white; text-decoration:none;">➕ Cadastrar Grupo</a><br><br>
+<?php endif; ?>
+
 <?php if (pode('lista-vendedores')): ?>
     <a href="/florV3/public/index.php?rota=lista-vendedores" style="color:white; text-decoration:none;">📑 Lista de Vendedores</a><br><br>
 <?php endif; ?>
