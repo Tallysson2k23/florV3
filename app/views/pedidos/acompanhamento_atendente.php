@@ -1,9 +1,12 @@
 <?php
 session_start();
+
 if (!isset($_SESSION['usuario_id'])) {
     header('Location: /florV3/public/index.php?rota=login');
     exit;
 }
+$usuarioTipo = $_SESSION['usuario_tipo'] ?? 'colaborador';
+
 require_once __DIR__ . '/../../helpers/verifica_login.php';
 
 ?>
@@ -103,6 +106,15 @@ table th {
 .status-select-retorno {
     background-color: #dc2626 !important; /* Vermelho forte */
 }
+.status-select-cancelado {
+    background-color: #6b7280 !important; /* Cinza escuro */
+}
+.fundo-cancelado {
+    background-color: #130101ff;
+    opacity: 0.8;
+}
+
+
 
 h2 {
     font-size: 18px;
@@ -174,17 +186,25 @@ h2::before {
             <?= (isset($pedido['tipo']) && ($pedido['tipo'] === '1-Entrega' || strtolower($pedido['tipo']) === 'entrega')) ? 'Entrega' : 'Retirada' ?>
         </td>
         <td>
-            <select
-                onchange="atualizarStatus(this.value, <?= $pedido['id'] ?>, '<?= (isset($pedido['tipo']) && ($pedido['tipo'] === '1-Entrega' || strtolower($pedido['tipo']) === 'entrega')) ? 'entrega' : 'retirada' ?>')"
-                class="status-select 
-<?= $pedido['status'] === 'Pronto' ? 'status-select-pronto' : 
-   ($pedido['status'] === 'Entregue' ? 'status-select-entregue' : 
-   ($pedido['status'] === 'Retorno' ? 'status-select-retorno' : '')) ?>"
+<?php
+    $status = strtolower($pedido['status']);
+    $classeStatus = $status === 'pronto' ? 'status-select-pronto' :
+                    ($status === 'entregue' ? 'status-select-entregue' :
+                    ($status === 'retorno' ? 'status-select-retorno' :
+                    ($status === 'cancelado' ? 'status-select-cancelado' : '')));
+?>
+<select
+    onchange="atualizarStatus(this.value, <?= $pedido['id'] ?>, '<?= (isset($pedido['tipo']) && ($pedido['tipo'] === '1-Entrega' || strtolower($pedido['tipo']) === 'entrega')) ? 'entrega' : 'retirada' ?>')"
+    class="status-select <?= $classeStatus ?>"
+>
 
-            >
+
                 <option value="Pronto" <?= $pedido['status'] === 'Pronto' ? 'selected' : '' ?>>Pronto</option>
                 <option value="Entregue" <?= $pedido['status'] === 'Entregue' ? 'selected' : '' ?>>Entregue</option>
                 <option value="Retorno" <?= $pedido['status'] === 'Retorno' ? 'selected' : '' ?>>Retorno</option>
+                <?php if ($usuarioTipo === 'admin'): ?>
+    <option value="Cancelado" <?= $pedido['status'] === 'Cancelado' ? 'selected' : '' ?>>Cancelado</option>
+<?php endif; ?>
             </select>
         </td>
     </tr>
@@ -217,25 +237,29 @@ function atualizarStatus(novoStatus, id, tipo) {
     formData.append('tipo', tipo);
     formData.append('status', novoStatus);
 
-    let mensagem = '';
-
-if (novoStatus === 'Entregue') {
-    const confirmaMensagem = confirm("Deseja registrar uma mensagem para este pedido? (Ela ficará salva no histórico)");
-    if (confirmaMensagem) {
-        const mensagem = prompt("Digite a mensagem que deseja registrar:");
-        if (mensagem !== null && mensagem.trim() !== "") {
-            formData.append('mensagem', mensagem.trim());
+    if (novoStatus === 'Entregue') {
+        const confirmaMensagem = confirm("Deseja registrar uma mensagem para este pedido? (Ela ficará salva no histórico)");
+        if (confirmaMensagem) {
+            const mensagem = prompt("Digite a mensagem que deseja registrar:");
+            if (mensagem !== null && mensagem.trim() !== "") {
+                formData.append('mensagem', mensagem.trim());
+            }
         }
+    } else if (novoStatus === 'Retorno') {
+        const mensagem = prompt("Digite o motivo do retorno:");
+        if (!mensagem || mensagem.trim() === "") {
+            alert("Motivo obrigatório para status 'Retorno'!");
+            return;
+        }
+        formData.append('mensagem', mensagem.trim());
+    } else if (novoStatus === 'Cancelado') {
+        const mensagem = prompt("Informe o motivo do cancelamento:");
+        if (!mensagem || mensagem.trim() === "") {
+            alert("Motivo obrigatório para cancelar o pedido!");
+            return;
+        }
+        formData.append('mensagem', mensagem.trim());
     }
-} else if (novoStatus === 'Retorno') {
-    const mensagem = prompt("Digite o motivo do retorno:");
-    if (!mensagem || mensagem.trim() === "") {
-        alert("Motivo obrigatório para status 'Retorno'!");
-        return;
-    }
-    formData.append('mensagem', mensagem.trim());
-}
-
 
     fetch('/florV3/public/index.php?rota=atualizar-status', {
         method: 'POST',
@@ -247,7 +271,12 @@ if (novoStatus === 'Entregue') {
             const selectElement = document.querySelector(`select[onchange*="atualizarStatus(this.value, ${id},"]`);
 
             // Remove todas as classes de status
-            selectElement.classList.remove('status-select-pronto', 'status-select-entregue', 'status-select-retorno');
+            selectElement.classList.remove(
+                'status-select-pronto',
+                'status-select-entregue',
+                'status-select-retorno',
+                'status-select-cancelado'
+            );
 
             // Adiciona a nova classe com base no novoStatus
             if (novoStatus === 'Pronto') {
@@ -256,6 +285,8 @@ if (novoStatus === 'Entregue') {
                 selectElement.classList.add('status-select-entregue');
             } else if (novoStatus === 'Retorno') {
                 selectElement.classList.add('status-select-retorno');
+            } else if (novoStatus === 'Cancelado') {
+                selectElement.classList.add('status-select-cancelado');
             }
 
             // Força re-renderização para aplicar visual
@@ -269,6 +300,7 @@ if (novoStatus === 'Entregue') {
     });
 }
 </script>
+
 
 
 </body>

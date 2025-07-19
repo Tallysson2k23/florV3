@@ -209,6 +209,22 @@ public function buscarPorProdutoEData($produto, $data, $statusFiltro) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+public function buscarAtendimentosPorData($data) {
+    $sql = "SELECT id, numero_pedido, tipo, 
+                   COALESCE(destinatario, remetente) AS nome, 
+                   status, data_abertura, hora, ordem_fila
+            FROM {$this->table}
+            WHERE data_abertura = :data 
+               OR (status = 'Cancelado' AND data_abertura = :data)
+            ORDER BY ordem_fila ASC";
+
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindValue(':data', $data);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
 
 

@@ -156,35 +156,43 @@ $pedidosRetirada = $retiradaModel->buscarPorProdutoEData($busca, $dataSelecionad
         require __DIR__ . '/../views/pedidos/acompanhamento.php';
     }
 
-    public function acompanhamentoAtendente() {
-        $pedidoEntrega = new PedidoEntrega();
-        $pedidoRetirada = new PedidoRetirada();
+public function acompanhamentoAtendente() {
+    $pedidoEntrega = new PedidoEntrega();
+    $pedidoRetirada = new PedidoRetirada();
 
-        $data = $_GET['data'] ?? date('Y-m-d');
+    $data = $_GET['data'] ?? date('Y-m-d');
 
-       $entregas = $pedidoEntrega->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno'], $data);
-$retiradas = $pedidoRetirada->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno'], $data);
+    // Buscar pedidos com todos os status relevantes
+    $entregas = $pedidoEntrega->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
+    $retiradas = $pedidoRetirada->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
 
-// Filtrar os retornos apenas se forem do dia selecionado
-$entregas = array_filter($entregas, function($pedido) use ($data) {
-    return $pedido['status'] !== 'Retorno' || $pedido['data_abertura'] === $data;
-});
+    // Filtrar "Retorno" e "Cancelado" apenas se forem do dia selecionado
+    $entregas = array_filter($entregas, function($pedido) use ($data) {
+        if (in_array($pedido['status'], ['Retorno', 'Cancelado'])) {
+            return $pedido['data_abertura'] === $data;
+        }
+        return true;
+    });
 
-$retiradas = array_filter($retiradas, function($pedido) use ($data) {
-    return $pedido['status'] !== 'Retorno' || $pedido['data_abertura'] === $data;
-});
+    $retiradas = array_filter($retiradas, function($pedido) use ($data) {
+        if (in_array($pedido['status'], ['Retorno', 'Cancelado'])) {
+            return $pedido['data_abertura'] === $data;
+        }
+        return true;
+    });
 
-        $entregas = is_array($entregas) ? $entregas : [];
-        $retiradas = is_array($retiradas) ? $retiradas : [];
+    $entregas = is_array($entregas) ? $entregas : [];
+    $retiradas = is_array($retiradas) ? $retiradas : [];
 
-        $todosPedidos = array_merge($entregas, $retiradas);
+    $todosPedidos = array_merge($entregas, $retiradas);
 
-        usort($todosPedidos, function($a, $b) {
-            return ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0);
-        });
+    usort($todosPedidos, function($a, $b) {
+        return ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0);
+    });
 
-        require __DIR__ . '/../views/pedidos/acompanhamento_atendente.php';
-    }
+    require __DIR__ . '/../views/pedidos/acompanhamento_atendente.php';
+}
+
 
 public function atualizarStatus() {
     $id = $_POST['id'] ?? null;
