@@ -321,7 +321,7 @@ if (!empty($pedido['nome'])) {
                 <select class="<?= $statusClasse ?>"
                         onchange="atualizarStatus(<?= $id ?>, '<?= $tipoLink ?>', this.value)">
                     <?php
-                    $opcoes = ['Pendente', 'Produção', 'Cancelado'];
+                    $opcoes = ['Pendente', 'Produção', 'Pronto', 'Cancelado'];
                     foreach ($opcoes as $opcao):
                         $selected = strtolower($status) === strtolower($opcao) ? 'selected' : '';
                         echo "<option value=\"$opcao\" $selected>$opcao</option>";
