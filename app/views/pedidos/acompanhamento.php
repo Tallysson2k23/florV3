@@ -212,10 +212,15 @@
 
 <div class="container">
     <h2>📦 Acompanhamento de Pedidos</h2>
-    <form method="GET" action="/florV3/public/index.php" class="filtros">
+<form method="GET" action="/florV3/public/index.php" class="filtros" >
     <input type="hidden" name="rota" value="acompanhamento">
     <input type="date" name="data" value="<?= htmlspecialchars($_GET['data'] ?? date('Y-m-d')) ?>" onchange="this.form.submit()">
+    
+    <input type="text" name="produto" placeholder="🔍 Buscar por produto" value="<?= htmlspecialchars($_GET['produto'] ?? '') ?>">
+    
+    <button type="submit">🔎 Filtrar</button>
 </form>
+
 
 
 <div class="notification-wrapper" onclick="toggleNotificationBox()">
@@ -268,6 +273,7 @@ $operadores = $operadorModel->listarTodos();
     <p style="text-align: center; font-weight: bold; color: red;">Nenhum pedido pendente para hoje.</p>
 <?php endif; ?>
 
+<div id="lista-pedidos">
     <table>
         <tr>
             <th>Código</th>
@@ -276,6 +282,11 @@ $operadores = $operadorModel->listarTodos();
             <th>Data</th>
             <th>Ações</th>
         </tr>
+<?php if (empty($todosPedidos)): ?>
+    <p style="text-align:center; font-size:18px; margin: 20px 0; color: #777;">
+        Nenhum pedido encontrado para o filtro atual.
+    </p>
+<?php endif; ?>
 
         <?php foreach ($todosPedidos as $pedido):
             $statusClasse = '';
@@ -340,6 +351,7 @@ if (!empty($pedido['nome'])) {
         </tr>
         <?php endforeach; ?>
     </table>
+    </div>
 
     <a href="/florV3/public/index.php?rota=painel" class="btn-voltar">← Voltar ao Painel</a>
 </div>
@@ -608,6 +620,65 @@ function abrirDetalhesPedido(id, tipo) {
     });
 }
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const inputBusca = document.querySelector('input[name="produto"]');
+    const containerPedidos = document.querySelector('#lista-pedidos');
+
+    inputBusca.addEventListener("keyup", function () {
+        const termo = this.value;
+        const data = document.querySelector('input[name="data"]').value;
+
+        fetch(`/florV3/public/index.php?rota=buscar-pedidos-produto&produto=${encodeURIComponent(termo)}&data=${encodeURIComponent(data)}`)
+            .then(response => response.json())
+            .then(data => {
+                // Montar HTML dos pedidos (simplificado)
+                if (Array.isArray(data)) {
+                    let html = '';
+                    html = `
+<table>
+<tr>
+    <th>Código</th>
+    <th>Cliente</th>
+    <th>Status</th>
+    <th>Data</th>
+    <th>Ações</th>
+</tr>
+`;
+
+data.forEach(pedido => {
+    const nome = pedido.nome ?? '';
+    const tipo = pedido.tipo?.toLowerCase().replace('p_', '') ?? '';
+    const status = pedido.status ?? '';
+    const numero = pedido.numero_pedido ?? '';
+    const data_abertura = pedido.data_abertura ?? '';
+    const id = pedido.id;
+
+    html += `
+        <tr>
+            <td>${numero}</td>
+            <td><a href="/florV3/public/index.php?rota=detalhes&id=${id}&tipo=${tipo}">${nome}</a></td>
+            <td>${status}</td>
+            <td>${data_abertura}</td>
+            <td>
+                <button onclick="confirmarImpressao(${id}, '${tipo}')">🖨️ Imprimir</button>
+            </td>
+        </tr>
+    `;
+});
+
+html += '</table>';
+
+                    containerPedidos.innerHTML = html || '<p>Nenhum pedido encontrado.</p>';
+                }
+            })
+            .catch(err => {
+                console.error("Erro ao buscar pedidos:", err);
+            });
+    });
+});
+</script>
+
 
 
 </body>

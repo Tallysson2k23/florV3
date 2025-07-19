@@ -140,13 +140,13 @@ public function salvarRetirada() {
         $entregaModel = new PedidoEntrega();
         $retiradaModel = new PedidoRetirada();
 
-        $busca = $_GET['busca'] ?? '';
-        $dataSelecionada = $_GET['data'] ?? date('Y-m-d');
-        $statusFiltro = ['Pendente', 'Produção', 'Pronto'];
+$busca = $_GET['produto'] ?? '';
+$dataSelecionada = $_GET['data'] ?? date('Y-m-d');
+$statusFiltro = ['Pendente', 'Produção', 'Pronto'];
 
-        // Aqui aplicamos a lógica nova do seu controller atual
-        $pedidosEntrega = $entregaModel->buscarPorStatusEDataEEnvio($statusFiltro, $dataSelecionada, 'producao', $busca);
-        $pedidosRetirada = $retiradaModel->buscarPorStatusEDataEEnvio($statusFiltro, $dataSelecionada, 'producao', $busca);
+// Busca pedidos com produtos que contenham o termo buscado
+$pedidosEntrega = $entregaModel->buscarPorProdutoEData($busca, $dataSelecionada, $statusFiltro);
+$pedidosRetirada = $retiradaModel->buscarPorProdutoEData($busca, $dataSelecionada, $statusFiltro);
 
         $todosPedidos = array_merge($pedidosEntrega, $pedidosRetirada);
         usort($todosPedidos, function ($a, $b) {
@@ -452,6 +452,29 @@ public function retiradas() {
     $pedidosPaginados = array_slice($todosPedidos, $inicio, $porPagina);
 
     require __DIR__ . '/../views/pedidos/retiradas.php';
+}
+
+
+public function buscarPedidosPorProdutoAjax()
+{
+    $busca = $_GET['produto'] ?? '';
+    $data = $_GET['data'] ?? date('Y-m-d');
+
+ require_once __DIR__ . '/../models/PedidoEntrega.php';
+require_once __DIR__ . '/../models/PedidoRetirada.php';
+
+$entregaModel = new PedidoEntrega();
+$retiradaModel = new PedidoRetirada();
+
+
+    $pedidosEntrega = $entregaModel->buscarPorProdutoEData($busca, $data, null);
+    $pedidosRetirada = $retiradaModel->buscarPorProdutoEData($busca, $data, null);
+
+    $todosPedidos = array_merge($pedidosEntrega, $pedidosRetirada);
+
+    header('Content-Type: application/json');
+    echo json_encode($todosPedidos);
+    exit;
 }
 
 

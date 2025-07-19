@@ -246,6 +246,11 @@ case 'inativar-produto':
     $produtoController->inativarProduto();
     break;
 
+case 'buscar-pedidos-produto':
+    require_once __DIR__ . '/../app/controllers/PedidoController.php';
+    $controller = new PedidoController();
+    $controller->buscarPedidosPorProdutoAjax();
+    break;
 
 
 

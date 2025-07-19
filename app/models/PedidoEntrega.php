@@ -191,6 +191,30 @@ public function atualizarStatusComResponsavel($id, $status, $responsavel) {
         ':id' => $id
     ]);
 }
+public function buscarPorProdutoEData($produto, $data, $statusFiltro) {
+    $pdo = Database::conectar();
+
+    $placeholders = implode(',', array_fill(0, count($statusFiltro), '?'));
+    $sql = "SELECT * FROM pedidos_entrega 
+            WHERE data_abertura = ? 
+            AND status IN ($placeholders)
+            AND produtos ILIKE ? 
+            ORDER BY ordem_fila ASC";
+
+    $stmt = $pdo->prepare($sql);
+
+    $params = array_merge([$data], $statusFiltro, ["%{$produto}%"]);
+    $stmt->execute($params);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+
+
+
+
+
 
 
 }
