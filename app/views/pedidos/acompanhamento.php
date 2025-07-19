@@ -22,6 +22,59 @@
             padding: 15px 0;
         }
 
+
+.notification-wrapper {
+    position: absolute;
+    top: 15px;
+    right: 30px;
+    cursor: pointer;
+    z-index: 10000;
+}
+
+.notification-bell {
+    font-size: 26px;
+    color: white;
+    position: relative;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background: red;
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 50%;
+}
+
+.notification-box {
+    display: none;
+    position: absolute;
+    top: 35px;
+    right: 0;
+    background: white;
+    color: black;
+    width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    padding: 10px;
+}
+
+.notification-box h4 {
+    margin: 0 0 10px;
+}
+
+.notification-item {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+
         .container {
             max-width: 1200px;
             margin: 30px auto;
@@ -163,6 +216,17 @@
     <input type="hidden" name="rota" value="acompanhamento">
     <input type="date" name="data" value="<?= htmlspecialchars($_GET['data'] ?? date('Y-m-d')) ?>" onchange="this.form.submit()">
 </form>
+
+
+<div class="notification-wrapper" onclick="toggleNotificationBox()">
+    <div class="notification-bell">🔔
+        <span class="notification-badge" id="notification-count" style="display:none;">0</span>
+    </div>
+    <div class="notification-box" id="notification-box">
+        <h4>Pedidos Futuros</h4>
+        <div id="notification-list"></div>
+    </div>
+</div>
 
 
     <?php
@@ -443,6 +507,88 @@ function imprimirPedido(id, tipo) {
     });
 }
 </script> -->
+
+<script>
+// Mostra/esconde a caixa de notificação
+function toggleNotificationBox() {
+    const box = document.getElementById('notification-box');
+    box.style.display = box.style.display === 'block' ? 'none' : 'block';
+}
+
+// Requisição para buscar pedidos futuros
+function carregarNotificacoesFuturas() {
+    fetch('/florV3/public/index.php?rota=notificacoes-futuras')
+        .then(response => response.json())
+        .then(data => {
+            const lista = document.getElementById('notification-list');
+            const badge = document.getElementById('notification-count');
+
+            lista.innerHTML = ''; // Limpa notificações anteriores
+
+            if (data.length > 0) {
+                badge.innerText = data.length;
+                badge.style.display = 'inline-block';
+
+              data.forEach(pedido => {
+    const item = document.createElement('div');
+    item.className = 'notification-item';
+    item.style.cursor = 'pointer';
+
+    if (pedido.lido) {
+        item.style.backgroundColor = '#d5fcd5'; // Verde clarinho
+    }
+
+    item.innerHTML = `<strong>${pedido.nome}</strong><br>
+        Produto: ${pedido.produto}<br>
+        Tipo: ${pedido.tipo}<br>
+        Data: ${pedido.data}`;
+
+item.onclick = () => {
+    const tipo = pedido.tipo.toLowerCase(); // 'entrega' ou 'retirada'
+const id = pedido.id;
+
+
+        // Marca como lido no backend
+        fetch('/florV3/public/index.php?rota=marcar-notificacao-lida', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id=${id}&tipo=${tipo}`
+        }).then(() => {
+            // Vai para detalhes
+            window.location.href = `/florV3/public/index.php?rota=detalhes&id=${id}&tipo=${tipo}`;
+        });
+    };
+
+    lista.appendChild(item);
+});
+
+            } else {
+                badge.style.display = 'none';
+                lista.innerHTML = '<p>Sem notificações futuras.</p>';
+            }
+        });
+}
+
+// Chamar ao carregar a página e a cada 1 segundos
+carregarNotificacoesFuturas();
+setInterval(carregarNotificacoesFuturas, 1000);
+</script>
+<script>
+function abrirDetalhesPedido(id, tipo) {
+    // Marcar como lido
+    fetch('/florV3/public/index.php?rota=marcar-notificacao-lida', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `id=${id}&tipo=${tipo}`
+    }).then(response => {
+        // Redirecionar após marcar como lido
+        window.location.href = `/florV3/public/index.php?rota=detalhes&id=${id}&tipo=${tipo}`;
+    }).catch(err => {
+        alert("Erro ao marcar como lido");
+    });
+}
+</script>
+
 
 </body>
 </html>
