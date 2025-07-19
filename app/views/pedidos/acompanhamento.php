@@ -529,13 +529,13 @@ function carregarNotificacoesFuturas() {
                 badge.innerText = data.length;
                 badge.style.display = 'inline-block';
 
-              data.forEach(pedido => {
+             data.forEach(pedido => {
     const item = document.createElement('div');
     item.className = 'notification-item';
     item.style.cursor = 'pointer';
 
-    if (pedido.lido) {
-        item.style.backgroundColor = '#d5fcd5'; // Verde clarinho
+    if (!pedido.lido) {
+        item.style.backgroundColor = '#d5fcd5'; // Verde clarinho só se ainda NÃO foi lido
     }
 
     item.innerHTML = `<strong>${pedido.nome}</strong><br>
@@ -543,24 +543,23 @@ function carregarNotificacoesFuturas() {
         Tipo: ${pedido.tipo}<br>
         Data: ${pedido.data}`;
 
-item.onclick = () => {
-    const tipo = pedido.tipo.toLowerCase(); // 'entrega' ou 'retirada'
-const id = pedido.id;
+    item.onclick = () => {
+        const tipo = pedido.tipo.toLowerCase();
+        const id = pedido.id;
 
-
-        // Marca como lido no backend
         fetch('/florV3/public/index.php?rota=marcar-notificacao-lida', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `id=${id}&tipo=${tipo}`
         }).then(() => {
-            // Vai para detalhes
             window.location.href = `/florV3/public/index.php?rota=detalhes&id=${id}&tipo=${tipo}`;
         });
     };
 
     lista.appendChild(item);
 });
+
+
 
             } else {
                 badge.style.display = 'none';
