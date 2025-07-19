@@ -162,8 +162,17 @@ public function salvarRetirada() {
 
         $data = $_GET['data'] ?? date('Y-m-d');
 
-        $entregas = $pedidoEntrega->buscarPorStatusEData(['Pronto', 'Entregue'], $data);
-        $retiradas = $pedidoRetirada->buscarPorStatusEData(['Pronto', 'Entregue'], $data);
+       $entregas = $pedidoEntrega->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno'], $data);
+$retiradas = $pedidoRetirada->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno'], $data);
+
+// Filtrar os retornos apenas se forem do dia selecionado
+$entregas = array_filter($entregas, function($pedido) use ($data) {
+    return $pedido['status'] !== 'Retorno' || $pedido['data_abertura'] === $data;
+});
+
+$retiradas = array_filter($retiradas, function($pedido) use ($data) {
+    return $pedido['status'] !== 'Retorno' || $pedido['data_abertura'] === $data;
+});
 
         $entregas = is_array($entregas) ? $entregas : [];
         $retiradas = is_array($retiradas) ? $retiradas : [];
@@ -204,7 +213,8 @@ public function atualizarStatus() {
     // ✅ REGISTRAR NO HISTÓRICO DE STATUS
     require_once __DIR__ . '/../models/HistoricoStatus.php';
     $historicoModel = new HistoricoStatus(Database::conectar());
-    $historicoModel->registrar($id, $tipo, $status);
+    $historicoModel->registrar($id, $tipo, $status, $mensagem);
+
 
     echo 'OK';
 }

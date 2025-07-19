@@ -112,14 +112,13 @@
 
     <?php if ($dados): ?>
 
-        <!-- Mostrar a MENSAGEM se existir -->
+        <!-- Mostrar a MENSAGEM se existir 
 <?php if (isset($dados['mensagem_entrega'])): ?>
     <div class="mensagem-box">
         <strong>Mensagem registrada na entrega:</strong>
         <?= nl2br(htmlspecialchars($dados['mensagem_entrega'] ?: '❌ Nenhuma mensagem informada')) ?>
     </div>
-<?php endif; ?>
-
+<?php endif; ?> --> 
 
         <!-- Continua mostrando os outros campos -->
         <ul>
@@ -177,13 +176,24 @@ $ignorar = [
     <h3 style="margin-top: 30px; color: #444;">📌 Histórico de Status</h3>
     <ul>
         <?php foreach ($historico as $h): ?>
-            <li>
-                <strong><?= ucfirst($h['status']) ?>:</strong> 
-                <?= date('d/m/Y H:i', strtotime($h['data_hora'])) ?>
-            </li>
-        <?php endforeach; ?>
+    <li>
+        <strong><?= ucfirst($h['status']) ?>:</strong> 
+        <?= date('d/m/Y H:i', strtotime($h['data_hora'])) ?>
+
+        <?php if (!empty($h['mensagem'])): ?>
+            <div class="mensagem-box" style="margin-top: 10px;">
+                <strong>
+                    <?= strtolower($h['status']) === 'retorno' ? '📝 Motivo do retorno:' : '📝 Mensagem:' ?>
+                </strong>
+                <?= nl2br(htmlspecialchars($h['mensagem'])) ?>
+            </div>
+        <?php endif; ?>
+    </li>
+<?php endforeach; ?>
+
     </ul>
 <?php endif; ?>
+
 
 
 <div class="botoes">
