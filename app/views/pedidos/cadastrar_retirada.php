@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../models/Configuracao.php';
 
 $pdo = Database::conectar();
 $produtoModel = new Produto($pdo);
-$produtos = $produtoModel->listarTodos();
+$produtos = $produtoModel->listarAtivos();
 $configModel = new \app\models\Configuracao($pdo);
 $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
 ?>

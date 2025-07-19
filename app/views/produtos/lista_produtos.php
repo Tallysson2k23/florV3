@@ -23,7 +23,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 40px auto;
             background: white;
             padding: 30px;
@@ -45,7 +45,7 @@
         th, td {
             padding: 12px;
             border: 1px solid #ddd;
-            text-align: left;
+            text-align: center;
         }
 
         th {
@@ -55,6 +55,30 @@
 
         tr:nth-child(even) {
             background-color: #fafafa;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            margin: 2px;
+            display: inline-block;
+        }
+
+        .btn-editar {
+            background-color: #3498db;
+        }
+
+        .btn-inativar {
+            background-color: #e74c3c;
+        }
+
+        .btn-ativar {
+            background-color: #2ecc71;
         }
 
         .btn-voltar {
@@ -84,6 +108,8 @@
             <th>Nome</th>
             <th>Código</th>
             <th>Valor (R$)</th>
+            <th>Status</th>
+            <th>Ações</th>
         </tr>
 
         <?php foreach ($produtos as $produto): ?>
@@ -91,6 +117,16 @@
                 <td><?= htmlspecialchars($produto['nome']) ?></td>
                 <td><?= htmlspecialchars($produto['codigo']) ?></td>
                 <td><?= number_format($produto['valor'], 2, ',', '.') ?></td>
+                <td><?= $produto['ativo'] ? ' Ativo' : '❌ Inativo' ?></td>
+                <td>
+                    <a href="/florV3/public/index.php?rota=editar-produto&id=<?= $produto['id'] ?>" class="btn btn-editar"> Editar</a>
+
+                    <?php if ($produto['ativo']): ?>
+                        <a href="/florV3/public/index.php?rota=inativar-produto&id=<?= $produto['id'] ?>" class="btn btn-inativar" onclick="return confirm('Deseja inativar este produto?')"> Inativar</a>
+                    <?php else: ?>
+                        <a href="/florV3/public/index.php?rota=ativar-produto&id=<?= $produto['id'] ?>" class="btn btn-ativar" onclick="return confirm('Deseja reativar este produto?')"> Ativar</a>
+                    <?php endif; ?>
+                </td>
             </tr>
         <?php endforeach; ?>
     </table>

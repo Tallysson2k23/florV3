@@ -102,6 +102,42 @@ public function ativarGrupo() {
     exit;
 }
 
+public function ativarProduto() {
+    $id = $_GET['id'] ?? null;
+    if ($id) {
+        $produtoModel = new Produto(Database::conectar());
+        $produtoModel->ativar($id);
+    }
+    header('Location: /florV3/public/index.php?rota=lista-produtos');
+}
+
+public function inativarProduto() {
+    $id = $_GET['id'] ?? null;
+    if ($id) {
+        $produtoModel = new Produto(Database::conectar());
+        $produtoModel->inativar($id);
+    }
+    header('Location: /florV3/public/index.php?rota=lista-produtos');
+}
+
+public function editarProduto() {
+    $id = $_GET['id'] ?? null;
+    $produtoModel = new Produto(Database::conectar());
+    $produto = $produtoModel->buscarPorId($id);
+    require __DIR__ . '/../views/produtos/editar_produto.php';
+}
+
+public function salvarEdicao() {
+    $id     = $_POST['id'];
+    $nome   = $_POST['nome'];
+    $codigo = $_POST['codigo'];
+    $valor  = $_POST['valor'];
+
+    $produtoModel = new Produto(Database::conectar());
+    $produtoModel->atualizar($id, $nome, $codigo, $valor);
+
+    header('Location: /florV3/public/index.php?rota=lista-produtos');
+}
 
 
 

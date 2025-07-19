@@ -230,6 +230,30 @@ switch ($rota) {
         (new NotificacaoController())->marcarComoLido();
         break;
 
+case 'editar-produto':
+    $produtoController->editarProduto();
+    break;
+
+case 'salvar-edicao-produto':
+    $produtoController->salvarEdicao();
+    break;
+
+case 'ativar-produto':
+    $produtoController->ativarProduto();
+    break;
+
+case 'inativar-produto':
+    $produtoController->inativarProduto();
+    break;
+
+
+
+
+
+
+
+
+
     default:
         echo "Página não encontrada.";
         break;
