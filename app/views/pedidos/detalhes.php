@@ -183,8 +183,12 @@ $ignorar = [
         <?php if (!empty($h['mensagem'])): ?>
             <div class="mensagem-box" style="margin-top: 10px;">
                 <strong>
-                    <?= strtolower($h['status']) === 'retorno' ? '📝 Motivo do retorno:' : '📝 Mensagem:' ?>
-                </strong>
+            <?php
+                $statusLower = strtolower($h['status']);
+                echo $statusLower === 'retorno' ? '📝 Motivo do retorno:' :
+                     ($statusLower === 'cancelado' ? '❌ Motivo do cancelamento:' : '📝 Mensagem:');
+            ?>
+        </strong>
                 <?= nl2br(htmlspecialchars($h['mensagem'])) ?>
             </div>
         <?php endif; ?>

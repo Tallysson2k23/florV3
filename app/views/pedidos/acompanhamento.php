@@ -321,7 +321,7 @@ if (!empty($pedido['nome'])) {
                 <select class="<?= $statusClasse ?>"
                         onchange="atualizarStatus(<?= $id ?>, '<?= $tipoLink ?>', this.value)">
                     <?php
-                    $opcoes = ['Pendente', 'Produção', 'Pronto'];
+                    $opcoes = ['Pendente', 'Produção', 'Cancelado'];
                     foreach ($opcoes as $opcao):
                         $selected = strtolower($status) === strtolower($opcao) ? 'selected' : '';
                         echo "<option value=\"$opcao\" $selected>$opcao</option>";
@@ -368,6 +368,27 @@ function atualizarStatus(id, tipo, status) {
         document.getElementById("modalResponsavel").setAttribute("data-acao", "status"); // <<< ESSENCIAL
         return;
     }
+
+    if (status === "Cancelado") {
+    const motivo = prompt("Informe o motivo do cancelamento:");
+    if (!motivo || motivo.trim() === "") {
+        alert("O motivo é obrigatório para cancelar o pedido.");
+        return;
+    }
+
+    let dados = `id=${id}&tipo=${tipo}&status=${encodeURIComponent(status)}&mensagem=${encodeURIComponent(motivo)}`;
+
+    fetch('/florV3/public/index.php?rota=atualizar-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: dados
+    }).then(res => res.text()).then(data => {
+        location.reload();
+    });
+
+    return;
+}
+
 
     // Se não for produção, envia normalmente
     enviarStatus(id, tipo, status);
