@@ -26,6 +26,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             width: 100%;
             max-width: 400px;
+            margin-top: 80px; /* espaço abaixo da logo */
         }
 
         .login-container h2 {
@@ -87,21 +88,24 @@
             position: absolute;
             top: 0;
             width: 100%;
-            height: 60px;
             background-color: #111;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: "Brush Script MT", cursive;
-            font-size: 28px;
-            letter-spacing: 1px;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .logo-img {
+            height: 60px;
+            max-width: 100%;
+            object-fit: contain;
+            display: inline-block;
         }
     </style>
 </head>
 <body>
 
-<div class="top-bar">Flor de Cheiro</div>
+<div class="top-bar">
+    <img src="/florV3/public/assets/img/logo-flor-cortada.png" alt="Flor de Cheiro" class="logo-img">
+</div>
 
 <div class="login-container">
     <h2>Login</h2>

@@ -14,12 +14,17 @@
         }
 
         .top-bar {
+            width: 100%;
             background-color: #111;
-            color: white;
-            font-family: "Brush Script MT", cursive;
-            font-size: 28px;
             text-align: center;
             padding: 15px 0;
+        }
+
+        .logo-img {
+            height: 60px;
+            max-width: 100%;
+            object-fit: contain;
+            display: inline-block;
         }
 
         .container {
@@ -92,7 +97,9 @@
 </head>
 <body>
 
-<div class="top-bar">Flor de Cheiro</div>
+<div class="top-bar">
+    <img src="/florV3/public/assets/img/logo-flor-cortada.png" alt="Flor de Cheiro" class="logo-img">
+</div>
 
 <div class="container">
     <h2>📦 Cadastrar Produto</h2>
@@ -101,21 +108,22 @@
         <label>Nome do Produto:
             <input type="text" name="nome" required>
         </label>
+
+        <!-- Campo de Grupo (comentado) -->
         <!--
-<label>Grupo do Produto:
-    <select name="grupo_id" required style="padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 15px; width: 100%;">
-        <option value="">Selecione</option>
-        <?php /*foreach ($grupos as $grupo): ?>
-            <option value="<?= $grupo['id'] ?>"><?= htmlspecialchars($grupo['nome']) ?></option>
-        <?php endforeach; */ ?>
-    </select>
-</label> -->
+        <label>Grupo do Produto:
+            <select name="grupo_id" required style="padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 15px; width: 100%;">
+                <option value="">Selecione</option>
+                <?php /*foreach ($grupos as $grupo): ?>
+                    <option value="<?= $grupo['id'] ?>"><?= htmlspecialchars($grupo['nome']) ?></option>
+                <?php endforeach;*/ ?>
+            </select>
+        </label>
+        -->
 
-
-
-<label>Porcentagem (%):
-    <input type="number" name="porcentagem" min="0" max="100" required>
-</label>
+        <label>Porcentagem (%):
+            <input type="number" name="porcentagem" min="0" max="100" required>
+        </label>
 
         <label>Valor (R$):
             <input type="number" name="valor" step="0.01" required>

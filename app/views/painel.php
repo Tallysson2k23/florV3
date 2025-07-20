@@ -45,8 +45,8 @@ function pode($chave) {
     <title>Flor de Cheiro - Painel</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f3f4f6; margin: 0; padding: 0; }
-        .topo { background: #111; color: white; padding: 10px 20px; position: relative; height: 60px; }
-        .topo h1 { font-family: "Brush Script MT", cursive; font-size: 28px; margin: 0; position: absolute; left: 50%; transform: translate(-50%, -50%); top: 50%; }
+       .topo { background: #111; color: white; padding: 10px 20px; position: relative; height: 70px; }
+ .topo h1 { font-family: "Brush Script MT", cursive; font-size: 28px; margin: 0; position: absolute; left: 50%; transform: translate(-50%, -50%); top: 50%; }
         .menu-btn { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); font-size: 24px; background: none; border: none; color: white; cursor: pointer; }
         .menu-lateral { position: fixed; top: 0; left: -295px; width: 250px; height: 100%; background: #111; color: white; padding: 20px; transition: left 0.3s ease; z-index: 999; overflow-y: auto; display: flex; flex-direction: column; justify-content: flex-start; }
         .menu-lateral.ativo { left: 0; }
@@ -67,13 +67,15 @@ function pode($chave) {
         .botao-acao h4 { margin: 0 0 10px; }
         .botao-acao button { background: green; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
         .oculto { display: none; }
+
+        
     </style>
 </head>
 <body>
 
 <div class="topo">
     <button class="menu-btn" onclick="abrirMenu()">☰</button>
-    <h1>𝓕𝓵𝓸𝓻 𝓭𝓮 𝓒𝓱𝓮𝓲𝓻𝓸</h1>
+<img src="/florV3/public/assets/img/logo-flor-cortada.png" alt="Flor de Cheiro" style="height: 55px; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); object-fit: contain;">
 </div>
 
 <div class="menu-lateral" id="menuLateral">

@@ -29,26 +29,14 @@ $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
             padding: 0;
         }
 
-        .top-bar {
-            width: 100%;
-            height: 60px;
-            background-color: #111;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: "Brush Script MT", cursive;
-            font-size: 28px;
-        }
-
-        .form-wrapper {
-            max-width: 700px;
-            margin: 50px auto;
-            background: white;
-            padding: 40px;
-            border-radius: 14px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
+.form-wrapper {
+    max-width: 800px;
+    margin: 50px auto;
+    background: #f3f4f6; /* mesmo fundo do body */
+    padding: 40px;
+    border-radius: 0;
+    box-shadow: none;
+}
 
         h2 {
             text-align: center;
@@ -122,6 +110,21 @@ $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
                 grid-template-columns: 1fr;
             }
         }
+
+.top-bar {
+    background-color: #111;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-img {
+    height: 50px;
+    object-fit: contain;
+    max-width: 100%;
+    display: inline-block;
+}
     </style>
     <!-- Choices CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
@@ -132,7 +135,10 @@ $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
 </head>
 <body>
 
-<div class="top-bar">Flor de Cheiro</div>
+
+<div class="top-bar">
+    <img src="/florV3/public/assets/img/logo-flor-cortada.png" alt="Flor de Cheiro" class="logo-img">
+</div>
 
 <div class="form-wrapper">
     <h2>Cadastro de Retirada</h2>

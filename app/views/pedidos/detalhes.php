@@ -15,7 +15,7 @@
 
         .top-bar {
             width: 100%;
-            height: 60px;
+            height: 85px;
             background-color: #111;
             color: white;
             display: flex;
@@ -25,14 +25,14 @@
             font-size: 28px;
         }
 
-        .container {
-            max-width: 700px;
-            margin: 40px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 14px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-        }
+       .container {
+    max-width: 700px;
+    margin: 0 auto;
+    background: #f3f4f6; /* mesma cor do body */
+    padding: 30px;
+    border-radius: 0px;
+}
+
 
         h2 {
             text-align: center;
@@ -101,11 +101,27 @@
             font-size: 16px;
             color: #e67e22;
         }
+
+        .logo-img {
+    height: 50px;
+    object-fit: contain;
+}
+
+.container,
+.top-bar,
+body > div {
+    box-shadow: none !important;
+}
+
+
     </style>
 </head>
 <body>
 
-<div class="top-bar">Flor de Cheiro</div>
+<div class="top-bar">
+    <img src="/florV3/public/assets/img/logo-flor-cortada.png" alt="Flor de Cheiro" class="logo-img">
+</div>
+
 
 <div class="container">
     <h2>Detalhes do Pedido</h2>

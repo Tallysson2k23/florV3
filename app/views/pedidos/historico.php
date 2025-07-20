@@ -13,17 +13,22 @@
             padding: 0;
         }
 
-        .top-bar {
-            width: 100%;
-            height: 60px;
-            background-color: #111;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: "Brush Script MT", cursive;
-            font-size: 28px;
-        }
+.top-bar {
+    background-color: #111;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.logo-img {
+    height: 52px;
+    object-fit: contain;
+    max-width: 100%;
+    display: inline-block;
+}
+
 
         .container {
             max-width: 900px;
@@ -145,57 +150,58 @@
         }
 
         .rodape {
-    margin-top: 30px;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 15px;
-}
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 15px;
+        }
 
-.botoes-rodape {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-}
+        .botoes-rodape {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
 
-.botoes-rodape button,
-.botoes-rodape .btn-voltar {
-    font-size: 14px;
-    padding: 10px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.3s;
-    text-decoration: none;
-}
+        .botoes-rodape button,
+        .botoes-rodape .btn-voltar {
+            font-size: 14px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+        }
 
-.botoes-rodape button {
-    background: #111;
-    color: white;
-    border: none;
-}
+        .botoes-rodape button {
+            background: #111;
+            color: white;
+            border: none;
+        }
 
-.botoes-rodape button:hover {
-    background: #333;
-}
+        .botoes-rodape button:hover {
+            background: #333;
+        }
 
-.botoes-rodape .btn-voltar {
-    background: transparent;
-    border: 1px solid #111;
-    color: #111;
-    font-weight: 500;
-}
+        .botoes-rodape .btn-voltar {
+            background: transparent;
+            border: 1px solid #111;
+            color: #111;
+            font-weight: 500;
+        }
 
-.botoes-rodape .btn-voltar:hover {
-    background: #111;
-    color: white;
-}
-
+        .botoes-rodape .btn-voltar:hover {
+            background: #111;
+            color: white;
+        }
     </style>
 </head>
 <body>
 
-<div class="top-bar">Flor de Cheiro</div>
+<div class="top-bar">
+    <img src="/florV3/public/assets/img/logo-flor-cortada.png" alt="Flor de Cheiro" class="logo-img">
+</div>
 
 <div class="container">
     <h2>Histórico de Pedidos</h2>
@@ -258,12 +264,10 @@
     <?php endif; ?>
 </div>
 
-
 <script>
 const campoBusca = document.getElementById('campo-busca');
 const sugestoes = document.getElementById('sugestoes');
 
-// Lista de sugestões
 const dados = <?= json_encode(array_map(fn($p) => $p['nome'] . ' - ' . $p['numero_pedido'], $todos)) ?>;
 
 campoBusca.addEventListener('input', function () {
@@ -283,7 +287,6 @@ campoBusca.addEventListener('input', function () {
     });
 });
 
-// Mostrar todos
 const btnMostrar = document.getElementById('mostrar-todos');
 if (btnMostrar) {
     btnMostrar.addEventListener('click', function () {

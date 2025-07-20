@@ -18,7 +18,6 @@ $paginas = [
     'acompanhamento' => 'Acompanhar Pedidos',
     'acompanhamento-atendente' => 'Acompanhamento do Atendente',
     'retiradas' => 'Entregues',
-
 ];
 
 $tipos = ['admin', 'colaborador', 'colaborador-producao'];
@@ -38,16 +37,86 @@ $permissoesAtuais = $permissaoModel->listarTodas();
     <meta charset="UTF-8">
     <title>Permissões - Flor de Cheiro</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f3f4f6; padding: 30px; }
-        table { border-collapse: collapse; width: 100%; background: #fff; box-shadow: 0 0 8px #ccc; }
-        th, td { padding: 10px; text-align: center; border: 1px solid #ccc; }
-        th { background: #111; color: white; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        h2 { text-align: center; }
-        button { padding: 10px 20px; margin-top: 15px; background: green; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .top-bar {
+            background-color: #111;
+            text-align: center;
+            padding: 15px 0;
+        }
+
+        .logo-img {
+            height: 60px;
+            max-width: 100%;
+            object-fit: contain;
+            display: inline-block;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #111;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            background: #fff;
+            box-shadow: 0 0 8px #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ccc;
+        }
+
+        th {
+            background: #111;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-top: 20px;
+            background: green;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button:hover {
+            background: #0d7a0d;
+        }
     </style>
 </head>
 <body>
+
+<div class="top-bar">
+    <img src="/florV3/public/assets/img/logo-flor-cortada.png" alt="Flor de Cheiro" class="logo-img">
+</div>
+
+<div class="container">
     <h2>Gerenciar Permissões</h2>
     <form method="POST">
         <table>
@@ -79,5 +148,7 @@ $permissoesAtuais = $permissaoModel->listarTodas();
             <button type="submit">Salvar Permissões</button>
         </div>
     </form>
+</div>
+
 </body>
 </html>

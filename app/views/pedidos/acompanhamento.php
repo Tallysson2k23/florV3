@@ -203,12 +203,22 @@
     gap: 8px;
     justify-content: center;
 }
+.logo-img {
+    height: 52px; /* ou 150px se quiser maior ainda */
+    max-width: 100%;
+    object-fit: contain;
+    display: inline-block;
+}
+
 
     </style>
 </head>
 <body>
 
-<div class="top-bar">Flor de Cheiro</div>
+<div class="top-bar">
+    <img src="/florV3/public/assets/img/logo-flor-cortada.png" alt="Flor de Cheiro" class="logo-img">
+</div>
+
 
 <div class="container">
     <h2>📦 Acompanhamento de Pedidos</h2>

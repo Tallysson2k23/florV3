@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .top-bar {
             width: 100%;
-            height: 60px;
+            height: 90px;
             background-color: #111;
             color: white;
             display: flex;
@@ -118,11 +118,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-weight: bold;
             margin-top: 20px;
         }
+
+        .logo-img {
+    height: 60px;
+    max-width: 100%;
+    object-fit: contain;
+    display: inline-block;
+}
+
     </style>
 </head>
 <body>
 
-<div class="top-bar">Flor de Cheiro</div>
+<div class="top-bar">
+    <img src="/florV3/public/assets/img/logo-flor-cortada.png" alt="Flor de Cheiro" class="logo-img">
+</div>
+
 
 <div class="form-wrapper">
     <h2>Alterar número padrão dos pedidos</h2>

@@ -15,11 +15,17 @@
 
         .top-bar {
             background-color: #111;
-            color: white;
-            font-family: "Brush Script MT", cursive;
-            font-size: 28px;
-            text-align: center;
-            padding: 15px 0;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-img {
+            height: 50px;
+            object-fit: contain;
+            max-width: 100%;
+            display: inline-block;
         }
 
         .container {
@@ -98,7 +104,9 @@
 </head>
 <body>
 
-<div class="top-bar">Flor de Cheiro</div>
+<div class="top-bar">
+    <img src="/florV3/public/assets/img/logo-flor-cortada.png" alt="Flor de Cheiro" class="logo-img">
+</div>
 
 <div class="container">
     <h2>📋 Lista de Produtos</h2>

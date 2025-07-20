@@ -24,22 +24,25 @@
             position: absolute;
             top: 0;
             width: 100%;
-            height: 60px;
+            height: 90px;
             background-color: #111;
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: "Brush Script MT", cursive;
-            font-size: 28px;
+        }
+
+        .logo-img {
+            height: 50px;
+            object-fit: contain;
         }
 
         .container {
             margin-top: 100px;
-            background: white;
+            background: #f3f4f6;
             padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 0;
+            box-shadow: none;
             text-align: center;
         }
 
@@ -70,12 +73,13 @@
         .container button:hover {
             background-color: #333;
         }
-
     </style>
 </head>
 <body>
 
-    <div class="top-bar">Flor de Cheiro</div>
+    <div class="top-bar">
+        <img src="/florV3/public/assets/img/logo-flor-cortada.png" alt="Flor de Cheiro" class="logo-img">
+    </div>
 
     <div class="container">
         <h3>Escolha o tipo de pedido</h3>

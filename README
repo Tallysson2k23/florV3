@@ -1,51 +1,117 @@
+# 🌸 FlorV3 - Sistema de Gestão de Pedidos para Floricultura
+
+FlorV3 é um sistema completo para gestão de pedidos de uma floricultura. Ele permite o cadastro de produtos, vendedores e usuários, gerenciamento de pedidos por status, impressão de cupons, agenda diária, histórico de produção e controle de permissões por tipo de usuário.
+
+## 📁 Estrutura de Diretórios
+
 florV3/
-├── README
-├── app
-│   ├── controllers
-│   │   ├── PedidoController.php
-│   │   ├── ProdutoController.php
-│   │   ├── UsuarioController.php
-│   │   └── VendedorController.php
-│   ├── helpers
-│   │   ├── OrdemGlobal.php
-│   │   └── auth.php
-│   ├── models
-│   │   ├── Pedido.php
-│   │   ├── PedidoEntrega.php
-│   │   ├── PedidoRetirada.php
-│   │   ├── Produto.php
-│   │   ├── Usuario.php
-│   │   └── Vendedor.php
-│   └── views
-│       ├── agenda.php
-│       ├── painel.php
-│       ├── pedidos
-│       │   ├── acompanhamento.php
-│       │   ├── cadastrar.php
-│       │   ├── cadastrar_entrega.php
-│       │   ├── cadastrar_retirada.php
-│       │   ├── cancelados.php
-│       │   ├── detalhes.php
-│       │   ├── escolher_tipo.php
-│       │   ├── historico.php
-│       │   ├── imprimir_cupom_cliente.php
-│       │   ├── imprimir_ordem.php
-│       │   └── retiradas.php
-│       ├── produtos
-│       │   ├── cadastrar_produto.php
-│       │   └── lista_produtos.php
-│       ├── usuarios
-│       │   ├── acesso_negado.php
-│       │   ├── cadastrar.php
-│       │   ├── listar.php
-│       │   └── login.php
-│       └── vendedores
-│           ├── cadastrar.php
-│           └── lista.php
-├── config
-│   └── database.php
-├── public
-│   ├── gerar_senha.php
-│   └── index.php
-└── routes
-    └── routes.php
+├── README.md # Este arquivo de documentação
+├── app/
+│ ├── controllers/ # Controladores MVC
+│ │ ├── PedidoController.php
+│ │ ├── ProdutoController.php
+│ │ ├── UsuarioController.php
+│ │ └── VendedorController.php
+│ ├── helpers/ # Funções auxiliares
+│ │ ├── OrdemGlobal.php
+│ │ └── auth.php
+│ ├── models/ # Modelos de acesso ao banco
+│ │ ├── Pedido.php
+│ │ ├── PedidoEntrega.php
+│ │ ├── PedidoRetirada.php
+│ │ ├── Produto.php
+│ │ ├── Usuario.php
+│ │ └── Vendedor.php
+│ └── views/ # Páginas do sistema
+│ ├── agenda.php
+│ ├── painel.php
+│ ├── pedidos/
+│ │ ├── acompanhamento.php
+│ │ ├── cadastrar.php
+│ │ ├── cadastrar_entrega.php
+│ │ ├── cadastrar_retirada.php
+│ │ ├── cancelados.php
+│ │ ├── detalhes.php
+│ │ ├── escolher_tipo.php
+│ │ ├── historico.php
+│ │ ├── imprimir_cupom_cliente.php
+│ │ ├── imprimir_ordem.php
+│ │ └── retiradas.php
+│ ├── produtos/
+│ │ ├── cadastrar_produto.php
+│ │ └── lista_produtos.php
+│ ├── usuarios/
+│ │ ├── acesso_negado.php
+│ │ ├── cadastrar.php
+│ │ ├── listar.php
+│ │ └── login.php
+│ └── vendedores/
+│ ├── cadastrar.php
+│ └── lista.php
+├── config/
+│ └── database.php # Conexão com banco PostgreSQL
+├── public/
+│ ├── gerar_senha.php # Utilitário de geração de senha
+│ └── index.php # Entrada principal do sistema
+└── routes/
+└── routes.php # Rotas configuradas do sistema
+
+
+## ✅ Funcionalidades
+
+- Cadastro e login de usuários com controle de permissões (admin, colaborador, produção).
+- Cadastro e edição de produtos com porcentagem e agrupamento.
+- Cadastro de vendedores com código identificador.
+- Cadastro de pedidos de entrega e retirada.
+- Impressão de **cupom para cliente** e **ordem de produção**.
+- Tela de **acompanhamento de pedidos por status**.
+- Página de agenda com pedidos por data.
+- Histórico de produção por operador.
+- Notificações de pedidos futuros (com sino).
+- Filtros e busca por produtos.
+- Controle de permissões por página.
+- Painel administrativo com menu lateral dinâmico.
+
+## ⚙️ Banco de Dados
+
+- Banco: `florv3`
+- Tabelas principais: `pedidos_entrega`, `pedidos_retirada`, `usuarios`, `produtos`, `vendedores`, `historico_status`, `fila_global`, etc.
+- Utiliza sequência global `ordem_fila` para ordenar pedidos em fila única.
+- Suporte a PostgreSQL 13+.
+
+## 🚀 Requisitos
+
+- PHP 7.4+
+- PostgreSQL 13+
+- Servidor Apache ou embarcado (XAMPP, Laragon, etc.)
+
+## 🔒 Permissões
+
+Permissões são controladas na tabela `permissoes`. A função `pode('nome-da-rota')` define o acesso na interface.
+
+## 👨‍💻 Desenvolvimento
+
+Para contribuir ou modificar:
+
+1. Clone o repositório.
+2. Configure o banco `florv3` e importe as tabelas.
+3. Edite as rotas em `routes/routes.php`.
+4. Customize controladores e views conforme necessário.
+
+## 📦 Implantação como Software Instalável
+
+Este sistema pode ser empacotado com:
+- XAMPP portátil (PHP + Apache)
+- PostgreSQL local
+- Navegador embutido (ex: Webview, Electron)
+- Atalho personalizado para execução direta
+
+## 👤 Autor
+
+Desenvolvido por **Jose Tallysson Luis Silva de Lima**  
+Contato: [email oculto]  
+LinkedIn: *opcional*  
+Versão: `v3.0`
+
+---
+

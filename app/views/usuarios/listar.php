@@ -15,11 +15,15 @@
 
         .top-bar {
             background-color: #111;
-            color: white;
-            font-family: "Brush Script MT", cursive;
-            font-size: 28px;
             text-align: center;
             padding: 15px 0;
+        }
+
+        .logo-img {
+            height: 60px;
+            max-width: 100%;
+            object-fit: contain;
+            display: inline-block;
         }
 
         .container {
@@ -99,7 +103,9 @@
 </head>
 <body>
 
-<div class="top-bar">Flor de Cheiro</div>
+<div class="top-bar">
+    <img src="/florV3/public/assets/img/logo-flor-cortada.png" alt="Flor de Cheiro" class="logo-img">
+</div>
 
 <div class="container">
     <h2>👥 Lista de Usuários Cadastrados</h2>
@@ -117,11 +123,10 @@
                 <td><?= htmlspecialchars($usuario['email']) ?></td>
                 <td><?= ucfirst($usuario['tipo']) ?></td>
                 <td>
-<input type="checkbox"
-       <?= isset($usuario['ativo']) && !$usuario['ativo'] ? 'checked' : '' ?>
-       onchange="atualizarStatus(<?= isset($usuario['id']) ? (int)$usuario['id'] : 0 ?>, this.checked)">
-
-        </td>
+                    <input type="checkbox"
+                           <?= isset($usuario['ativo']) && !$usuario['ativo'] ? 'checked' : '' ?>
+                           onchange="atualizarStatus(<?= isset($usuario['id']) ? (int)$usuario['id'] : 0 ?>, this.checked)">
+                </td>
             </tr>
         <?php endforeach; ?>
     </table>
@@ -131,6 +136,7 @@
         <a href="/florV3/public/index.php?rota=novo-usuario" class="btn btn-novo">➕ Cadastrar Novo Usuário</a>
     </div>
 </div>
+
 <script>
 function atualizarStatus(usuarioId, inativo) {
     const valorAtivo = inativo ? 0 : 1;
@@ -147,9 +153,7 @@ function atualizarStatus(usuarioId, inativo) {
         alert(msg);
     });
 }
-
 </script>
-
 
 </body>
 </html>
