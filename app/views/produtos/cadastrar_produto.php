@@ -101,15 +101,15 @@
         <label>Nome do Produto:
             <input type="text" name="nome" required>
         </label>
-        
+        <!--
 <label>Grupo do Produto:
     <select name="grupo_id" required style="padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 15px; width: 100%;">
         <option value="">Selecione</option>
-        <?php foreach ($grupos as $grupo): ?>
+        <?php /*foreach ($grupos as $grupo): ?>
             <option value="<?= $grupo['id'] ?>"><?= htmlspecialchars($grupo['nome']) ?></option>
-        <?php endforeach; ?>
+        <?php endforeach; */ ?>
     </select>
-</label>
+</label> -->
 
 
 
