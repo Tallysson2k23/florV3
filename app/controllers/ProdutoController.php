@@ -128,16 +128,18 @@ public function editarProduto() {
 }
 
 public function salvarEdicao() {
-    $id     = $_POST['id'];
-    $nome   = $_POST['nome'];
-    $codigo = $_POST['codigo'];
-    $valor  = $_POST['valor'];
+    $id          = $_POST['id'];
+    $nome        = $_POST['nome'];
+    $codigo      = $_POST['codigo'];
+    $valor       = $_POST['valor'];
+    $porcentagem = $_POST['porcentagem'] ?? null;
 
     $produtoModel = new Produto(Database::conectar());
-    $produtoModel->atualizar($id, $nome, $codigo, $valor);
+    $produtoModel->atualizar($id, $nome, $codigo, $valor, $porcentagem);
 
     header('Location: /florV3/public/index.php?rota=lista-produtos');
 }
+
 
 
 

@@ -252,6 +252,11 @@ case 'buscar-pedidos-produto':
     $controller->buscarPedidosPorProdutoAjax();
     break;
 
+case 'detalhes-operador':
+    require_once __DIR__ . '/../app/controllers/PedidoController.php';
+    $controller = new PedidoController();
+    $controller->detalhesOperador();
+    break;
 
 
 

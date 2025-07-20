@@ -38,16 +38,21 @@ public function buscarPorId($id) {
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
-public function atualizar($id, $nome, $codigo, $valor) {
-    $sql = "UPDATE produtos SET nome = :nome, codigo = :codigo, valor = :valor WHERE id = :id";
+public function atualizar($id, $nome, $codigo, $valor, $porcentagem) {
+    $sql = "UPDATE produtos 
+            SET nome = :nome, codigo = :codigo, valor = :valor, porcentagem = :porcentagem 
+            WHERE id = :id";
+
     $stmt = $this->db->prepare($sql);
     $stmt->execute([
         ':nome' => $nome,
         ':codigo' => $codigo,
         ':valor' => $valor,
+        ':porcentagem' => $porcentagem,
         ':id' => $id
     ]);
 }
+
 
 public function listarAtivos() {
     $sql = "SELECT * FROM produtos WHERE ativo = true ORDER BY nome ASC";

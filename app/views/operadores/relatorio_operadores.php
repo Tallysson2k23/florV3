@@ -78,7 +78,12 @@
             <?php foreach ($resultados as $linha): ?>
             <tr>
                 <td><?= htmlspecialchars($linha['responsavel']) ?></td>
-                <td><?= $linha['quantidade'] ?></td>
+                <td>
+    <a href="/florV3/public/index.php?rota=detalhes-operador&responsavel=<?= urlencode($linha['responsavel']) ?>&data_inicio=<?= htmlspecialchars($dataInicio ?? '') ?>&data_fim=<?= htmlspecialchars($dataFim ?? '') ?>">
+        <?= $linha['quantidade'] ?>
+    </a>
+</td>
+
             </tr>
             <?php endforeach; ?>
         </table>

@@ -485,6 +485,52 @@ $retiradaModel = new PedidoRetirada();
     exit;
 }
 
+public function detalhesOperador() {
+    $responsavel = $_GET['responsavel'] ?? '';
+    $dataInicio = $_GET['data_inicio'] ?? '';
+    $dataFim = $_GET['data_fim'] ?? '';
+
+    if (!$responsavel || !$dataInicio || !$dataFim) {
+        echo "Parâmetros inválidos.";
+        return;
+    }
+
+    $pdo = Database::conectar();
+
+    // Busca todos os registros do operador no intervalo informado
+$stmt = $pdo->prepare("
+    SELECT 
+        rp.pedido_id,
+        rp.tipo,
+        rp.responsavel,
+        hs_producao.data_hora AS data_producao,
+        hs_pronto.data_hora AS data_pronto,
+        COALESCE(p.numero_pedido, pr.numero_pedido) AS numero_pedido,
+        COALESCE(p.produtos, pr.produtos) AS produtos
+    FROM responsavel_producao rp
+    LEFT JOIN historico_status hs_producao 
+        ON hs_producao.pedido_id = rp.pedido_id AND hs_producao.status = 'Produção'
+    LEFT JOIN historico_status hs_pronto 
+        ON hs_pronto.pedido_id = rp.pedido_id AND hs_pronto.status = 'Pronto'
+    LEFT JOIN pedidos_entrega p ON rp.tipo = 'entrega' AND p.id = rp.pedido_id
+    LEFT JOIN pedidos_retirada pr ON rp.tipo = 'retirada' AND pr.id = rp.pedido_id
+    WHERE rp.responsavel = :responsavel
+      AND DATE(hs_producao.data_hora) BETWEEN :inicio AND :fim
+    ORDER BY hs_producao.data_hora ASC
+");
+
+
+    $stmt->execute([
+        ':responsavel' => $responsavel,
+        ':inicio' => $dataInicio,
+        ':fim' => $dataFim
+    ]);
+
+    $registros = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    require __DIR__ . '/../views/operadores/detalhes_operador.php';
+}
+
 
 
     // Aqui permanecem seus métodos de vendedores, produtos e cancelados como no backup original
