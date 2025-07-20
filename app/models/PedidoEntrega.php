@@ -82,11 +82,12 @@ public function buscarPorId($id) {
 
 
 public function listarTodos() {
-    $sql = "SELECT id, numero_pedido, tipo, 
-                   COALESCE(destinatario, remetente) AS nome, 
-                   status, data_abertura, hora, ordem_fila
-            FROM {$this->table}
-            ORDER BY ordem_fila DESC";
+$sql = "SELECT id, numero_pedido, tipo, 
+               remetente AS nome, 
+               status, data_abertura, hora, ordem_fila
+        FROM {$this->table}
+        ORDER BY ordem_fila DESC";
+
     return $this->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 }
 
