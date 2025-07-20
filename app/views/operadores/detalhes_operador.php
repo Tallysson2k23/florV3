@@ -106,16 +106,25 @@
                 $item = trim($item);
                 if (!$item) continue;
 
-                // Extrair nome e quantidade
-                preg_match('/^(\d+)x\s+(.*?)(?:\s*\((.*?)\))?$/i', $item, $match);
-                $qtd = $match[1] ?? 1;
-                $nomeProduto = trim($match[2] ?? $item);
+// Extrair nome e quantidade corretamente
+preg_match('/^(\d+)\s*x\s*([^\(]+)(?:\((.*?)\))?$/i', $item, $match);
+$qtd = isset($match[1]) ? (int) $match[1] : 1;
+$nomeProduto = isset($match[2]) ? trim($match[2]) : trim($item);
+
+// Adicionalmente remova espaços extras
+$nomeProduto = preg_replace('/\s+/', ' ', $nomeProduto);
+
+// Debug
+echo "<!-- Buscando produto corrigido: '$nomeProduto' -->";
+
+                
 
                 // Buscar valor e porcentagem do produto
                 $pdo = Database::conectar();
-                $stmt = $pdo->prepare("SELECT valor, porcentagem FROM produtos WHERE nome ILIKE :nome LIMIT 1");
-                $stmt->execute([':nome' => "%$nomeProduto%"]);
-                $dadosProduto = $stmt->fetch(PDO::FETCH_ASSOC);
+$nomeLimpo = mb_strtolower(trim($nomeProduto));
+$stmt = $pdo->prepare("SELECT valor, porcentagem FROM produtos WHERE LOWER(TRIM(nome)) = :nome LIMIT 1");
+$stmt->execute([':nome' => $nomeLimpo]);
+$dadosProduto = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 $valorUnit = $dadosProduto['valor'] ?? 0;
                 $porcentagem = $dadosProduto['porcentagem'] ?? 0;
