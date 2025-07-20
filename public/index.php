@@ -263,7 +263,6 @@ case 'detalhes-operador':
 
 
 
-
     default:
         echo "Página não encontrada.";
         break;

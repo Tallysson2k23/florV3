@@ -49,11 +49,14 @@
         }
 
         input[type="text"] {
-            padding: 6px 10px;
-            font-size: 14px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
+    padding: 6px 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    width: 180px; /* Aumente este valor conforme necessário */
+    max-width: 100%;
+}
+
 
         .total-comissao {
             text-align: right;
@@ -75,16 +78,91 @@
         .voltar:hover {
             background-color: #333;
         }
+@media print {
+    body {
+        background: white !important;
+        color: black !important;
+    }
+
+    .filtro, .voltar, button, input[type="text"] {
+        display: none !important; /* oculta botão, filtro e campos */
+    }
+
+    table {
+        font-size: 12px;
+    }
+
+    .container {
+        box-shadow: none !important;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
+
+    .total-comissao {
+        margin-top: 20px;
+        font-size: 14px;
+        text-align: right;
+    }
+
+    @page {
+        margin: 20mm;
+    }
+}
+
+.filtro-linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.campo-pesquisa {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    align-items: center;
+}
+
+.botao-imprimir {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.botao-imprimir button {
+    padding: 8px 16px;
+    background-color: #111;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.botao-imprimir button:hover {
+    background-color: #333;
+}
+
+
     </style>
 </head>
 <body>
 <div class="container">
     <h1>Detalhamento - <?= htmlspecialchars($responsavel) ?></h1>
-
-    <div class="filtro">
+<div class="filtro-linha">
+    <div class="campo-pesquisa">
         <label for="filtro-produto">Filtrar produto: </label>
-        <input type="text" id="filtro-produto" onkeyup="filtrarProduto()" placeholder="Digite parte do nome do produto...">
+        <input type="text" id="filtro-produto" onkeyup="filtrarProduto()" placeholder="Digite o nome do produto...">
     </div>
+    <div class="botao-imprimir">
+        <button onclick="window.print()">Imprimir páginas</button>
+    </div>
+</div>
+
 
     <table id="tabela-produtos">
         <tr>
@@ -160,11 +238,25 @@ function filtrarProduto() {
     const filtro = input.value.toLowerCase();
     const linhas = document.querySelectorAll("#tabela-produtos tr:not(:first-child)");
 
+    let total = 0;
+
     linhas.forEach(linha => {
         const produto = linha.cells[3].textContent.toLowerCase();
-        linha.style.display = produto.includes(filtro) ? "" : "none";
+        const comissaoText = linha.cells[6].textContent.replace('R$', '').replace('.', '').replace(',', '.').trim();
+        const comissao = parseFloat(comissaoText) || 0;
+
+        if (produto.includes(filtro)) {
+            linha.style.display = "";
+            total += comissao;
+        } else {
+            linha.style.display = "none";
+        }
     });
+
+    const totalFormatado = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    document.querySelector('.total-comissao strong').textContent = totalFormatado;
 }
 </script>
+
 </body>
 </html>

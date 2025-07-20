@@ -533,5 +533,6 @@ $stmt = $pdo->prepare("
 
 
 
+
     // Aqui permanecem seus métodos de vendedores, produtos e cancelados como no backup original
 }
