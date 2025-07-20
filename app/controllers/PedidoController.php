@@ -161,12 +161,13 @@ public function acompanhamentoAtendente() {
     $pedidoRetirada = new PedidoRetirada();
 
     $data = $_GET['data'] ?? date('Y-m-d');
+    $usuarioTipo = $_SESSION['usuario_tipo'] ?? 'colaborador';
 
-    // Buscar pedidos com todos os status relevantes
+    // Buscar todos os pedidos com esses status (inclusive "Cancelado")
     $entregas = $pedidoEntrega->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
     $retiradas = $pedidoRetirada->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
 
-    // Filtrar "Retorno" e "Cancelado" apenas se forem do dia selecionado
+    // 🔁 Novo filtro: só esconder "Cancelado" ou "Retorno" se NÃO for do dia selecionado
     $entregas = array_filter($entregas, function($pedido) use ($data) {
         if (in_array($pedido['status'], ['Retorno', 'Cancelado'])) {
             return $pedido['data_abertura'] === $data;
@@ -186,12 +187,14 @@ public function acompanhamentoAtendente() {
 
     $todosPedidos = array_merge($entregas, $retiradas);
 
+    // Ordena por ordem de chegada
     usort($todosPedidos, function($a, $b) {
         return ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0);
     });
 
     require __DIR__ . '/../views/pedidos/acompanhamento_atendente.php';
 }
+
 
 
 public function atualizarStatus() {
@@ -467,9 +470,6 @@ public function buscarPedidosPorProdutoAjax()
 {
     $busca = $_GET['produto'] ?? '';
     $data = $_GET['data'] ?? date('Y-m-d');
-
- require_once __DIR__ . '/../models/PedidoEntrega.php';
-require_once __DIR__ . '/../models/PedidoRetirada.php';
 
 $entregaModel = new PedidoEntrega();
 $retiradaModel = new PedidoRetirada();

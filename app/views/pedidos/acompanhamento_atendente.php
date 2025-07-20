@@ -202,10 +202,12 @@ h2::before {
                 <option value="Pronto" <?= $pedido['status'] === 'Pronto' ? 'selected' : '' ?>>Pronto</option>
                 <option value="Entregue" <?= $pedido['status'] === 'Entregue' ? 'selected' : '' ?>>Entregue</option>
                 <option value="Retorno" <?= $pedido['status'] === 'Retorno' ? 'selected' : '' ?>>Retorno</option>
-                <?php if ($usuarioTipo === 'admin'): ?>
-    <option value="Cancelado" <?= $pedido['status'] === 'Cancelado' ? 'selected' : '' ?>>Cancelado</option>
-<?php endif; ?>
+                <option value="Cancelado" <?= $pedido['status'] === 'Cancelado' ? 'selected' : '' ?>>Cancelado</option>
+
             </select>
+            <!-- Campo para mensagem do cancelamento -->
+
+
         </td>
     </tr>
     <?php endforeach; ?>
@@ -231,36 +233,62 @@ h2::before {
 </style>
 
 <script>
+const tipoUsuario = '<?= $usuarioTipo ?>';
+
 function atualizarStatus(novoStatus, id, tipo) {
+    if (novoStatus === 'Cancelado') {
+        if (tipoUsuario !== 'admin') {
+            alert("Você não tem permissão para cancelar este pedido.");
+            // Força recarregar a página para voltar o select para o valor anterior
+            window.location.reload();
+            return;
+        }
+
+        const motivo = prompt("Informe o motivo do cancelamento:");
+        if (!motivo || motivo.trim() === "") {
+            alert("Motivo obrigatório para cancelar o pedido!");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('tipo', tipo);
+        formData.append('status', novoStatus);
+        formData.append('mensagem', motivo.trim());
+
+        enviarStatus(formData, novoStatus, id);
+        return;
+    }
+
+    // Continua normalmente para os demais status
     const formData = new FormData();
     formData.append('id', id);
     formData.append('tipo', tipo);
     formData.append('status', novoStatus);
 
     if (novoStatus === 'Entregue') {
-        const confirmaMensagem = confirm("Deseja registrar uma mensagem para este pedido? (Ela ficará salva no histórico)");
-        if (confirmaMensagem) {
-            const mensagem = prompt("Digite a mensagem que deseja registrar:");
-            if (mensagem !== null && mensagem.trim() !== "") {
-                formData.append('mensagem', mensagem.trim());
+        const confirma = confirm("Deseja registrar uma mensagem para este pedido?");
+        if (confirma) {
+            const msg = prompt("Digite a mensagem:");
+            if (msg && msg.trim() !== "") {
+                formData.append('mensagem', msg.trim());
             }
         }
-    } else if (novoStatus === 'Retorno') {
-        const mensagem = prompt("Digite o motivo do retorno:");
-        if (!mensagem || mensagem.trim() === "") {
-            alert("Motivo obrigatório para status 'Retorno'!");
-            return;
-        }
-        formData.append('mensagem', mensagem.trim());
-    } else if (novoStatus === 'Cancelado') {
-        const mensagem = prompt("Informe o motivo do cancelamento:");
-        if (!mensagem || mensagem.trim() === "") {
-            alert("Motivo obrigatório para cancelar o pedido!");
-            return;
-        }
-        formData.append('mensagem', mensagem.trim());
     }
 
+    if (novoStatus === 'Retorno') {
+        const msg = prompt("Digite o motivo do retorno:");
+        if (!msg || msg.trim() === "") {
+            alert("Motivo obrigatório para retorno!");
+            return;
+        }
+        formData.append('mensagem', msg.trim());
+    }
+
+    enviarStatus(formData, novoStatus, id);
+}
+
+function enviarStatus(formData, novoStatus, id) {
     fetch('/florV3/public/index.php?rota=atualizar-status', {
         method: 'POST',
         body: formData
@@ -269,8 +297,6 @@ function atualizarStatus(novoStatus, id, tipo) {
     .then(result => {
         if (result === 'OK') {
             const selectElement = document.querySelector(`select[onchange*="atualizarStatus(this.value, ${id},"]`);
-
-            // Remove todas as classes de status
             selectElement.classList.remove(
                 'status-select-pronto',
                 'status-select-entregue',
@@ -278,7 +304,6 @@ function atualizarStatus(novoStatus, id, tipo) {
                 'status-select-cancelado'
             );
 
-            // Adiciona a nova classe com base no novoStatus
             if (novoStatus === 'Pronto') {
                 selectElement.classList.add('status-select-pronto');
             } else if (novoStatus === 'Entregue') {
@@ -289,17 +314,18 @@ function atualizarStatus(novoStatus, id, tipo) {
                 selectElement.classList.add('status-select-cancelado');
             }
 
-            // Força re-renderização para aplicar visual
+            // Re-renderiza
             selectElement.style.display = 'none';
             setTimeout(() => {
                 selectElement.style.display = 'inline-block';
             }, 10);
         } else {
-            alert('Erro ao atualizar status.');
+            alert(result || 'Erro ao atualizar status.');
         }
     });
 }
 </script>
+
 
 
 
