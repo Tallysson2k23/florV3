@@ -688,6 +688,71 @@ html += '</table>';
     });
 });
 </script>
+<script>
+function atualizarTabelaAcompanhamento() {
+    const data = document.querySelector('input[name="data"]').value;
+
+    fetch(`/florV3/public/index.php?rota=buscar-pedidos-dia-json&data=${encodeURIComponent(data)}`)
+        .then(response => response.json())
+        .then(pedidos => {
+            const tabela = document.querySelector('#lista-pedidos');
+            if (!Array.isArray(pedidos)) return;
+
+            let html = `
+                <table>
+                    <tr>
+                        <th>Código</th>
+                        <th>Cliente</th>
+                        <th>Status</th>
+                        <th>Data</th>
+                        <th>Ações</th>
+                    </tr>
+            `;
+
+            pedidos.forEach(pedido => {
+                const id = pedido.id;
+                const nome = pedido.nome || pedido.remetente || pedido.destinatario || '';
+                const tipo = pedido.tipo?.toLowerCase()?.replace('p_', '') ?? '';
+                const numero = pedido.numero_pedido ?? '';
+                const data = pedido.data_abertura ?? '';
+                const status = pedido.status ?? '';
+                let statusClasse = '';
+
+                switch (status.toLowerCase()) {
+                    case 'pendente': statusClasse = 'status-pendente'; break;
+                    case 'produção': statusClasse = 'status-producao'; break;
+                }
+
+                html += `
+                    <tr>
+                        <td>${numero}</td>
+                        <td><a href="/florV3/public/index.php?rota=detalhes&id=${id}&tipo=${tipo}">${nome}</a></td>
+                        <td>
+                            <select class="${statusClasse}" onchange="atualizarStatus(${id}, '${tipo}', this.value)">
+                                ${['Pendente', 'Produção', 'Pronto', 'Cancelado'].map(opt => {
+                                    const sel = opt.toLowerCase() === status.toLowerCase() ? 'selected' : '';
+                                    return `<option value="${opt}" ${sel}>${opt}</option>`;
+                                }).join('')}
+                            </select>
+                        </td>
+                        <td>${data}</td>
+                        <td>
+                            <button onclick="confirmarImpressao(${id}, '${tipo}')">🖨️ Imprimir</button>
+                            <button onclick="imprimirSegundaVia(${id}, '${tipo}')" style="background-color:#000">🖨️ 2ª via</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</table>';
+            tabela.innerHTML = html;
+        })
+        .catch(err => console.error("Erro ao atualizar pedidos:", err));
+}
+
+// Iniciar atualização automática
+setInterval(atualizarTabelaAcompanhamento, 2000);
+</script>
 
 
 

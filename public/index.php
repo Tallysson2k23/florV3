@@ -264,6 +264,15 @@ case 'pedidos-status-json':
     $controller->retornarPedidosPorStatus();
     break;
 
+case 'buscar-pedidos-dia-json':
+    require_once __DIR__ . '/../app/controllers/PedidoController.php';
+    $controller = new PedidoController();
+    $controller->buscarPedidosDoDiaJson();
+    break;
+
+
+
+
 
 
 

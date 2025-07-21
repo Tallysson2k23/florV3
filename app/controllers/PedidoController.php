@@ -566,6 +566,33 @@ $retiradaModel = new PedidoRetirada();
     echo json_encode($agrupados);
 }
 
+public function buscarPedidosDoDiaJson() {
+    header('Content-Type: application/json');
+
+    $dataSelecionada = $_GET['data'] ?? date('Y-m-d');
+
+    $entregaModel = new PedidoEntrega();
+    $retiradaModel = new PedidoRetirada();
+
+    $statusFiltro = ['Pendente', 'Produção']; // Não inclui Pronto
+    $pedidosEntrega = $entregaModel->buscarPorStatusEData($statusFiltro, $dataSelecionada);
+    $pedidosRetirada = $retiradaModel->buscarPorStatusEData($statusFiltro, $dataSelecionada);
+
+    $todos = array_merge($pedidosEntrega, $pedidosRetirada);
+
+    // Ordenar por ordem de chegada
+    usort($todos, function($a, $b) {
+        return ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0);
+    });
+
+    echo json_encode($todos);
+}
+
+
+
+
+
+
 
 
 
