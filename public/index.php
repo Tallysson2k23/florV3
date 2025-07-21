@@ -270,6 +270,12 @@ case 'buscar-pedidos-dia-json':
     $controller->buscarPedidosDoDiaJson();
     break;
 
+    case 'buscar-pedidos-atendente-json':
+    require_once __DIR__ . '/../app/controllers/PedidoController.php';
+    $controller = new PedidoController();
+    $controller->buscarPedidosAtendenteJson();
+    break;
+
 
 
 

@@ -325,9 +325,71 @@ function enviarStatus(formData, novoStatus, id) {
     });
 }
 </script>
+<script>
+function atualizarTabelaAtendente() {
+    const data = document.querySelector('input[name="data"]').value;
 
+    fetch(`/florV3/public/index.php?rota=buscar-pedidos-atendente-json&data=${encodeURIComponent(data)}`)
+        .then(response => response.json())
+        .then(pedidos => {
+            const tabela = document.querySelector('table');
+            let html = `
+                <tr>
+                    <th>Nº Pedido</th>
+                    <th>Cliente</th>
+                    <th>Tipo</th>
+                    <th>Status</th>
+                </tr>
+            `;
 
+            pedidos.forEach(pedido => {
+                const id = pedido.id;
+                const nome = pedido.destinatario ?? pedido.nome ?? '';
+                const tipo = (pedido.tipo === '1-Entrega' || pedido.tipo?.toLowerCase() === 'entrega') ? 'entrega' : 'retirada';
+                const tipoLabel = tipo === 'entrega' ? 'Entrega' : 'Retirada';
+                const numero = pedido.numero_pedido ?? '';
+                const status = pedido.status ?? '';
+                const statusLower = status.toLowerCase();
+                let classeStatus = '';
+
+                switch (statusLower) {
+                    case 'pronto': classeStatus = 'status-select-pronto'; break;
+                    case 'entregue': classeStatus = 'status-select-entregue'; break;
+                    case 'retorno': classeStatus = 'status-select-retorno'; break;
+                    case 'cancelado': classeStatus = 'status-select-cancelado'; break;
+                }
+
+                html += `
+                    <tr>
+                        <td>${numero}</td>
+                        <td>${nome}</td>
+                        <td>${tipoLabel}</td>
+                        <td>
+                            <select onchange="atualizarStatus(this.value, ${id}, '${tipo}')" class="status-select ${classeStatus}">
+                                <option value="Pronto" ${status === 'Pronto' ? 'selected' : ''}>Pronto</option>
+                                <option value="Entregue" ${status === 'Entregue' ? 'selected' : ''}>Entregue</option>
+                                <option value="Retorno" ${status === 'Retorno' ? 'selected' : ''}>Retorno</option>
+                                <option value="Cancelado" ${status === 'Cancelado' ? 'selected' : ''}>Cancelado</option>
+                            </select>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tabela.innerHTML = html;
+        })
+        .catch(err => console.error('Erro ao atualizar pedidos do atendente:', err));
+}
+
+// Atualizar a cada 5 segundos
+setInterval(atualizarTabelaAtendente, 5000);
+</script>
+
+<!-- 6,0 -->
 
 
 </body>
 </html>
+
+
+

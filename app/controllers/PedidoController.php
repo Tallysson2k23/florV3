@@ -588,6 +588,27 @@ public function buscarPedidosDoDiaJson() {
     echo json_encode($todos);
 }
 
+public function buscarPedidosAtendenteJson() {
+    header('Content-Type: application/json');
+
+    $data = $_GET['data'] ?? date('Y-m-d');
+
+    $entregaModel = new PedidoEntrega();
+    $retiradaModel = new PedidoRetirada();
+
+    $entregas = $entregaModel->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
+    $retiradas = $retiradaModel->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
+
+    // Filtrar Retorno e Cancelado apenas se forem do dia selecionado
+    $entregas = array_filter($entregas, fn($p) => in_array($p['status'], ['Retorno', 'Cancelado']) ? $p['data_abertura'] === $data : true);
+    $retiradas = array_filter($retiradas, fn($p) => in_array($p['status'], ['Retorno', 'Cancelado']) ? $p['data_abertura'] === $data : true);
+
+    $todos = array_merge($entregas, $retiradas);
+
+    usort($todos, fn($a, $b) => ($a['ordem_fila'] ?? 0) - ($b['ordem_fila'] ?? 0));
+
+    echo json_encode($todos);
+}
 
 
 

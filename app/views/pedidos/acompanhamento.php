@@ -751,7 +751,7 @@ function atualizarTabelaAcompanhamento() {
 }
 
 // Iniciar atualização automática
-setInterval(atualizarTabelaAcompanhamento, 2000);
+setInterval(atualizarTabelaAcompanhamento, 5000);
 </script>
 
 
