@@ -165,52 +165,35 @@ h2::before {
         <th>Tipo</th>
         <th>Status</th>
     </tr>
-    <?php
-    $todosPedidos = array_merge($entregas, $retiradas);
-    usort($todosPedidos, function($a, $b) {
-        return ($a['ordem_fila'] ?? 0) - ($b['ordem_fila'] ?? 0);
-    });
+   <?php foreach ($todosPedidos as $pedido): ?>
+  <tr>
+    <td><?= htmlspecialchars($pedido['numero_pedido']) ?></td>
+    <td><?= htmlspecialchars($pedido['remetente'] ?? $pedido['nome'] ?? '') ?></td>
 
-    foreach ($todosPedidos as $pedido):
-    ?>
-    <tr>
-        <td><?= htmlspecialchars($pedido['numero_pedido']) ?></td>
-        <td>
-            <?php if (isset($pedido['destinatario'])): ?>
-                <?= htmlspecialchars($pedido['destinatario']) ?>
-            <?php else: ?>
-                <?= htmlspecialchars($pedido['nome']) ?>
-            <?php endif; ?>
-        </td>
-        <td>
-            <?= (isset($pedido['tipo']) && ($pedido['tipo'] === '1-Entrega' || strtolower($pedido['tipo']) === 'entrega')) ? 'Entrega' : 'Retirada' ?>
-        </td>
-        <td>
-<?php
-    $status = strtolower($pedido['status']);
-    $classeStatus = $status === 'pronto' ? 'status-select-pronto' :
-                    ($status === 'entregue' ? 'status-select-entregue' :
-                    ($status === 'retorno' ? 'status-select-retorno' :
-                    ($status === 'cancelado' ? 'status-select-cancelado' : '')));
-?>
-<select
-    onchange="atualizarStatus(this.value, <?= $pedido['id'] ?>, '<?= (isset($pedido['tipo']) && ($pedido['tipo'] === '1-Entrega' || strtolower($pedido['tipo']) === 'entrega')) ? 'entrega' : 'retirada' ?>')"
-    class="status-select <?= $classeStatus ?>"
->
+    <td>
+        <?= (isset($pedido['tipo']) && ($pedido['tipo'] === '1-Entrega' || strtolower($pedido['tipo']) === 'entrega')) ? 'Entrega' : 'Retirada' ?>
+    </td>
+    <td>
+        <?php
+            $status = strtolower($pedido['status']);
+            $classeStatus = $status === 'pronto' ? 'status-select-pronto' :
+                            ($status === 'entregue' ? 'status-select-entregue' :
+                            ($status === 'retorno' ? 'status-select-retorno' :
+                            ($status === 'cancelado' ? 'status-select-cancelado' : '')));
+        ?>
+        <select
+            onchange="atualizarStatus(this.value, <?= $pedido['id'] ?>, '<?= (isset($pedido['tipo']) && ($pedido['tipo'] === '1-Entrega' || strtolower($pedido['tipo']) === 'entrega')) ? 'entrega' : 'retirada' ?>')"
+            class="status-select <?= $classeStatus ?>"
+        >
+            <option value="Pronto" <?= $pedido['status'] === 'Pronto' ? 'selected' : '' ?>>Pronto</option>
+            <option value="Entregue" <?= $pedido['status'] === 'Entregue' ? 'selected' : '' ?>>Entregue</option>
+            <option value="Retorno" <?= $pedido['status'] === 'Retorno' ? 'selected' : '' ?>>Retorno</option>
+            <option value="Cancelado" <?= $pedido['status'] === 'Cancelado' ? 'selected' : '' ?>>Cancelado</option>
+        </select>
+    </td>
+  </tr>
+<?php endforeach; ?>
 
-
-                <option value="Pronto" <?= $pedido['status'] === 'Pronto' ? 'selected' : '' ?>>Pronto</option>
-                <option value="Entregue" <?= $pedido['status'] === 'Entregue' ? 'selected' : '' ?>>Entregue</option>
-                <option value="Retorno" <?= $pedido['status'] === 'Retorno' ? 'selected' : '' ?>>Retorno</option>
-                <option value="Cancelado" <?= $pedido['status'] === 'Cancelado' ? 'selected' : '' ?>>Cancelado</option>
-
-            </select>
-            <!-- Campo para mensagem do cancelamento -->
-
-
-        </td>
-    </tr>
-    <?php endforeach; ?>
 </table>
 </div>
 
@@ -344,7 +327,8 @@ function atualizarTabelaAtendente() {
 
             pedidos.forEach(pedido => {
                 const id = pedido.id;
-                const nome = pedido.destinatario ?? pedido.nome ?? '';
+             const nome = pedido.remetente ?? pedido.nome ?? '';
+
                 const tipo = (pedido.tipo === '1-Entrega' || pedido.tipo?.toLowerCase() === 'entrega') ? 'entrega' : 'retirada';
                 const tipoLabel = tipo === 'entrega' ? 'Entrega' : 'Retirada';
                 const numero = pedido.numero_pedido ?? '';

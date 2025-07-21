@@ -3,6 +3,8 @@ require_once __DIR__ . '/../models/PedidoEntrega.php';
 require_once __DIR__ . '/../models/PedidoRetirada.php';
 require_once __DIR__ . '/../models/Vendedor.php';
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../helpers/OrdemGlobal.php';
+
 
 class PedidoController {
 
@@ -31,20 +33,20 @@ public function salvarEntrega() {
         $dados = $_POST;
 
         // Corrigir formato dos produtos (nome, qtd, obs)
-if (isset($dados['produtos']) && is_array($dados['produtos'])) {
-    $itensFormatados = [];
+        if (isset($dados['produtos']) && is_array($dados['produtos'])) {
+            $itensFormatados = [];
 
-    foreach ($dados['produtos'] as $produto) {
-        $nome = $produto['nome'] ?? '';
-        $qtd = $produto['quantidade'] ?? '1';
-        $obs = trim($produto['observacao'] ?? '');
+            foreach ($dados['produtos'] as $produto) {
+                $nome = $produto['nome'] ?? '';
+                $qtd = $produto['quantidade'] ?? '1';
+                $obs = trim($produto['observacao'] ?? '');
 
-        $texto = "$qtd x $nome" . ($obs ? " ($obs)" : "");
-        $itensFormatados[] = $texto;
-    }
+                $texto = "$qtd x $nome" . ($obs ? " ($obs)" : "");
+                $itensFormatados[] = $texto;
+            }
 
-    $dados['produtos'] = implode(', ', $itensFormatados);
-}
+            $dados['produtos'] = implode(', ', $itensFormatados);
+        }
 
         // Garantir o status conforme seleção do usuário
         $dados['enviar_para'] = $_POST['enviar_para'] ?? null;
@@ -53,6 +55,9 @@ if (isset($dados['produtos']) && is_array($dados['produtos'])) {
         } else {
             $dados['status'] = 'Pendente';
         }
+
+        // 🆕 Adicionar ordem global de chegada
+        $dados['ordem_fila'] = OrdemGlobal::getProximaOrdem();
 
         // Salvar no banco
         $model = new PedidoEntrega();
@@ -70,26 +75,26 @@ if (isset($dados['produtos']) && is_array($dados['produtos'])) {
 }
 
 
+
 public function salvarRetirada() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $dados = $_POST;
 
         // Corrigir formato dos produtos (nome, qtd, obs)
-       if (isset($dados['produtos']) && is_array($dados['produtos'])) {
-    $itensFormatados = [];
+        if (isset($dados['produtos']) && is_array($dados['produtos'])) {
+            $itensFormatados = [];
 
-    foreach ($dados['produtos'] as $produto) {
-        $nome = $produto['nome'] ?? '';
-        $qtd = $produto['quantidade'] ?? '1';
-        $obs = trim($produto['observacao'] ?? '');
+            foreach ($dados['produtos'] as $produto) {
+                $nome = $produto['nome'] ?? '';
+                $qtd = $produto['quantidade'] ?? '1';
+                $obs = trim($produto['observacao'] ?? '');
 
-        $texto = "$qtd x $nome" . ($obs ? " ($obs)" : "");
-        $itensFormatados[] = $texto;
-    }
+                $texto = "$qtd x $nome" . ($obs ? " ($obs)" : "");
+                $itensFormatados[] = $texto;
+            }
 
-    $dados['produtos'] = implode(', ', $itensFormatados);
-}
-
+            $dados['produtos'] = implode(', ', $itensFormatados);
+        }
 
         $dados['enviar_para'] = $_POST['enviar_para'] ?? null;
 
@@ -98,6 +103,9 @@ public function salvarRetirada() {
         } else {
             $dados['status'] = 'Pendente';
         }
+
+        // 🆕 Adicionar ordem global de chegada
+        $dados['ordem_fila'] = OrdemGlobal::getProximaOrdem();
 
         $model = new PedidoRetirada();
         $id = $model->criar($dados);
@@ -112,6 +120,7 @@ public function salvarRetirada() {
         exit;
     }
 }
+
 
 
     public function historico() {
@@ -605,10 +614,18 @@ public function buscarPedidosAtendenteJson() {
 
     $todos = array_merge($entregas, $retiradas);
 
+    // Ordena por ordem de chegada
     usort($todos, fn($a, $b) => ($a['ordem_fila'] ?? 0) - ($b['ordem_fila'] ?? 0));
+
+    // Garante que todos os pedidos tenham a chave 'nome'
+    foreach ($todos as &$p) {
+   $p['nome'] = $p['remetente'] ?? $p['nome'] ?? '';
+}
 
     echo json_encode($todos);
 }
+
+
 
 
 

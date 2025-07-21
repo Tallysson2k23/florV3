@@ -182,8 +182,8 @@ if (pode('cadastrar-grupo')): ?>
         <?php foreach ($lista as $i => $pedido): ?>
             <div class="pedido <?= $i >= 4 ? 'oculto' : '' ?>">
                 <strong>#<?= $pedido['numero_pedido'] ?></strong><br>
-                <?= htmlspecialchars($pedido['nome']) ?><br>
-                <?= htmlspecialchars($pedido['produto'] ?? '') ?> - <?= date('d/m', strtotime($pedido['data_abertura'])) ?> às <?= substr($pedido['hora'], 0, 5) ?>
+                <?= htmlspecialchars($pedido['remetente'] ?? $pedido['nome'] ?? '') ?><br>
+ <?= htmlspecialchars($pedido['produto'] ?? '') ?> - <?= date('d/m', strtotime($pedido['data_abertura'])) ?> às <?= substr($pedido['hora'], 0, 5) ?>
             </div>
         <?php endforeach; ?>
         <?php if (count($lista) > 4): ?>
@@ -299,7 +299,7 @@ function carregarPedidosAutomaticamente() {
                     html += `
                         <div class="pedido ${oculto}">
                             <strong>#${pedido.numero_pedido}</strong><br>
-                            ${pedido.nome}<br>
+                           ${pedido.remetente || pedido.nome || ''}<br>
                             ${pedido.produto || ''} - ${formatarData(pedido.data_abertura)} às ${horaFormatada}
                         </div>
                     `;

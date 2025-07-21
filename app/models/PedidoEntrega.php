@@ -130,7 +130,7 @@ public function buscarPorStatusEData($statusArray, $data, $busca = '') {
     $placeholders = implode(',', array_fill(0, count($statusArray), '?'));
 
     $sql = "SELECT id, numero_pedido, tipo,
-                   COALESCE(destinatario, remetente) AS nome,
+                   COALESCE(remetente, destinatario) AS nome,
                    status, data_abertura, hora, ordem_fila
             FROM {$this->table} 
             WHERE status IN ($placeholders)
