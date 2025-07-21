@@ -214,6 +214,12 @@ public function buscarAtendimentosPorData($data) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+public function listarPorData($data) {
+    $stmt = $this->conn->prepare("SELECT * FROM pedidos_retirada WHERE data_abertura = :data");
+    $stmt->execute([':data' => $data]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
 
 

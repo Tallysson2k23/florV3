@@ -267,6 +267,65 @@ function confirmarLogout() {
         }
     });
 </script>
+<script>
+function carregarPedidosAutomaticamente() {
+    fetch('/florV3/public/index.php?rota=pedidos-status-json')
+        .then(res => res.json())
+        .then(data => {
+            const statusContainer = document.querySelector('.status-container');
+            statusContainer.innerHTML = ''; // limpa o conteúdo atual
+
+            const cores = {
+                'Pendente': 'pendente',
+                'Produção': 'producao',
+                'Pronto': 'pronto'
+            };
+
+            ['Pendente', 'Produção', 'Pronto'].forEach(status => {
+                const lista = data[status] || [];
+
+                // Ordena por data e hora
+                lista.sort((a, b) => {
+                    const dataA = new Date(`${a.data_abertura}T${a.hora}`);
+                    const dataB = new Date(`${b.data_abertura}T${b.hora}`);
+                    return dataB - dataA;
+                });
+
+                let html = `<div class="coluna ${cores[status]}"><h3>${status}</h3>`;
+
+                lista.forEach((pedido, index) => {
+                    const oculto = index >= 4 ? 'oculto' : '';
+                    const horaFormatada = pedido.hora?.substring(0, 5) || '';
+                    html += `
+                        <div class="pedido ${oculto}">
+                            <strong>#${pedido.numero_pedido}</strong><br>
+                            ${pedido.nome}<br>
+                            ${pedido.produto || ''} - ${formatarData(pedido.data_abertura)} às ${horaFormatada}
+                        </div>
+                    `;
+                });
+
+                if (lista.length > 4) {
+                    html += `<div class="ver-toggle" onclick="togglePedidos(this)" data-expandido="false">⬇ Ver mais</div>`;
+                }
+
+                html += `</div>`;
+                statusContainer.innerHTML += html;
+            });
+        })
+        .catch(err => console.error('Erro ao carregar pedidos:', err));
+}
+
+function formatarData(dataStr) {
+    const partes = dataStr.split('-');
+    return `${partes[2]}/${partes[1]}`;
+}
+
+// Inicia e atualiza a cada 5 segundos
+setInterval(carregarPedidosAutomaticamente, 2000);
+carregarPedidosAutomaticamente();
+</script>
+
 
 
 </body>

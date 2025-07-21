@@ -532,6 +532,43 @@ $stmt = $pdo->prepare("
 }
 
 
+public function retornarPedidosPorStatus() {
+    require_once __DIR__ . '/../models/PedidoEntrega.php';
+    require_once __DIR__ . '/../models/PedidoRetirada.php';
+    require_once __DIR__ . '/../../config/database.php';
+
+    header('Content-Type: application/json');
+
+    $pdo = Database::conectar();
+$entregaModel = new PedidoEntrega();
+$retiradaModel = new PedidoRetirada();
+
+
+    $dataHoje = date('Y-m-d');
+
+    $entregas = $entregaModel->listarPorData($dataHoje);
+    $retiradas = $retiradaModel->listarPorData($dataHoje);
+
+    $todos = array_merge($entregas, $retiradas);
+
+    $agrupados = [
+        'Pendente' => [],
+        'Produção' => [],
+        'Pronto' => [],
+    ];
+
+    foreach ($todos as $pedido) {
+        if (isset($agrupados[$pedido['status']])) {
+            $agrupados[$pedido['status']][] = $pedido;
+        }
+    }
+
+    echo json_encode($agrupados);
+}
+
+
+
+
 
 
     // Aqui permanecem seus métodos de vendedores, produtos e cancelados como no backup original

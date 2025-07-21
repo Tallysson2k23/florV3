@@ -258,6 +258,12 @@ case 'detalhes-operador':
     $controller->detalhesOperador();
     break;
 
+case 'pedidos-status-json':
+    require_once __DIR__ . '/../app/controllers/PedidoController.php';
+    $controller = new PedidoController();
+    $controller->retornarPedidosPorStatus();
+    break;
+
 
 
 
