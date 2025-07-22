@@ -197,9 +197,15 @@ public function acompanhamentoAtendente() {
     $todosPedidos = array_merge($entregas, $retiradas);
 
     // Ordena por ordem de chegada
-    usort($todosPedidos, function($a, $b) {
-        return ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0);
-    });
+usort($todosPedidos, function($a, $b) {
+    // Prioriza status "Pronto"
+    if ($a['status'] === 'Pronto' && $b['status'] !== 'Pronto') return -1;
+    if ($a['status'] !== 'Pronto' && $b['status'] === 'Pronto') return 1;
+
+    // Se ambos forem ou não forem "Pronto", ordena pela ordem_fila (decrescente)
+    return ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0);
+});
+
 
     require __DIR__ . '/../views/pedidos/acompanhamento_atendente.php';
 }
@@ -608,22 +614,35 @@ public function buscarPedidosAtendenteJson() {
     $entregas = $entregaModel->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
     $retiradas = $retiradaModel->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
 
-    // Filtrar Retorno e Cancelado apenas se forem do dia selecionado
+    // Filtra Retorno e Cancelado apenas se forem do dia selecionado
     $entregas = array_filter($entregas, fn($p) => in_array($p['status'], ['Retorno', 'Cancelado']) ? $p['data_abertura'] === $data : true);
     $retiradas = array_filter($retiradas, fn($p) => in_array($p['status'], ['Retorno', 'Cancelado']) ? $p['data_abertura'] === $data : true);
 
+    // ✅ Agora sim criamos $todos antes do usort
     $todos = array_merge($entregas, $retiradas);
 
-    // Ordena por ordem de chegada
-    usort($todos, fn($a, $b) => ($a['ordem_fila'] ?? 0) - ($b['ordem_fila'] ?? 0));
+    // ✅ Ordenar com segurança
+    usort($todos, function($a, $b) {
+        $statusA = $a['status'] ?? '';
+        $statusB = $b['status'] ?? '';
+        $ordemA = $a['ordem_fila'] ?? 0;
+        $ordemB = $b['ordem_fila'] ?? 0;
 
-    // Garante que todos os pedidos tenham a chave 'nome'
+        if ($statusA === 'Pronto' && $statusB !== 'Pronto') return -1;
+        if ($statusA !== 'Pronto' && $statusB === 'Pronto') return 1;
+
+        return $ordemB <=> $ordemA;
+    });
+
+    // Garante que todos tenham a chave 'nome'
     foreach ($todos as &$p) {
-   $p['nome'] = $p['remetente'] ?? $p['nome'] ?? '';
-}
+        $p['nome'] = $p['remetente'] ?? $p['nome'] ?? '';
+    }
 
     echo json_encode($todos);
 }
+
+
 
 
 

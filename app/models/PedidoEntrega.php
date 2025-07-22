@@ -227,10 +227,17 @@ public function buscarAtendimentosPorData($data) {
 }
 
 public function listarPorData($data) {
-    $stmt = $this->conn->prepare("SELECT * FROM pedidos_entrega WHERE data_abertura = :data");
+    $sql = "SELECT * FROM pedidos_entrega 
+            WHERE data_abertura = :data 
+            ORDER BY 
+                CASE WHEN status = 'Pronto' THEN 0 ELSE 1 END,
+                ordem_fila DESC";
+
+    $stmt = $this->conn->prepare($sql);
     $stmt->execute([':data' => $data]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
 
 
 

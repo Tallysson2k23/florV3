@@ -158,43 +158,20 @@ h2::before {
 
 <div class="table-card">
 <h2>Pedidos</h2>
-<table>
-    <tr>
-        <th>Nº Pedido</th>
-        <th>Cliente</th>
-        <th>Tipo</th>
-        <th>Status</th>
-    </tr>
-   <?php foreach ($todosPedidos as $pedido): ?>
-  <tr>
-    <td><?= htmlspecialchars($pedido['numero_pedido']) ?></td>
-    <td><?= htmlspecialchars($pedido['remetente'] ?? $pedido['nome'] ?? '') ?></td>
-
-    <td>
-        <?= (isset($pedido['tipo']) && ($pedido['tipo'] === '1-Entrega' || strtolower($pedido['tipo']) === 'entrega')) ? 'Entrega' : 'Retirada' ?>
-    </td>
-    <td>
-        <?php
-            $status = strtolower($pedido['status']);
-            $classeStatus = $status === 'pronto' ? 'status-select-pronto' :
-                            ($status === 'entregue' ? 'status-select-entregue' :
-                            ($status === 'retorno' ? 'status-select-retorno' :
-                            ($status === 'cancelado' ? 'status-select-cancelado' : '')));
-        ?>
-        <select
-            onchange="atualizarStatus(this.value, <?= $pedido['id'] ?>, '<?= (isset($pedido['tipo']) && ($pedido['tipo'] === '1-Entrega' || strtolower($pedido['tipo']) === 'entrega')) ? 'entrega' : 'retirada' ?>')"
-            class="status-select <?= $classeStatus ?>"
-        >
-            <option value="Pronto" <?= $pedido['status'] === 'Pronto' ? 'selected' : '' ?>>Pronto</option>
-            <option value="Entregue" <?= $pedido['status'] === 'Entregue' ? 'selected' : '' ?>>Entregue</option>
-            <option value="Retorno" <?= $pedido['status'] === 'Retorno' ? 'selected' : '' ?>>Retorno</option>
-            <option value="Cancelado" <?= $pedido['status'] === 'Cancelado' ? 'selected' : '' ?>>Cancelado</option>
-        </select>
-    </td>
-  </tr>
-<?php endforeach; ?>
-
+<table id="tabela-atendente">
+    <thead>
+        <tr>
+            <th>Nº Pedido</th>
+            <th>Cliente</th>
+            <th>Tipo</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Aqui o JavaScript vai preencher automaticamente -->
+    </tbody>
 </table>
+
 </div>
 
 <a href="/florV3/public/index.php?rota=painel" class="voltar-simples">← Voltar</a>
@@ -315,27 +292,19 @@ function atualizarTabelaAtendente() {
     fetch(`/florV3/public/index.php?rota=buscar-pedidos-atendente-json&data=${encodeURIComponent(data)}`)
         .then(response => response.json())
         .then(pedidos => {
-            const tabela = document.querySelector('table');
-            let html = `
-                <tr>
-                    <th>Nº Pedido</th>
-                    <th>Cliente</th>
-                    <th>Tipo</th>
-                    <th>Status</th>
-                </tr>
-            `;
+            const tbody = document.querySelector('#tabela-atendente tbody');
+            let html = '';
 
             pedidos.forEach(pedido => {
                 const id = pedido.id;
-             const nome = pedido.remetente ?? pedido.nome ?? '';
-
+                const nome = pedido.remetente ?? pedido.nome ?? '';
                 const tipo = (pedido.tipo === '1-Entrega' || pedido.tipo?.toLowerCase() === 'entrega') ? 'entrega' : 'retirada';
                 const tipoLabel = tipo === 'entrega' ? 'Entrega' : 'Retirada';
                 const numero = pedido.numero_pedido ?? '';
                 const status = pedido.status ?? '';
                 const statusLower = status.toLowerCase();
-                let classeStatus = '';
 
+                let classeStatus = '';
                 switch (statusLower) {
                     case 'pronto': classeStatus = 'status-select-pronto'; break;
                     case 'entregue': classeStatus = 'status-select-entregue'; break;
@@ -360,13 +329,15 @@ function atualizarTabelaAtendente() {
                 `;
             });
 
-            tabela.innerHTML = html;
+            tbody.innerHTML = html;
         })
         .catch(err => console.error('Erro ao atualizar pedidos do atendente:', err));
 }
 
-// Atualizar a cada 5 segundos
-setInterval(atualizarTabelaAtendente, 5000);
+setInterval(atualizarTabelaAtendente, 5000); // atualiza a cada 5 segundos
+atualizarTabelaAtendente(); // atualiza imediatamente ao abrir a página
+
+
 </script>
 
 <!-- 6,0 -->
