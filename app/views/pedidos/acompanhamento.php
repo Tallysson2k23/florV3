@@ -750,8 +750,8 @@ function atualizarTabelaAcompanhamento() {
         .catch(err => console.error("Erro ao atualizar pedidos:", err));
 }
 
-// Iniciar atualização automática
-setInterval(atualizarTabelaAcompanhamento, 5000);
+// Iniciar atualização automática  a cada 7 segundos
+setInterval(atualizarTabelaAcompanhamento, 7000);
 </script>
 
 

@@ -334,7 +334,7 @@ function atualizarTabelaAtendente() {
         .catch(err => console.error('Erro ao atualizar pedidos do atendente:', err));
 }
 
-setInterval(atualizarTabelaAtendente, 5000); // atualiza a cada 5 segundos
+setInterval(atualizarTabelaAtendente, 7000); // atualiza a cada 7 segundos
 atualizarTabelaAtendente(); // atualiza imediatamente ao abrir a página
 
 
