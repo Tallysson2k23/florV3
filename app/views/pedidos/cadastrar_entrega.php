@@ -6,6 +6,12 @@ require_once __DIR__ . '/../../models/Configuracao.php';
 $pdo = Database::conectar();
 $produtoModel = new Produto($pdo);
 $produtos = $produtoModel->listarAtivos();
+
+require_once __DIR__ . '/../../models/Vendedor.php';
+
+$vendedorModel = new Vendedor($pdo);
+$vendedores = $vendedorModel->listarAtivos();
+
 $configModel = new \app\models\Configuracao($pdo);
 $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
 ?>

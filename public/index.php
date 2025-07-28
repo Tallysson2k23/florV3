@@ -276,6 +276,28 @@ case 'buscar-pedidos-dia-json':
     $controller->buscarPedidosAtendenteJson();
     break;
 
+case 'inativar-vendedor':
+    require_once __DIR__ . '/../app/controllers/VendedorController.php';
+
+    (new VendedorController())->inativar();
+    break;
+
+case 'ativar-vendedor':
+    require_once __DIR__ . '/../app/controllers/VendedorController.php';
+
+    (new VendedorController())->ativar();
+    break;
+
+case 'atualizar-status-vendedor':
+    require_once __DIR__ . '/../app/controllers/VendedorController.php';
+    (new VendedorController())->atualizarStatus();
+    break;
+
+case 'salvar-status-vendedores':
+    require_once __DIR__ . '/../app/controllers/VendedorController.php';
+    (new VendedorController())->salvarStatusEmLote();
+    break;
+
 
 
 

@@ -9,7 +9,8 @@ $produtoModel = new Produto($pdo);
 $produtos = $produtoModel->listarAtivos();
 
 $vendedorModel = new Vendedor($pdo);
-$vendedores = $vendedorModel->listarTodos();
+$vendedores = $vendedorModel->listarAtivos();
+
 
 $configModel = new \app\models\Configuracao($pdo);
 $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
