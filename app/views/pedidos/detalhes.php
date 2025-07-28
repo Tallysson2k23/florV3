@@ -144,7 +144,7 @@ $ignorar = [
     'mensagem_entrega', 'nome_vendedor', 'vendedor_codigo',
     'codigo_vendedor', 'data_abertura', 'hora',
     'responsavel', 'responsavel_producao', 'responsavel_produção',
-    'adicionais', 'obs_produto', 'quantidade' // agora sempre ocultos
+    'adicionais', 'obs_produto', 'quantidade', 'ordem_fila' // agora sempre ocultos
 ];
 
 

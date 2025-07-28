@@ -179,48 +179,48 @@
         $totalComissao = 0;
         foreach ($registros as $reg) {
             // Divide os produtos (esperado formato: "2x Maracujá (obs), 1x Caixa (obs)")
-            $lista = explode(',', $reg['produtos']);
-            foreach ($lista as $item) {
-                $item = trim($item);
-                if (!$item) continue;
+$lista = explode(',', $reg['produtos']);
+$pdo = Database::conectar();
 
-// Extrair nome e quantidade corretamente
-preg_match('/^(\d+)\s*x\s*([^\(]+)(?:\((.*?)\))?$/i', $item, $match);
-$qtd = isset($match[1]) ? (int) $match[1] : 1;
-$nomeProduto = isset($match[2]) ? trim($match[2]) : trim($item);
+foreach ($lista as $item) {
+    $item = trim($item);
+    if (!$item) continue;
 
-// Adicionalmente remova espaços extras
-$nomeProduto = preg_replace('/\s+/', ' ', $nomeProduto);
+    // Tentar capturar o padrão "1 x Produto"
+    if (preg_match('/^(\d+)\s*x\s*([^\(]+)(?:\((.*?)\))?$/i', $item, $match)) {
+        $qtd = (int) $match[1];
+        $nomeProduto = trim($match[2]);
+    } else {
+        // Se não casar com o padrão, ignora
+        continue;
+    }
 
-// Debug
-echo "<!-- Buscando produto corrigido: '$nomeProduto' -->";
+    // Normalizar nome para busca
+    $nomeProduto = preg_replace('/\s+/', ' ', $nomeProduto);
+    $nomeLimpo = mb_strtolower(trim($nomeProduto));
 
-                
+    // Buscar valor e porcentagem do produto
+    $stmt = $pdo->prepare("SELECT valor, porcentagem FROM produtos WHERE LOWER(TRIM(nome)) = :nome LIMIT 1");
+    $stmt->execute([':nome' => $nomeLimpo]);
+    $dadosProduto = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                // Buscar valor e porcentagem do produto
-                $pdo = Database::conectar();
-$nomeLimpo = mb_strtolower(trim($nomeProduto));
-$stmt = $pdo->prepare("SELECT valor, porcentagem FROM produtos WHERE LOWER(TRIM(nome)) = :nome LIMIT 1");
-$stmt->execute([':nome' => $nomeLimpo]);
-$dadosProduto = $stmt->fetch(PDO::FETCH_ASSOC);
+    $valorUnit = $dadosProduto['valor'] ?? 0;
+    $porcentagem = $dadosProduto['porcentagem'] ?? 0;
+    $valorComissao = ($valorUnit * $porcentagem / 100) * $qtd;
+    $totalComissao += $valorComissao;
+    ?>
+    <tr>
+        <td><?= htmlspecialchars($reg['data_producao']) ?></td>
+        <td><?= htmlspecialchars($reg['data_pronto']) ?></td>
+        <td><?= htmlspecialchars($reg['numero_pedido']) ?></td>
+        <td><?= htmlspecialchars($nomeProduto) ?></td>
+        <td>R$ <?= number_format($valorUnit, 2, ',', '.') ?></td>
+        <td><?= $porcentagem ?>%</td>
+        <td>R$ <?= number_format($valorComissao, 2, ',', '.') ?></td>
+    </tr>
+    <?php
+}
 
-                $valorUnit = $dadosProduto['valor'] ?? 0;
-                $porcentagem = $dadosProduto['porcentagem'] ?? 0;
-                $valorComissao = ($valorUnit * $porcentagem / 100) * $qtd;
-                $totalComissao += $valorComissao;
-                ?>
-
-                <tr>
-                    <td><?= htmlspecialchars($reg['data_producao']) ?></td>
-                    <td><?= htmlspecialchars($reg['data_pronto']) ?></td>
-                    <td><?= htmlspecialchars($reg['numero_pedido']) ?></td>
-                    <td><?= htmlspecialchars($nomeProduto) ?></td>
-                    <td>R$ <?= number_format($valorUnit, 2, ',', '.') ?></td>
-                    <td><?= $porcentagem ?>%</td>
-                    <td>R$ <?= number_format($valorComissao, 2, ',', '.') ?></td>
-                </tr>
-                <?php
-            }
         }
         ?>
     </table>

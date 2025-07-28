@@ -8,10 +8,11 @@ class Produto {
         $this->db = $db;
     }
 
- public function salvar($nome, $valor, $codigo) {
-    $stmt = $this->db->prepare("INSERT INTO produtos (nome, valor, codigo) VALUES (?, ?, ?)");
-    return $stmt->execute([$nome, $valor, $codigo]);
+public function salvar($nome, $valor, $codigo, $porcentagem) {
+    $stmt = $this->db->prepare("INSERT INTO produtos (nome, valor, codigo, porcentagem) VALUES (?, ?, ?, ?)");
+    return $stmt->execute([$nome, $valor, $codigo, $porcentagem]);
 }
+
 
     // Lista todos os produtos cadastrados
     public function listarTodos() {

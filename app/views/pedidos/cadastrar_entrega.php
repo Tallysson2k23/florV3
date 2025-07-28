@@ -335,39 +335,36 @@ document.addEventListener("DOMContentLoaded", function () {
         shouldSort: false
     });
 
-    seletor.addEventListener('change', function () {
-        const nome = seletor.value;
-        if (!nome) return;
+   seletor.addEventListener('change', function () {
+    const nome = seletor.value;
+    if (!nome) return;
 
-        if (document.querySelector(`tr[data-produto="${nome}"]`)) {
-            alert("Este produto já foi adicionado.");
-            choices.removeActiveItems();
-            return;
-        }
+    // Gerar um ID único baseado no timestamp
+    const idUnico = Date.now() + Math.floor(Math.random() * 1000);
 
-        const linha = document.createElement('tr');
-        linha.setAttribute('data-produto', nome);
-        linha.innerHTML = `
-            <td style="border: 1px solid #ddd; padding: 8px;">
-                <input type="hidden" name="produtos[${nome}][nome]" value="${nome}">
-                ${nome}
-            </td>
-            <td style="border: 1px solid #ddd; padding: 8px;">
-                <input type="number" name="produtos[${nome}][quantidade]" value="1" min="1" required style="width: 60px;">
-            </td>
-            <td style="border: 1px solid #ddd; padding: 8px;">
-                <input type="text" name="produtos[${nome}][observacao]" placeholder="Observação...">
-            </td>
-            <td style="border: 1px solid #ddd; padding: 8px;">
-                <button type="button" onclick="this.closest('tr').remove()">❌</button>
-            </td>
-        `;
-        lista.appendChild(linha);
+    const linha = document.createElement('tr');
+    linha.innerHTML = `
+        <td style="border: 1px solid #ddd; padding: 8px;">
+            <input type="hidden" name="produtos[${idUnico}][nome]" value="${nome}">
+            ${nome}
+        </td>
+        <td style="border: 1px solid #ddd; padding: 8px;">
+            <input type="number" name="produtos[${idUnico}][quantidade]" value="1" min="1" required style="width: 60px;">
+        </td>
+        <td style="border: 1px solid #ddd; padding: 8px;">
+            <input type="text" name="produtos[${idUnico}][observacao]" placeholder="Observação...">
+        </td>
+        <td style="border: 1px solid #ddd; padding: 8px;">
+            <button type="button" onclick="this.closest('tr').remove()">❌</button>
+        </td>
+    `;
+    lista.appendChild(linha);
 
-        // Reseta corretamente o Choices.js após a seleção
-        choices.removeActiveItems(); 
-        choices.setChoices([...seletor.options], 'value', 'text', true);
-    });
+    // Reseta a escolha no Choices.js
+    choices.removeActiveItems(); 
+    choices.setChoices([...seletor.options], 'value', 'text', true);
+});
+
 });
 
 </script>

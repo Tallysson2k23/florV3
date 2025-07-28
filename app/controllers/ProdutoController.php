@@ -9,22 +9,22 @@ class ProdutoController {
         require __DIR__ . '/../views/produtos/cadastrar_produto.php';
     }
 
-    public function salvarProduto() {
-        $nome = $_POST['nome'] ?? '';
-        $valor = $_POST['valor'] ?? '';
-        $codigo = $_POST['codigo'] ?? '';
-        $grupo_id = $_POST['grupo_id'] ?? null;
-        $porcentagem = $_POST['porcentagem'] ?? null;
+public function salvarProduto() {
+    $nome = $_POST['nome'] ?? '';
+    $valor = $_POST['valor'] ?? '';
+    $codigo = $_POST['codigo'] ?? '';
+    $porcentagem = $_POST['porcentagem'] ?? null;
 
-        if ($nome && $valor !== '' && $codigo) {
-            $db = Database::conectar();
-            $produtoModel = new Produto($db);
-            $produtoModel->salvar($nome, $valor, $codigo, $grupo_id, $porcentagem);
-        }
-
-        header('Location: /florV3/public/index.php?rota=lista-produtos');
-        exit;
+    if ($nome && $valor !== '' && $codigo) {
+        $db = Database::conectar();
+        $produtoModel = new Produto($db);
+        $produtoModel->salvar($nome, $valor, $codigo, $porcentagem);
     }
+
+    header('Location: /florV3/public/index.php?rota=lista-produtos');
+    exit;
+}
+
 
 public function formularioCadastro() {
     $db = Database::conectar();
