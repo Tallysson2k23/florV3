@@ -44,10 +44,11 @@ public function criar($dados) {
 }
 
     public function buscar($termo) {
-   $sql = "SELECT id, numero_pedido, tipo, nome, telefone, produtos AS produtos, status, data_abertura
+   $sql = "SELECT id, numero_pedido, tipo, nome, telefone, produtos AS produtos, status, data_abertura, ordem_fila
         FROM {$this->table}
         WHERE numero_pedido ILIKE :termo OR nome ILIKE :termo
-        ORDER BY data_abertura DESC";
+        ORDER BY ordem_fila DESC";
+
 
 
 

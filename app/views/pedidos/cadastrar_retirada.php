@@ -309,12 +309,22 @@ document.addEventListener('DOMContentLoaded', function () {
     const seletor = document.getElementById('produto-seletor');
     const lista = document.getElementById('lista-produtos');
 
+    const choices = new Choices(seletor, {
+        searchEnabled: true,
+        placeholder: true,
+        searchResultLimit: 5,
+        renderChoiceLimit: 5,
+        itemSelectText: '',
+        shouldSort: false
+    });
+
     seletor.addEventListener('change', function () {
         const nome = seletor.value;
         if (!nome) return;
 
         if (document.querySelector(`tr[data-produto="${nome}"]`)) {
             alert("Este produto já foi adicionado.");
+            choices.removeActiveItems();
             return;
         }
 
@@ -336,10 +346,14 @@ document.addEventListener('DOMContentLoaded', function () {
             </td>
         `;
         lista.appendChild(linha);
-        seletor.value = "";
+
+        // Limpa a seleção no Choices.js corretamente
+        choices.removeActiveItems();
+        choices.setChoices([...seletor.options], 'value', 'text', true);
     });
 });
 </script>
+
 
 
 
