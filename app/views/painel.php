@@ -89,6 +89,9 @@ function pode($chave) {
         <br><br>
 
 
+<?php if (pode('agenda')): ?>
+    <a href="/florV3/public/index.php?rota=agenda" style="color:white; text-decoration:none;">📆 Agenda</a><br><br>
+<?php endif; ?>
 
 <?php if (pode('cadastrar-produto')): ?>
     <a href="/florV3/public/index.php?rota=cadastrar-produto" style="color:white; text-decoration:none;">➕ Cadastrar Produto</a><br><br>
@@ -96,6 +99,10 @@ function pode($chave) {
 
 <?php if (pode('cadastrar-vendedor')): ?>
     <a href="/florV3/public/index.php?rota=cadastrar-vendedor" style="color:white; text-decoration:none;">➕ Cadastrar Vendedor</a><br><br>
+<?php endif; ?>
+
+<?php if (pode('cadastrar-operador')): ?>
+    <a href="/florV3/public/index.php?rota=cadastrar-operador" style="color:white; text-decoration:none;">➕ Cadastrar Operador</a><br><br>
 <?php endif; ?>
 
 <?php 
@@ -113,28 +120,20 @@ if (pode('cadastrar-grupo')): ?>
     <a href="/florV3/public/index.php?rota=lista-produtos" style="color:white; text-decoration:none;">📑 Lista de Produtos</a><br><br>
 <?php endif; ?>
 
-<?php if (pode('usuarios')): ?>
-    <a href="/florV3/public/index.php?rota=usuarios" style="color:white; text-decoration:none;">👥 Gerenciar Usuários</a><br><br>
+<?php if (pode('lista-operadores')): ?>
+    <a href="/florV3/public/index.php?rota=lista-operadores" style="color:white; text-decoration:none;">📑 Lista de Operadores</a><br><br>
 <?php endif; ?>
 
 <?php if (pode('historico')): ?>
     <a href="/florV3/public/index.php?rota=historico" style="color:white; text-decoration:none;">📜 Ver Histórico</a><br><br>
 <?php endif; ?>
 
-<?php if (pode('agenda')): ?>
-    <a href="/florV3/public/index.php?rota=agenda" style="color:white; text-decoration:none;">📆 Agenda</a><br><br>
-<?php endif; ?>
-
 <?php if (pode('cancelados')): ?>
     <a href="/florV3/public/index.php?rota=cancelados" style="color:white; text-decoration:none;">❌ Pedidos Cancelados</a><br><br>
 <?php endif; ?>
 
-<?php if (pode('cadastrar-operador')): ?>
-    <a href="/florV3/public/index.php?rota=cadastrar-operador" style="color:white; text-decoration:none;">➕ Cadastrar Operador</a><br><br>
-<?php endif; ?>
-
-<?php if (pode('lista-operadores')): ?>
-    <a href="/florV3/public/index.php?rota=lista-operadores" style="color:white; text-decoration:none;">📑 Lista de Operadores</a><br><br>
+<?php if (pode('usuarios')): ?>
+    <a href="/florV3/public/index.php?rota=usuarios" style="color:white; text-decoration:none;">👥 Gerenciar Usuários</a><br><br>
 <?php endif; ?>
 
 <?php if (pode('relatorio-operadores')): ?>
