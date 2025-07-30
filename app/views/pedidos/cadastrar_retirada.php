@@ -181,9 +181,10 @@ $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
         <select id="produto-seletor">
             <option value="">Selecione...</option>
             <?php foreach ($produtos as $produto): ?>
-                <option value="<?= htmlspecialchars($produto['nome']) ?>">
-                    <?= htmlspecialchars($produto['nome']) ?>
-                </option>
+                <option value="<?= htmlspecialchars($produto['codigo']) ?> - <?= htmlspecialchars($produto['nome']) ?>">
+    <?= htmlspecialchars($produto['codigo']) ?> - <?= htmlspecialchars($produto['nome']) ?>
+</option>
+
             <?php endforeach; ?>
         </select>
     </div>
@@ -319,9 +320,13 @@ document.addEventListener('DOMContentLoaded', function () {
         shouldSort: false
     });
 
-    seletor.addEventListener('change', function () {
-    const nome = seletor.value;
-    if (!nome) return;
+seletor.addEventListener('change', function () {
+    const valor = seletor.value;
+    if (!valor) return;
+
+    // Separar código e nome do formato "001 - Produto X"
+    const [codigo, ...nomeArray] = valor.split(' - ');
+    const nome = nomeArray.join(' - ').trim();
 
     // Gerar um ID único baseado no timestamp
     const idUnico = Date.now() + Math.floor(Math.random() * 1000);
@@ -329,8 +334,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const linha = document.createElement('tr');
     linha.innerHTML = `
         <td style="border: 1px solid #ddd; padding: 8px;">
+            <input type="hidden" name="produtos[${idUnico}][codigo]" value="${codigo}">
             <input type="hidden" name="produtos[${idUnico}][nome]" value="${nome}">
-            ${nome}
+            ${codigo} - ${nome}
         </td>
         <td style="border: 1px solid #ddd; padding: 8px;">
             <input type="number" name="produtos[${idUnico}][quantidade]" value="1" min="1" required style="width: 60px;">
@@ -348,6 +354,7 @@ document.addEventListener('DOMContentLoaded', function () {
     choices.removeActiveItems(); 
     choices.setChoices([...seletor.options], 'value', 'text', true);
 });
+
 
 });
 </script>

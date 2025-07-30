@@ -199,13 +199,14 @@ $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
         <div class="form-group full">
             <label>Produto:<span class="obrig">*</span></label>
             <select id="produto-seletor">
-                <option value="">Selecione...</option>
-                <?php foreach ($produtos as $produto): ?>
-                    <option value="<?= htmlspecialchars($produto['nome']) ?>">
-                        <?= htmlspecialchars($produto['nome']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+    <option value="">Selecione...</option>
+    <?php foreach ($produtos as $produto): ?>
+        <option value="<?= htmlspecialchars($produto['codigo']) ?> - <?= htmlspecialchars($produto['nome']) ?>">
+            <?= htmlspecialchars($produto['codigo']) ?> - <?= htmlspecialchars($produto['nome']) ?>
+        </option>
+    <?php endforeach; ?>
+</select>
+
         </div>
 
         <table style="width:100%; border-collapse: collapse;" id="tabela-produtos">
@@ -341,7 +342,7 @@ document.addEventListener("DOMContentLoaded", function () {
         shouldSort: false
     });
 
-   seletor.addEventListener('change', function () {
+seletor.addEventListener('change', function () {
     const nome = seletor.value;
     if (!nome) return;
 
@@ -370,6 +371,7 @@ document.addEventListener("DOMContentLoaded", function () {
     choices.removeActiveItems(); 
     choices.setChoices([...seletor.options], 'value', 'text', true);
 });
+
 
 });
 
