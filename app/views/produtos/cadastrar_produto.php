@@ -104,7 +104,13 @@
 <div class="container">
     <h2>📦 Cadastrar Produto</h2>
 
-    <form action="/florV3/public/index.php?rota=salvar-produto" method="POST">
+    <div id="notificacao" style="display:none; background:#dff0d8; color:#3c763d; padding:10px; border-radius:8px; margin-bottom:15px; text-align:center;">
+    Produto salvo com sucesso!
+</div>
+
+
+<form id="formProduto">
+
         <label>Nome do Produto:
             <input type="text" name="nome" required>
         </label>
@@ -121,12 +127,12 @@
         </label>
         -->
 
-        <label>Porcentagem (%):
-            <input type="number" name="porcentagem" min="0" max="100" required>
-        </label>
-
         <label>Valor (R$):
             <input type="number" name="valor" step="0.01" required>
+        </label>
+
+        <label>Porcentagem (%):
+            <input type="number" name="porcentagem" min="0" max="100" required>
         </label>
 
         <label>Código do Produto:
@@ -138,6 +144,44 @@
 
     <a href="/florV3/public/index.php?rota=painel" class="btn-voltar">⬅ Voltar</a>
 </div>
+
+
+<script>
+document.getElementById('formProduto').addEventListener('submit', function (e) {
+    e.preventDefault(); // impede o envio normal do formulário
+
+    const form = e.target;
+    const formData = new FormData(form);
+
+    fetch('/florV3/public/index.php?rota=salvar-produto', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Erro ao salvar');
+        return response.text(); // ou .json() se seu PHP retornar JSON
+    })
+    .then(data => {
+        // mostra notificação
+        const alerta = document.getElementById('notificacao');
+        alerta.style.display = 'block';
+        alerta.textContent = 'Produto salvo com sucesso!';
+
+        // limpa os campos
+        form.reset();
+
+        // esconde a notificação após 3 segundos
+        setTimeout(() => {
+            alerta.style.display = 'none';
+        }, 3000);
+    })
+    .catch(error => {
+        alert('Erro ao salvar o produto. Verifique os campos e tente novamente.');
+        console.error(error);
+    });
+});
+</script>
+
 
 </body>
 </html>

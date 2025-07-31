@@ -177,79 +177,51 @@
 
         <?php
         $totalComissao = 0;
+        foreach ($registros as $reg) {
+            // Divide os produtos (esperado formato: "2x Maracujá (obs), 1x Caixa (obs)")
+            $lista = explode(',', $reg['produtos']);
+            foreach ($lista as $item) {
+                $item = trim($item);
+                if (!$item) continue;
 
-$pdo = Database::conectar();
+// Extrair nome e quantidade corretamente
+preg_match('/^(\d+)\s*x\s*([^\(]+)(?:\((.*?)\))?$/i', $item, $match);
+$qtd = isset($match[1]) ? (int) $match[1] : 1;
+$nomeProduto = isset($match[2]) ? trim($match[2]) : trim($item);
 
-// Eliminar pedidos duplicados com base em pedido_id
-$pedidosUnicos = [];
-foreach ($registros as $reg) {
-    $pedidoId = $reg['pedido_id'];
+// Adicionalmente remova espaços extras
+$nomeProduto = preg_replace('/\s+/', ' ', $nomeProduto);
 
-    // Se já processou esse pedido, ignora
-    if (isset($pedidosUnicos[$pedidoId])) continue;
+// Debug
+echo "<!-- Buscando produto corrigido: '$nomeProduto' -->";
 
-    // Marca como processado
-    $pedidosUnicos[$pedidoId] = true;
+                
 
-    // Agora processa normalmente
-    $lista = explode(',', $reg['produtos']);
+                // Buscar valor e porcentagem do produto
+                $pdo = Database::conectar();
+$nomeLimpo = mb_strtolower(trim($nomeProduto));
+$stmt = $pdo->prepare("SELECT valor, porcentagem FROM produtos WHERE LOWER(TRIM(nome)) = :nome LIMIT 1");
+$stmt->execute([':nome' => $nomeLimpo]);
+$dadosProduto = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    foreach ($lista as $item) {
-        $item = trim($item);
-        if (!$item) continue;
+                $valorUnit = $dadosProduto['valor'] ?? 0;
+                $porcentagem = $dadosProduto['porcentagem'] ?? 0;
+                $valorComissao = ($valorUnit * $porcentagem / 100) * $qtd;
+                $totalComissao += $valorComissao;
+                ?>
 
-        if (preg_match('/^(\d+)\s*x\s*([^\(]+)(?:\((.*?)\))?$/i', $item, $match)) {
-            $qtd = (int) $match[1];
-            $nomeProdutoOriginal = trim($match[2]);
-        } else {
-            continue;
+                <tr>
+                    <td><?= htmlspecialchars($reg['data_producao']) ?></td>
+                    <td><?= htmlspecialchars($reg['data_pronto']) ?></td>
+                    <td><?= htmlspecialchars($reg['numero_pedido']) ?></td>
+                    <td><?= htmlspecialchars($nomeProduto) ?></td>
+                    <td>R$ <?= number_format($valorUnit, 2, ',', '.') ?></td>
+                    <td><?= $porcentagem ?>%</td>
+                    <td>R$ <?= number_format($valorComissao, 2, ',', '.') ?></td>
+                </tr>
+                <?php
+            }
         }
-
-        $nomeSemCodigo = preg_replace('/^\d+\s*-\s*/', '', $nomeProdutoOriginal);
-        $nomeParaBusca = mb_strtolower(trim(preg_replace('/\s+/', ' ', $nomeSemCodigo)));
-
-        $stmt = $pdo->prepare("SELECT valor, porcentagem FROM produtos WHERE LOWER(TRIM(nome)) = :nome OR LOWER(nome) ILIKE :nome_similar LIMIT 1");
-        $stmt->execute([
-            ':nome' => $nomeParaBusca,
-            ':nome_similar' => '%' . $nomeParaBusca . '%'
-        ]);
-        $dadosProduto = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$dadosProduto) {
-            ?>
-            <tr style="background: #ffe5e5; color: #b00;">
-                <td><?= htmlspecialchars($reg['data_producao']) ?></td>
-                <td><?= htmlspecialchars($reg['data_pronto']) ?></td>
-                <td><?= htmlspecialchars($reg['numero_pedido']) ?></td>
-                <td colspan="4"><strong>Produto não encontrado no banco:</strong> <?= htmlspecialchars($nomeProdutoOriginal) ?></td>
-            </tr>
-            <?php
-            continue;
-        }
-
-        $valorUnit = (float)$dadosProduto['valor'];
-        $porcentagem = (float)$dadosProduto['porcentagem'];
-        $valorComissao = ($valorUnit * $porcentagem / 100) * $qtd;
-        $totalComissao += $valorComissao;
-
-        $dataProducao = new DateTime($reg['data_producao']);
-        $dataPronto = new DateTime($reg['data_pronto']);
-        ?>
-        <tr>
-            <td><?= $dataProducao->format('d/m/Y H:i') ?></td>
-            <td><?= $dataPronto->format('d/m/Y H:i') ?></td>
-            <td><?= htmlspecialchars($reg['numero_pedido']) ?></td>
-            <td><?= htmlspecialchars($nomeProdutoOriginal) ?></td>
-            <td>R$ <?= number_format($valorUnit, 2, ',', '.') ?></td>
-            <td><?= $porcentagem ?>%</td>
-            <td>R$ <?= number_format($valorComissao, 2, ',', '.') ?></td>
-        </tr>
-        <?php
-    }
-}
-
-
-        
         ?>
     </table>
 
