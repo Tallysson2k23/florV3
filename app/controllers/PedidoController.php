@@ -123,27 +123,37 @@ public function salvarRetirada() {
 
 
 
-    public function historico() {
-        $entregaModel = new PedidoEntrega();
-        $retiradaModel = new PedidoRetirada();
+public function historico() {
+    $entregaModel = new PedidoEntrega();
+    $retiradaModel = new PedidoRetirada();
 
-        $busca = $_GET['busca'] ?? '';
-        $pagina = isset($_GET['pagina']) ? max(1, (int)$_GET['pagina']) : 1;
-        $porPagina = 20;
+    $busca = $_GET['busca'] ?? '';
+    $pagina = isset($_GET['pagina']) ? max(1, (int)$_GET['pagina']) : 1;
+    $porPagina = 20;
 
-        $resultadosEntrega = $entregaModel->buscar($busca);
-        $resultadosRetirada = $retiradaModel->buscar($busca);
-        $todos = array_merge($resultadosEntrega, $resultadosRetirada);
+    // Novos filtros
+    $dataFiltro = $_GET['data'] ?? null;
+    $mesFiltro = $_GET['mes'] ?? null;
+    $anoFiltro = $_GET['ano'] ?? date('Y');
 
-        usort($todos, fn($a, $b) => ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0));
+    // Busca com filtros
+    $resultadosEntrega = $entregaModel->buscar($busca, $dataFiltro, $mesFiltro, $anoFiltro);
+    $resultadosRetirada = $retiradaModel->buscar($busca, $dataFiltro, $mesFiltro, $anoFiltro);
 
-        $total = count($todos);
-        $inicio = ($pagina - 1) * $porPagina;
-        $resultados = array_slice($todos, $inicio, $porPagina);
-        $totalPaginas = ceil($total / $porPagina);
+    $todos = array_merge($resultadosEntrega, $resultadosRetirada);
 
-        require __DIR__ . '/../views/pedidos/historico.php';
-    }
+    // Ordenar pela ordem de chegada
+    usort($todos, fn($a, $b) => ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0));
+
+    // Paginação
+    $total = count($todos);
+    $inicio = ($pagina - 1) * $porPagina;
+    $resultados = array_slice($todos, $inicio, $porPagina);
+    $totalPaginas = ceil($total / $porPagina);
+
+    require __DIR__ . '/../views/pedidos/historico.php';
+}
+
 
     public function acompanharPedidos() {
         $entregaModel = new PedidoEntrega();

@@ -43,22 +43,34 @@ public function criar($dados) {
     return $this->conn->lastInsertId();
 }
 
-    public function buscar($termo) {
-   $sql = "SELECT id, numero_pedido, tipo, nome, telefone, produtos AS produtos, status, data_abertura, ordem_fila
-        FROM {$this->table}
-        WHERE numero_pedido ILIKE :termo OR nome ILIKE :termo
-        ORDER BY ordem_fila DESC";
+public function buscar($termo, $data = null, $mes = null, $ano = null) {
+    $sql = "SELECT id, numero_pedido, tipo, nome, telefone, produtos AS produtos, status, data_abertura, ordem_fila
+            FROM {$this->table}
+            WHERE (numero_pedido ILIKE :termo OR nome ILIKE :termo)";
+    
+    $params = [':termo' => '%' . $termo . '%'];
 
+    if ($data && !$mes) {
+        $sql .= " AND DATE(data_abertura) = :data";
+        $params[':data'] = $data;
+    }
 
+    if ($mes) {
+        $sql .= " AND EXTRACT(MONTH FROM data_abertura) = :mes AND EXTRACT(YEAR FROM data_abertura) = :ano";
+        $params[':mes'] = $mes;
+        $params[':ano'] = $ano ?? date('Y');
+    }
 
-
+    $sql .= " ORDER BY ordem_fila DESC";
 
     $stmt = $this->conn->prepare($sql);
-    $stmt->bindValue(':termo', '%' . $termo . '%');
-    $stmt->execute();
+    $stmt->execute($params);
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+
+
 public function buscarPorId($id) {
     $sql = "SELECT p.*, v.nome AS nome_vendedor, v.codigo AS codigo_vendedor
             FROM {$this->table} p

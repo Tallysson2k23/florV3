@@ -206,11 +206,31 @@
 <div class="container">
     <h2>Histórico de Pedidos</h2>
 
-    <form method="get" action="/florV3/public/index.php">
-        <input type="hidden" name="rota" value="historico">
-        <input type="text" id="campo-busca" name="busca" placeholder="Buscar por nome ou número do pedido" required>
-        <button type="submit">Pesquisar</button>
-    </form>
+<form method="get" action="/florV3/public/index.php" style="justify-content: center; gap: 10px; flex-wrap: wrap;">
+    <input type="hidden" name="rota" value="historico">
+
+    <input type="text" id="campo-busca" name="busca" placeholder="Buscar por nome ou número do pedido" value="<?= $_GET['busca'] ?? '' ?>" style="padding: 10px; width: 260px; border-radius: 8px; border: 1px solid #ccc; font-size: 15px;">
+
+    <input type="date" name="data" value="<?= $_GET['data'] ?? date('Y-m-d') ?>" style="padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 15px;">
+
+    <select name="mes" style="padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-size: 15px;">
+        <option value="">Ver mês inteiro</option>
+        <?php
+        $anoAtual = date('Y');
+        for ($i = 1; $i <= 12; $i++):
+            $selected = (isset($_GET['mes']) && $_GET['mes'] == $i) ? 'selected' : '';
+            $mesFormatado = str_pad($i, 2, '0', STR_PAD_LEFT);
+        ?>
+            <option value="<?= $i ?>" <?= $selected ?>><?= $mesFormatado ?>/<?= $anoAtual ?></option>
+        <?php endfor; ?>
+    </select>
+
+    <button type="submit" style="background-color: #111; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 15px; cursor: pointer;">Filtrar</button>
+
+    <a href="/florV3/public/index.php?rota=historico" style="background-color: #111; color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-size: 15px; display: inline-block;">Limpar</a>
+</form>
+
+
 
     <ul id="sugestoes"></ul>
 
