@@ -222,6 +222,14 @@ $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
         </table>
         <br>
 
+<div class="form-group full">
+    <div>
+        <label>Adicionais:</label>
+        <textarea name="adicionais" rows="3" placeholder="Observações extras ou detalhes adicionais..."></textarea>
+    </div>
+</div>
+
+
         <div class="form-group full">
             <div>
                 <label>Data de Abertura:<span class="obrig">*</span></label>

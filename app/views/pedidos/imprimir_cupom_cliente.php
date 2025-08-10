@@ -26,7 +26,7 @@
         .titulo {
             text-align: center;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 17px;
             margin-bottom: 10px;
         }
 
@@ -58,7 +58,7 @@
         }
 
         .cliente-destaque {
-            font-size: 38px !important;
+            font-size: 20px !important;
             font-weight: bold !important;
             color: #000;
             text-align: center;
@@ -94,12 +94,21 @@ foreach ($produtos as $produto) :
     <td><strong>Produto:</strong></td>
     <td><?= htmlspecialchars($produto) ?></td>
 </tr>
+        <?php if (!empty($dados['adicionais'])): ?>
+<tr>
+    <td><strong>Adicionais:</strong></td>
+    <td><?= nl2br(htmlspecialchars($dados['adicionais'])) ?></td>
+</tr>
+<?php endif; ?>
 <?php endif; endforeach; ?>
 
  
         <tr><td><strong>Nº Pedido:</strong></td><td><?= $dados['numero_pedido'] ?></td></tr>
         <tr><td><strong>Data:</strong></td><td><?= date('d/m/Y', strtotime($dados['data_abertura'])) ?></td></tr>
         <tr><td><strong>Vendedor:</strong></td><td><?= htmlspecialchars($dados['codigo_vendedor'] ?? '') ?> <?= htmlspecialchars($dados['nome_vendedor'] ?? '') ?></td></tr>
+        
+
+
     </table>
 
 <?php elseif ($tipo === 'retirada'): ?>
@@ -120,6 +129,12 @@ foreach ($produtos as $produto) :
     <td><strong>Produto:</strong></td>
     <td><?= htmlspecialchars($produto) ?></td>
 </tr>
+        <?php if (!empty($dados['adicionais'])): ?>
+<tr>
+    <td><strong>Adicionais:</strong></td>
+    <td><?= nl2br(htmlspecialchars($dados['adicionais'])) ?></td>
+</tr>
+<?php endif; ?>
 <?php endif; endforeach; ?>
 
         <tr><td><strong>Nº Pedido:</strong></td><td><?= $dados['numero_pedido'] ?></td></tr>
@@ -131,6 +146,9 @@ foreach ($produtos as $produto) :
                 <?= htmlspecialchars($dados['nome_vendedor'] ?? '') ?>
             </td>
         </tr>
+
+
+
     </table>
 
     <div class="aviso">

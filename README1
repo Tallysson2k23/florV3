@@ -21,3 +21,13 @@ RESTART IDENTITY;
 
 Buque tradicional	5001	75,00
 Girassol embalado	3212	35,00
+
+TRUNCATE TABLE
+  historico_status,
+  mensagens_pedido,
+  notificacoes_lidas,
+  pedidos_entrega,
+  pedidos_pronta_entrega,
+  pedidos_retirada,
+  responsavel_producao
+RESTART IDENTITY;

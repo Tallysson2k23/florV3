@@ -77,6 +77,16 @@ $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
             border-radius: 8px;
             font-size: 15px;
         }
+        textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    min-height: 70px; /* altura maior para escrita confortável */
+    resize: vertical;
+}
+
 
         select {
     width: 100%;
@@ -201,12 +211,20 @@ $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
         <tbody id="lista-produtos"></tbody>
     </table>
 
-    <div class="form-group full">
-        <div>
-            <label>Data: <span style="color:red">*</span></label>
-            <input type="date" name="data_abertura" value="<?= date('Y-m-d') ?>" required>
-        </div>
+<div class="form-group full">
+    <div>
+        <label>Adicionais:</label>
+        <textarea name="adicionais" rows="3" placeholder="Observações extras ou detalhes adicionais..."></textarea>
     </div>
+</div>
+
+<div class="form-group full">
+    <div>
+        <label>Data de Abertura: <span style="color:red">*</span></label>
+        <input type="date" name="data_abertura" value="<?= date('Y-m-d') ?>" required>
+    </div>
+</div>
+
 
     <div class="form-group full">
         <label>Vendedor: <span style="color:red">*</span></label>
