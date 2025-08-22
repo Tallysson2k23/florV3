@@ -4,73 +4,78 @@
     <meta charset="UTF-8">
     <title>Ordem de Produção</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 13px;
-            width: 250px;
-            margin: 0 auto;
-        }
+    
+    body {
+        font-family: Arial, sans-serif;
+        font-size: 18px;   /* era 13px */
+        width: 250px;
+        margin: 0 auto;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 12px;
-        }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 12px;
+    }
 
-        td {
-            border: 1px solid #000;
-            padding: 6px 8px;
-            vertical-align: top;
-        }
+    td {
+        border: 1px solid #000;
+        padding: 8px 10px;   /* um pouco mais de espaço pra acompanhar a fonte maior */
+        vertical-align: top;
+        /* font-size: 1em;  // (opcional) deixa explícito que segue o tamanho do body */
+    }
 
-        .titulo {
-            text-align: center;
-            font-weight: bold;
-            border-bottom: 1px solid #000;
-            padding-bottom: 5px;
-            margin-bottom: 8px;
-        }
+    .titulo {
+        text-align: center;
+        font-weight: bold;
+        border-bottom: 1px solid #000;
+        padding-bottom: 5px;
+        margin-bottom: 8px;
+        /* se quiser maior, descomente e ajuste:
+        font-size: 1.2em;
+        */
+    }
 
-        .rodape {
-            text-align: center;
-            font-weight: bold;
-            font-size: 28px; /* Aumenta o nome entrega ou retiada */
-            padding-top: 10px;
-        }
+    .rodape {
+        text-align: center;
+        font-weight: bold;
+        font-size: 28px; /* pode aumentar se quiser manter destaque, ex: 32px */
+        padding-top: 10px;
+    }
 
-        .label {
-            background-color: #f1f1f1;
-            font-weight: bold;
-            width: 30%;
-        }
+    .label {
+        background-color: #f1f1f1;
+        font-weight: bold;
+        width: 30%;
+    }
 
+    .voltar {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: #eee;
+        padding: 6px 10px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 12px;
+        color: #333;
+        border: 1px solid #ccc;
+    }
+
+    @media print {
         .voltar {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: #eee;
-            padding: 6px 10px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 12px;
-            color: #333;
-            border: 1px solid #ccc;
+            display: none;
         }
+    }
 
-        @media print {
-            .voltar {
-                display: none;
-            }
-        }
+    .cliente-destaque {
+        font-size: 38px !important; /* pode subir p/ 42–44 se precisar mais destaque */
+        font-weight: bold !important;
+        color: #000;
+        text-align: center;
+    }
+</style>
 
-        .cliente-destaque {
-            font-size: 38px !important; /* Aumenta o nome do cliente no cupom*/
-            font-weight: bold !important;
-            color: #000;
-            text-align: center;
-        }
-
-    </style>
 </head>
 <body onload="window.print()">
     <a href="/florV3/public/index.php?rota=acompanhamento" class="voltar">⬅ Voltar</a>
@@ -111,6 +116,11 @@ foreach ($produtos as $index => $produto) :
             <td class="label">Data</td>
             <td><?= date('d/m/Y', strtotime($dados['data_abertura'] ?? date('Y-m-d'))) ?></td>
         </tr>
+<tr>
+    <td class="label">Operador</td>
+    <td><?= htmlspecialchars($dados['operador'] ?? '-') ?></td>
+</tr>
+
     </table>
 
     <div class="rodape"><?= strtoupper($tipo) ?></div>

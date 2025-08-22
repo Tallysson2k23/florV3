@@ -5,8 +5,29 @@ require_once __DIR__ . '/../models/Vendedor.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../helpers/OrdemGlobal.php';
 
-
 class PedidoController {
+
+    private function obterOperadorDoPedido($pedidoId, $tipo) {
+        // 1) Se vier na requisição (caso seu modal envie junto), usa o valor direto
+        $op = $_POST['responsavel'] ?? $_GET['responsavel'] ?? null;
+        if (!empty($op)) {
+            return $op;
+        }
+
+        // 2) Senão, busca o último operador registrado no banco para esse pedido
+        $pdo = Database::conectar();
+        $stmt = $pdo->prepare("
+            SELECT responsavel
+            FROM responsavel_producao
+            WHERE pedido_id = :id AND tipo = :tipo
+            ORDER BY id DESC
+            LIMIT 1
+        ");
+        $stmt->execute([':id' => $pedidoId, ':tipo' => $tipo]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row['responsavel'] ?? null;
+    }
 
     public function cadastrar() {
         require_once __DIR__ . '/../views/pedidos/cadastrar.php';
@@ -28,235 +49,214 @@ class PedidoController {
         require __DIR__ . '/../views/pedidos/cadastrar_retirada.php';
     }
 
-public function salvarEntrega() {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $dados = $_POST;
+    public function salvarEntrega() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $dados = $_POST;
 
-        // Corrigir formato dos produtos (nome, qtd, obs)
-        if (isset($dados['produtos']) && is_array($dados['produtos'])) {
-            $itensFormatados = [];
-
-            foreach ($dados['produtos'] as $produto) {
-                $nome = $produto['nome'] ?? '';
-                $qtd = $produto['quantidade'] ?? '1';
-                $obs = trim($produto['observacao'] ?? '');
-
-                $texto = "$qtd x $nome" . ($obs ? " ($obs)" : "");
-                $itensFormatados[] = $texto;
+            // Corrigir formato dos produtos (nome, qtd, obs)
+            if (isset($dados['produtos']) && is_array($dados['produtos'])) {
+                $itensFormatados = [];
+                foreach ($dados['produtos'] as $produto) {
+                    $nome = $produto['nome'] ?? '';
+                    $qtd  = $produto['quantidade'] ?? '1';
+                    $obs  = trim($produto['observacao'] ?? '');
+                    $texto = "$qtd x $nome" . ($obs ? " ($obs)" : "");
+                    $itensFormatados[] = $texto;
+                }
+                $dados['produtos'] = implode(', ', $itensFormatados);
             }
 
-            $dados['produtos'] = implode(', ', $itensFormatados);
-        }
-
-        // Garantir o status conforme seleção do usuário
-        $dados['enviar_para'] = $_POST['enviar_para'] ?? null;
-        if ($dados['enviar_para'] === 'pronta_entrega') {
-            $dados['status'] = 'Pronto';
-        } else {
-            $dados['status'] = 'Pendente';
-        }
-
-        // 🆕 Adicionar ordem global de chegada
-        $dados['ordem_fila'] = OrdemGlobal::getProximaOrdem();
-
-        // Salvar no banco
-        $model = new PedidoEntrega();
-        $id = $model->criar($dados);
-
-        // Impressão opcional
-        $desejaImprimir = isset($_POST['imprimir']) && $_POST['imprimir'] == '1';
-        if ($desejaImprimir) {
-            header("Location: /florV3/public/index.php?rota=imprimir-cupom-cliente&id={$id}&tipo=entrega");
-        } else {
-            header('Location: /florV3/public/index.php?rota=painel&sucesso=1');
-        }
-        exit;
-    }
-}
-
-
-
-public function salvarRetirada() {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $dados = $_POST;
-
-        // Corrigir formato dos produtos (nome, qtd, obs)
-        if (isset($dados['produtos']) && is_array($dados['produtos'])) {
-            $itensFormatados = [];
-
-            foreach ($dados['produtos'] as $produto) {
-                $nome = $produto['nome'] ?? '';
-                $qtd = $produto['quantidade'] ?? '1';
-                $obs = trim($produto['observacao'] ?? '');
-
-                $texto = "$qtd x $nome" . ($obs ? " ($obs)" : "");
-                $itensFormatados[] = $texto;
+            // Garantir o status conforme seleção do usuário
+            $dados['enviar_para'] = $_POST['enviar_para'] ?? null;
+            if ($dados['enviar_para'] === 'pronta_entrega') {
+                $dados['status'] = 'Pronto';
+            } else {
+                $dados['status'] = 'Pendente';
             }
 
-            $dados['produtos'] = implode(', ', $itensFormatados);
+            // Ordem global de chegada
+            $dados['ordem_fila'] = OrdemGlobal::getProximaOrdem();
+
+            // Salvar
+            $model = new PedidoEntrega();
+            $id = $model->criar($dados);
+
+            // Impressão opcional
+            $desejaImprimir = isset($_POST['imprimir']) && $_POST['imprimir'] == '1';
+            if ($desejaImprimir) {
+                header("Location: /florV3/public/index.php?rota=imprimir-cupom-cliente&id={$id}&tipo=entrega");
+            } else {
+                header('Location: /florV3/public/index.php?rota=painel&sucesso=1');
+            }
+            exit;
         }
-
-        $dados['enviar_para'] = $_POST['enviar_para'] ?? null;
-
-        if ($dados['enviar_para'] === 'pronta_entrega') {
-            $dados['status'] = 'Pronto';
-        } else {
-            $dados['status'] = 'Pendente';
-        }
-
-        // 🆕 Adicionar ordem global de chegada
-        $dados['ordem_fila'] = OrdemGlobal::getProximaOrdem();
-
-        $model = new PedidoRetirada();
-        $id = $model->criar($dados);
-
-        $desejaImprimir = isset($_POST['imprimir']) && $_POST['imprimir'] == '1';
-
-        if ($desejaImprimir) {
-            header("Location: /florV3/public/index.php?rota=imprimir-cupom-cliente&id={$id}&tipo=retirada");
-        } else {
-            header('Location: /florV3/public/index.php?rota=painel&sucesso=1');
-        }
-        exit;
     }
-}
 
+    public function salvarRetirada() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $dados = $_POST;
 
+            // Corrigir formato dos produtos (nome, qtd, obs)
+            if (isset($dados['produtos']) && is_array($dados['produtos'])) {
+                $itensFormatados = [];
+                foreach ($dados['produtos'] as $produto) {
+                    $nome = $produto['nome'] ?? '';
+                    $qtd  = $produto['quantidade'] ?? '1';
+                    $obs  = trim($produto['observacao'] ?? '');
+                    $texto = "$qtd x $nome" . ($obs ? " ($obs)" : "");
+                    $itensFormatados[] = $texto;
+                }
+                $dados['produtos'] = implode(', ', $itensFormatados);
+            }
 
-public function historico() {
-    $entregaModel = new PedidoEntrega();
-    $retiradaModel = new PedidoRetirada();
+            $dados['enviar_para'] = $_POST['enviar_para'] ?? null;
+            $dados['status'] = ($dados['enviar_para'] === 'pronta_entrega') ? 'Pronto' : 'Pendente';
 
-    $busca = $_GET['busca'] ?? '';
-    $pagina = isset($_GET['pagina']) ? max(1, (int)$_GET['pagina']) : 1;
-    $porPagina = 20;
+            // Ordem global de chegada
+            $dados['ordem_fila'] = OrdemGlobal::getProximaOrdem();
 
-    // Novos filtros
-    $dataFiltro = $_GET['data'] ?? null;
-    $mesFiltro = $_GET['mes'] ?? null;
-    $anoFiltro = $_GET['ano'] ?? date('Y');
+            $model = new PedidoRetirada();
+            $id = $model->criar($dados);
 
-    // Busca com filtros
-    $resultadosEntrega = $entregaModel->buscar($busca, $dataFiltro, $mesFiltro, $anoFiltro);
-    $resultadosRetirada = $retiradaModel->buscar($busca, $dataFiltro, $mesFiltro, $anoFiltro);
+            $desejaImprimir = isset($_POST['imprimir']) && $_POST['imprimir'] == '1';
+            if ($desejaImprimir) {
+                header("Location: /florV3/public/index.php?rota=imprimir-cupom-cliente&id={$id}&tipo=retirada");
+            } else {
+                header('Location: /florV3/public/index.php?rota=painel&sucesso=1');
+            }
+            exit;
+        }
+    }
 
-    $todos = array_merge($resultadosEntrega, $resultadosRetirada);
+    public function historico() {
+        $entregaModel = new PedidoEntrega();
+        $retiradaModel = new PedidoRetirada();
 
-    // Ordenar pela ordem de chegada
-    usort($todos, fn($a, $b) => ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0));
+        $busca = $_GET['busca'] ?? '';
+        $pagina = isset($_GET['pagina']) ? max(1, (int)$_GET['pagina']) : 1;
+        $porPagina = 20;
 
-    // Paginação
-    $total = count($todos);
-    $inicio = ($pagina - 1) * $porPagina;
-    $resultados = array_slice($todos, $inicio, $porPagina);
-    $totalPaginas = ceil($total / $porPagina);
+        // Filtros
+        $dataFiltro = $_GET['data'] ?? null;
+        $mesFiltro = $_GET['mes'] ?? null;
+        $anoFiltro = $_GET['ano'] ?? date('Y');
 
-    require __DIR__ . '/../views/pedidos/historico.php';
-}
+        $resultadosEntrega = $entregaModel->buscar($busca, $dataFiltro, $mesFiltro, $anoFiltro);
+        $resultadosRetirada = $retiradaModel->buscar($busca, $dataFiltro, $mesFiltro, $anoFiltro);
 
+        $todos = array_merge($resultadosEntrega, $resultadosRetirada);
+
+        // Ordem de chegada (decrescente no histórico – mantém seu comportamento)
+        usort($todos, fn($a, $b) => ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0));
+
+        // Paginação
+        $total = count($todos);
+        $inicio = ($pagina - 1) * $porPagina;
+        $resultados = array_slice($todos, $inicio, $porPagina);
+        $totalPaginas = ceil($total / $porPagina);
+
+        require __DIR__ . '/../views/pedidos/historico.php';
+    }
 
     public function acompanharPedidos() {
         $entregaModel = new PedidoEntrega();
         $retiradaModel = new PedidoRetirada();
 
-$busca = $_GET['produto'] ?? '';
-$dataSelecionada = $_GET['data'] ?? date('Y-m-d');
-$statusFiltro = ['Pendente', 'Produção', 'Pronto'];
+        $busca = $_GET['produto'] ?? '';
+        $dataSelecionada = $_GET['data'] ?? date('Y-m-d');
+        $statusFiltro = ['Pendente', 'Produção', 'Pronto'];
 
-// Busca pedidos com produtos que contenham o termo buscado
-$pedidosEntrega = $entregaModel->buscarPorProdutoEData($busca, $dataSelecionada, $statusFiltro);
-$pedidosRetirada = $retiradaModel->buscarPorProdutoEData($busca, $dataSelecionada, $statusFiltro);
+        $pedidosEntrega = $entregaModel->buscarPorProdutoEData($busca, $dataSelecionada, $statusFiltro);
+        $pedidosRetirada = $retiradaModel->buscarPorProdutoEData($busca, $dataSelecionada, $statusFiltro);
 
         $todosPedidos = array_merge($pedidosEntrega, $pedidosRetirada);
-        usort($todosPedidos, function ($a, $b) {
-            return ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0);
+
+        // Fila fixa – somente ordem_fila (crescente)
+        usort($todosPedidos, function($a, $b) {
+            $oa = isset($a['ordem_fila']) ? (int)$a['ordem_fila'] : PHP_INT_MAX;
+            $ob = isset($b['ordem_fila']) ? (int)$b['ordem_fila'] : PHP_INT_MAX;
+            if ($oa === $ob) {
+                return ((int)($a['id'] ?? 0)) <=> ((int)($b['id'] ?? 0));
+            }
+            return $oa <=> $ob;
         });
 
         require __DIR__ . '/../views/pedidos/acompanhamento.php';
     }
 
-public function acompanhamentoAtendente() {
-    $pedidoEntrega = new PedidoEntrega();
-    $pedidoRetirada = new PedidoRetirada();
+    public function acompanhamentoAtendente() {
+        $pedidoEntrega = new PedidoEntrega();
+        $pedidoRetirada = new PedidoRetirada();
 
-    $data = $_GET['data'] ?? date('Y-m-d');
-    $usuarioTipo = $_SESSION['usuario_tipo'] ?? 'colaborador';
+        $data = $_GET['data'] ?? date('Y-m-d');
+        $usuarioTipo = $_SESSION['usuario_tipo'] ?? 'colaborador';
 
-    // Buscar todos os pedidos com esses status (inclusive "Cancelado")
-    $entregas = $pedidoEntrega->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
-    $retiradas = $pedidoRetirada->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
+        $entregas = $pedidoEntrega->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
+        $retiradas = $pedidoRetirada->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
 
-    // 🔁 Novo filtro: só esconder "Cancelado" ou "Retorno" se NÃO for do dia selecionado
-    $entregas = array_filter($entregas, function($pedido) use ($data) {
-        if (in_array($pedido['status'], ['Retorno', 'Cancelado'])) {
-            return $pedido['data_abertura'] === $data;
-        }
-        return true;
-    });
+        // Esconde Retorno/Cancelado só se não forem do dia
+        $entregas = array_filter($entregas, function($pedido) use ($data) {
+            if (in_array($pedido['status'], ['Retorno', 'Cancelado'])) {
+                return $pedido['data_abertura'] === $data;
+            }
+            return true;
+        });
+        $retiradas = array_filter($retiradas, function($pedido) use ($data) {
+            if (in_array($pedido['status'], ['Retorno', 'Cancelado'])) {
+                return $pedido['data_abertura'] === $data;
+            }
+            return true;
+        });
 
-    $retiradas = array_filter($retiradas, function($pedido) use ($data) {
-        if (in_array($pedido['status'], ['Retorno', 'Cancelado'])) {
-            return $pedido['data_abertura'] === $data;
-        }
-        return true;
-    });
+        $entregas = is_array($entregas) ? $entregas : [];
+        $retiradas = is_array($retiradas) ? $retiradas : [];
 
-    $entregas = is_array($entregas) ? $entregas : [];
-    $retiradas = is_array($retiradas) ? $retiradas : [];
+        $todosPedidos = array_merge($entregas, $retiradas);
 
-    $todosPedidos = array_merge($entregas, $retiradas);
+        // Fila fixa – somente ordem_fila (crescente)
+        usort($todosPedidos, function($a, $b) {
+            $oa = isset($a['ordem_fila']) ? (int)$a['ordem_fila'] : PHP_INT_MAX;
+            $ob = isset($b['ordem_fila']) ? (int)$b['ordem_fila'] : PHP_INT_MAX;
+            if ($oa === $ob) {
+                return ((int)($a['id'] ?? 0)) <=> ((int)($b['id'] ?? 0));
+            }
+            return $oa <=> $ob;
+        });
 
-    // Ordena por ordem de chegada
-usort($todosPedidos, function($a, $b) {
-    // Prioriza status "Pronto"
-    if ($a['status'] === 'Pronto' && $b['status'] !== 'Pronto') return -1;
-    if ($a['status'] !== 'Pronto' && $b['status'] === 'Pronto') return 1;
-
-    // Se ambos forem ou não forem "Pronto", ordena pela ordem_fila (decrescente)
-    return ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0);
-});
-
-
-    require __DIR__ . '/../views/pedidos/acompanhamento_atendente.php';
-}
-
-
-
-public function atualizarStatus() {
-    $id = $_POST['id'] ?? null;
-    $tipo = $_POST['tipo'] ?? null;
-    $status = $_POST['status'] ?? null;
-    $mensagem = $_POST['mensagem'] ?? null;
-    $responsavel = $_POST['responsavel'] ?? null;
-
-    if (!$id || !$tipo || !$status) {
-        http_response_code(400);
-        echo 'Dados incompletos';
-        return;
+        require __DIR__ . '/../views/pedidos/acompanhamento_atendente.php';
     }
 
-    // Define o model correto
-    $model = ($tipo === 'entrega') ? new PedidoEntrega() : new PedidoRetirada();
-    $model->atualizarStatus($id, $status, $mensagem, $responsavel);
+    public function atualizarStatus() {
+        $id = $_POST['id'] ?? null;
+        $tipo = $_POST['tipo'] ?? null;
+        $status = $_POST['status'] ?? null;
+        $mensagem = $_POST['mensagem'] ?? null;
+        $responsavel = $_POST['responsavel'] ?? null;
 
-    // Registra o responsável pela produção (caso aplicável)
-    if ($status === 'Produção' && $responsavel) {
-        require_once __DIR__ . '/../models/ResponsavelProducao.php';
-        $responsavelModel = new ResponsavelProducao();
-        $responsavelModel->criar($id, $tipo, $responsavel);
+        if (!$id || !$tipo || !$status) {
+            http_response_code(400);
+            echo 'Dados incompletos';
+            return;
+        }
+
+        // Model correto
+        $model = ($tipo === 'entrega') ? new PedidoEntrega() : new PedidoRetirada();
+        $model->atualizarStatus($id, $status, $mensagem, $responsavel);
+
+        // Registra responsável quando vai para Produção
+        if ($status === 'Produção' && $responsavel) {
+            require_once __DIR__ . '/../models/ResponsavelProducao.php';
+            $responsavelModel = new ResponsavelProducao();
+            $responsavelModel->criar($id, $tipo, $responsavel);
+        }
+
+        // Histórico
+        require_once __DIR__ . '/../models/HistoricoStatus.php';
+        $historicoModel = new HistoricoStatus(Database::conectar());
+        $historicoModel->registrar($id, $tipo, $status, $mensagem);
+
+        echo 'OK';
     }
-
-    // ✅ REGISTRAR NO HISTÓRICO DE STATUS
-    require_once __DIR__ . '/../models/HistoricoStatus.php';
-    $historicoModel = new HistoricoStatus(Database::conectar());
-    $historicoModel->registrar($id, $tipo, $status, $mensagem);
-
-
-    echo 'OK';
-}
-
-
-
 
     public function imprimirPedido() {
         $id = $_GET['id'] ?? null;
@@ -265,7 +265,10 @@ public function atualizarStatus() {
         if ($id && $tipo) {
             $model = ($tipo === 'entrega') ? new PedidoEntrega() : new PedidoRetirada();
             $model->atualizarStatus($id, 'Produção');
+
             $dados = $model->buscarPorId($id);
+            $dados['operador'] = $this->obterOperadorDoPedido($id, $tipo) ?? '-';
+
             require __DIR__ . '/../views/pedidos/imprimir_ordem.php';
         } else {
             echo "Pedido não encontrado.";
@@ -277,14 +280,16 @@ public function atualizarStatus() {
         $tipo = $_GET['tipo'] ?? null;
 
         if ($id && $tipo) {
-            $model = ($tipo === 'entrega') ? new PedidoEntrega() : ($tipo === 'retirada' ? new PedidoRetirada() : null);
-            if (!$model) {
-                echo "Tipo inválido."; return;
-            }
+            $model = ($tipo === 'entrega') ? new PedidoEntrega() :
+                     (($tipo === 'retirada') ? new PedidoRetirada() : null);
+
+            if (!$model) { echo "Tipo inválido."; return; }
+
             $dados = $model->buscarPorId($id);
-            if (!$dados) {
-                echo "Pedido não encontrado."; return;
-            }
+            if (!$dados) { echo "Pedido não encontrado."; return; }
+
+            $dados['operador'] = $this->obterOperadorDoPedido($id, $tipo) ?? '-';
+
             require __DIR__ . '/../views/pedidos/imprimir_ordem.php';
         } else {
             echo "Dados inválidos.";
@@ -319,7 +324,7 @@ public function atualizarStatus() {
         $agrupados = [
             'Pendente' => [],
             'Produção' => [],
-            'Pronto' => [],
+            'Pronto'   => [],
         ];
 
         foreach ($todosPedidos as $pedido) {
@@ -332,338 +337,319 @@ public function atualizarStatus() {
         require __DIR__ . '/../views/painel.php';
     }
 
-public function detalhesPedido() {
-    require_once __DIR__ . '/../models/PedidoEntrega.php';
-    require_once __DIR__ . '/../models/PedidoRetirada.php';
-    require_once __DIR__ . '/../models/HistoricoStatus.php';
+    public function detalhesPedido() {
+        require_once __DIR__ . '/../models/PedidoEntrega.php';
+        require_once __DIR__ . '/../models/PedidoRetirada.php';
+        require_once __DIR__ . '/../models/HistoricoStatus.php';
 
-    $id = $_GET['id'] ?? null;
-    $tipoRaw = strtolower($_GET['tipo'] ?? '');
+        $id = $_GET['id'] ?? null;
+        $tipoRaw = strtolower($_GET['tipo'] ?? '');
 
-    $dados = null;
-    $historico = [];
+        $dados = null;
+        $historico = [];
 
-    // Limpa o tipo para garantir que será 'entrega' ou 'retirada'
-    if (str_contains($tipoRaw, 'entrega')) {
-        $tipoLimpo = 'entrega';
-        $model = new PedidoEntrega();
-        $dados = $model->buscarPorId($id);
-    } elseif (str_contains($tipoRaw, 'retirada')) {
-        $tipoLimpo = 'retirada';
-        $model = new PedidoRetirada();
-        $dados = $model->buscarPorId($id);
+        if (str_contains($tipoRaw, 'entrega')) {
+            $tipoLimpo = 'entrega';
+            $model = new PedidoEntrega();
+            $dados = $model->buscarPorId($id);
+        } elseif (str_contains($tipoRaw, 'retirada')) {
+            $tipoLimpo = 'retirada';
+            $model = new PedidoRetirada();
+            $dados = $model->buscarPorId($id);
+        }
+
+        if ($dados && isset($tipoLimpo)) {
+            $historicoModel = new HistoricoStatus(Database::conectar());
+            $historico = $historicoModel->buscarPorPedido($id, $tipoLimpo);
+        }
+
+        require __DIR__ . '/../views/pedidos/detalhes.php';
     }
 
-    // Buscar histórico apenas se tiver dados válidos
-    if ($dados && isset($tipoLimpo)) {
-        $historicoModel = new HistoricoStatus(Database::conectar());
-        $historico = $historicoModel->buscarPorPedido($id, $tipoLimpo);
+    public function cancelados() {
+        require_once __DIR__ . '/../models/PedidoEntrega.php';
+        require_once __DIR__ . '/../models/PedidoRetirada.php';
+
+        $entregaModel = new PedidoEntrega();
+        $retiradaModel = new PedidoRetirada();
+
+        $entregasCanceladas = $entregaModel->buscarPorStatus('Cancelado');
+        $retiradasCanceladas = $retiradaModel->buscarPorStatus('Cancelado');
+
+        $cancelados = array_merge($entregasCanceladas, $retiradasCanceladas);
+
+        require __DIR__ . '/../views/pedidos/cancelados.php';
     }
 
-    require __DIR__ . '/../views/pedidos/detalhes.php';
-}
-
-
-public function cancelados() {
-    require_once __DIR__ . '/../models/PedidoEntrega.php';
-    require_once __DIR__ . '/../models/PedidoRetirada.php';
-
-    $entregaModel = new PedidoEntrega();
-    $retiradaModel = new PedidoRetirada();
-
-    $entregasCanceladas = $entregaModel->buscarPorStatus('Cancelado');
-    $retiradasCanceladas = $retiradaModel->buscarPorStatus('Cancelado');
-
-    $cancelados = array_merge($entregasCanceladas, $retiradasCanceladas);
-
-    require __DIR__ . '/../views/pedidos/cancelados.php';
-}
-
-public function cadastrarOperador() {
-    require __DIR__ . '/../views/operadores/cadastrar_operador.php';
-}
-
-public function salvarOperador() {
-    $nome = $_POST['nome'] ?? '';
-    if ($nome) {
-        $pdo = Database::conectar();
-        $stmt = $pdo->prepare("INSERT INTO operadores (nome) VALUES (:nome)");
-        $stmt->execute([':nome' => $nome]);
+    public function cadastrarOperador() {
+        require __DIR__ . '/../views/operadores/cadastrar_operador.php';
     }
-    header('Location: /florV3/public/index.php?rota=lista-operadores');
-    exit;
-}
 
-
-public function listarOperadores() {
-    $pdo = Database::conectar();
-    $stmt = $pdo->query("SELECT * FROM operadores ORDER BY nome ASC");
-    $operadores = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    require __DIR__ . '/../views/operadores/lista_operadores.php';
-}
-
-public function registrarResponsavel() {
-    require_once __DIR__ . '/../models/ResponsavelProducao.php';
-    $pedidoId = $_POST['id'] ?? null;
-    $tipo = $_POST['tipo'] ?? null;
-    $responsavel = $_POST['responsavel'] ?? null;
-
-    if ($pedidoId && $tipo && $responsavel) {
-        $registro = new ResponsavelProducao();
-        $registro->criar($pedidoId, $tipo, $responsavel);
-        echo 'Registrado';
-    } else {
-        http_response_code(400);
-        echo 'Dados incompletos';
-    }
-}
-
-
-public function editarOperador() {
-    $id = $_GET['id'] ?? null;
-    if (!$id) {
+    public function salvarOperador() {
+        $nome = $_POST['nome'] ?? '';
+        if ($nome) {
+            $pdo = Database::conectar();
+            $stmt = $pdo->prepare("INSERT INTO operadores (nome) VALUES (:nome)");
+            $stmt->execute([':nome' => $nome]);
+        }
         header('Location: /florV3/public/index.php?rota=lista-operadores');
         exit;
     }
 
-    $pdo = Database::conectar();
-    $stmt = $pdo->prepare("SELECT * FROM operadores WHERE id = :id");
-    $stmt->execute([':id' => $id]);
-    $operador = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    require __DIR__ . '/../views/operadores/editar_operador.php';
-}
-
-public function atualizarOperador() {
-    $id = $_POST['id'] ?? null;
-    $nome = $_POST['nome'] ?? '';
-
-    if ($id && $nome) {
+    public function listarOperadores() {
         $pdo = Database::conectar();
-        $stmt = $pdo->prepare("UPDATE operadores SET nome = :nome WHERE id = :id");
-        $stmt->execute([':nome' => $nome, ':id' => $id]);
+        $stmt = $pdo->query("SELECT * FROM operadores ORDER BY nome ASC");
+        $operadores = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        require __DIR__ . '/../views/operadores/lista_operadores.php';
     }
 
-    header('Location: /florV3/public/index.php?rota=lista-operadores');
-    exit;
-}
+    public function registrarResponsavel() {
+        require_once __DIR__ . '/../models/ResponsavelProducao.php';
+        $pedidoId = $_POST['id'] ?? null;
+        $tipo = $_POST['tipo'] ?? null;
+        $responsavel = $_POST['responsavel'] ?? null;
 
-public function excluirOperador() {
-    $id = $_GET['id'] ?? null;
-    if ($id) {
-        $pdo = Database::conectar();
-        $stmt = $pdo->prepare("DELETE FROM operadores WHERE id = :id");
-        $stmt->execute([':id' => $id]);
-    }
-
-    header('Location: /florV3/public/index.php?rota=lista-operadores');
-    exit;
-}
-
-
-
-public function retiradas() {
-    require_once __DIR__ . '/../models/PedidoRetirada.php';
-    require_once __DIR__ . '/../models/PedidoEntrega.php';
-
-    $pedidoRetirada = new PedidoRetirada();
-    $pedidoEntrega = new PedidoEntrega();
-
-    $retiradas = $pedidoRetirada->buscarPorStatus('Entregue');
-    $entregas  = $pedidoEntrega->buscarPorStatus('Entregue');
-
-    // Junta as duas listas
-    $todosPedidos = array_merge($retiradas, $entregas);
-
-    // Ordena pela data de abertura (opcional)
-    usort($todosPedidos, function($a, $b) {
-        return strtotime($b['data_abertura']) - strtotime($a['data_abertura']);
-    });
-
-    // Paginação (10 por página)
-    $pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
-    $porPagina = 10;
-    $total = count($todosPedidos);
-    $inicio = ($pagina - 1) * $porPagina;
-    $pedidosPaginados = array_slice($todosPedidos, $inicio, $porPagina);
-
-    require __DIR__ . '/../views/pedidos/retiradas.php';
-}
-
-
-public function buscarPedidosPorProdutoAjax()
-{
-    $busca = $_GET['produto'] ?? '';
-    $data = $_GET['data'] ?? date('Y-m-d');
-
-$entregaModel = new PedidoEntrega();
-$retiradaModel = new PedidoRetirada();
-
-
-    $pedidosEntrega = $entregaModel->buscarPorProdutoEData($busca, $data, null);
-    $pedidosRetirada = $retiradaModel->buscarPorProdutoEData($busca, $data, null);
-
-    $todosPedidos = array_merge($pedidosEntrega, $pedidosRetirada);
-
-    header('Content-Type: application/json');
-    echo json_encode($todosPedidos);
-    exit;
-}
-
-public function detalhesOperador() {
-    $responsavel = $_GET['responsavel'] ?? '';
-    $dataInicio = $_GET['data_inicio'] ?? '';
-    $dataFim = $_GET['data_fim'] ?? '';
-
-    if (!$responsavel || !$dataInicio || !$dataFim) {
-        echo "Parâmetros inválidos.";
-        return;
-    }
-
-    $pdo = Database::conectar();
-
-    // Busca todos os registros do operador no intervalo informado
-$stmt = $pdo->prepare("
-    SELECT 
-        rp.pedido_id,
-        rp.tipo,
-        rp.responsavel,
-        hs_producao.data_hora AS data_producao,
-        hs_pronto.data_hora AS data_pronto,
-        COALESCE(p.numero_pedido, pr.numero_pedido) AS numero_pedido,
-        COALESCE(p.produtos, pr.produtos) AS produtos
-    FROM responsavel_producao rp
-    LEFT JOIN historico_status hs_producao 
-        ON hs_producao.pedido_id = rp.pedido_id AND hs_producao.status = 'Produção'
-    LEFT JOIN historico_status hs_pronto 
-        ON hs_pronto.pedido_id = rp.pedido_id AND hs_pronto.status = 'Pronto'
-    LEFT JOIN pedidos_entrega p ON rp.tipo = 'entrega' AND p.id = rp.pedido_id
-    LEFT JOIN pedidos_retirada pr ON rp.tipo = 'retirada' AND pr.id = rp.pedido_id
-    WHERE rp.responsavel = :responsavel
-      AND DATE(hs_producao.data_hora) BETWEEN :inicio AND :fim
-    ORDER BY hs_producao.data_hora ASC
-");
-
-
-    $stmt->execute([
-        ':responsavel' => $responsavel,
-        ':inicio' => $dataInicio,
-        ':fim' => $dataFim
-    ]);
-
-    $registros = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    require __DIR__ . '/../views/operadores/detalhes_operador.php';
-}
-
-
-public function retornarPedidosPorStatus() {
-    require_once __DIR__ . '/../models/PedidoEntrega.php';
-    require_once __DIR__ . '/../models/PedidoRetirada.php';
-    require_once __DIR__ . '/../../config/database.php';
-
-    header('Content-Type: application/json');
-
-    $pdo = Database::conectar();
-$entregaModel = new PedidoEntrega();
-$retiradaModel = new PedidoRetirada();
-
-
-    $dataHoje = date('Y-m-d');
-
-    $entregas = $entregaModel->listarPorData($dataHoje);
-    $retiradas = $retiradaModel->listarPorData($dataHoje);
-
-    $todos = array_merge($entregas, $retiradas);
-
-    $agrupados = [
-        'Pendente' => [],
-        'Produção' => [],
-        'Pronto' => [],
-    ];
-
-    foreach ($todos as $pedido) {
-        if (isset($agrupados[$pedido['status']])) {
-            $agrupados[$pedido['status']][] = $pedido;
+        if ($pedidoId && $tipo && $responsavel) {
+            $registro = new ResponsavelProducao();
+            $registro->criar($pedidoId, $tipo, $responsavel);
+            echo 'Registrado';
+        } else {
+            http_response_code(400);
+            echo 'Dados incompletos';
         }
     }
 
-    echo json_encode($agrupados);
-}
+    public function editarOperador() {
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            header('Location: /florV3/public/index.php?rota=lista-operadores');
+            exit;
+        }
 
-public function buscarPedidosDoDiaJson() {
-    header('Content-Type: application/json');
+        $pdo = Database::conectar();
+        $stmt = $pdo->prepare("SELECT * FROM operadores WHERE id = :id");
+        $stmt->execute([':id' => $id]);
+        $operador = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $dataSelecionada = $_GET['data'] ?? date('Y-m-d');
-
-    $entregaModel = new PedidoEntrega();
-    $retiradaModel = new PedidoRetirada();
-
-    $statusFiltro = ['Pendente', 'Produção']; // Não inclui Pronto
-    $pedidosEntrega = $entregaModel->buscarPorStatusEData($statusFiltro, $dataSelecionada);
-    $pedidosRetirada = $retiradaModel->buscarPorStatusEData($statusFiltro, $dataSelecionada);
-
-    $todos = array_merge($pedidosEntrega, $pedidosRetirada);
-
-    // Ordenar por ordem de chegada
-    usort($todos, function($a, $b) {
-        return ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0);
-    });
-
-    echo json_encode($todos);
-}
-
-public function buscarPedidosAtendenteJson() {
-    header('Content-Type: application/json');
-
-    $data = $_GET['data'] ?? date('Y-m-d');
-
-    $entregaModel = new PedidoEntrega();
-    $retiradaModel = new PedidoRetirada();
-
-    $entregas = $entregaModel->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
-    $retiradas = $retiradaModel->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
-
-    // Filtra Retorno e Cancelado apenas se forem do dia selecionado
-    $entregas = array_filter($entregas, fn($p) => in_array($p['status'], ['Retorno', 'Cancelado']) ? $p['data_abertura'] === $data : true);
-    $retiradas = array_filter($retiradas, fn($p) => in_array($p['status'], ['Retorno', 'Cancelado']) ? $p['data_abertura'] === $data : true);
-
-    // ✅ Agora sim criamos $todos antes do usort
-    $todos = array_merge($entregas, $retiradas);
-
-    // ✅ Ordenar com segurança
-    usort($todos, function($a, $b) {
-        $statusA = $a['status'] ?? '';
-        $statusB = $b['status'] ?? '';
-        $ordemA = $a['ordem_fila'] ?? 0;
-        $ordemB = $b['ordem_fila'] ?? 0;
-
-        if ($statusA === 'Pronto' && $statusB !== 'Pronto') return -1;
-        if ($statusA !== 'Pronto' && $statusB === 'Pronto') return 1;
-
-        return $ordemB <=> $ordemA;
-    });
-
-    // Garante que todos tenham a chave 'nome'
-    foreach ($todos as &$p) {
-        $p['nome'] = $p['remetente'] ?? $p['nome'] ?? '';
+        require __DIR__ . '/../views/operadores/editar_operador.php';
     }
 
-    echo json_encode($todos);
-}
+    public function atualizarOperador() {
+        $id = $_POST['id'] ?? null;
+        $nome = $_POST['nome'] ?? '';
 
+        if ($id && $nome) {
+            $pdo = Database::conectar();
+            $stmt = $pdo->prepare("UPDATE operadores SET nome = :nome WHERE id = :id");
+            $stmt->execute([':nome' => $nome, ':id' => $id]);
+        }
 
+        header('Location: /florV3/public/index.php?rota=lista-operadores');
+        exit;
+    }
 
+    public function excluirOperador() {
+        $id = $_GET['id'] ?? null;
+        if ($id) {
+            $pdo = Database::conectar();
+            $stmt = $pdo->prepare("DELETE FROM operadores WHERE id = :id");
+            $stmt->execute([':id' => $id]);
+        }
 
+        header('Location: /florV3/public/index.php?rota=lista-operadores');
+        exit;
+    }
 
+    public function retiradas() {
+        require_once __DIR__ . '/../models/PedidoRetirada.php';
+        require_once __DIR__ . '/../models/PedidoEntrega.php';
 
+        $pedidoRetirada = new PedidoRetirada();
+        $pedidoEntrega  = new PedidoEntrega();
 
+        $retiradas = $pedidoRetirada->buscarPorStatus('Entregue');
+        $entregas  = $pedidoEntrega->buscarPorStatus('Entregue');
 
+        $todosPedidos = array_merge($retiradas, $entregas);
 
+        usort($todosPedidos, function($a, $b) {
+            return strtotime($b['data_abertura']) - strtotime($a['data_abertura']);
+        });
 
+        $pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+        $porPagina = 10;
+        $total = count($todosPedidos);
+        $inicio = ($pagina - 1) * $porPagina;
+        $pedidosPaginados = array_slice($todosPedidos, $inicio, $porPagina);
 
+        require __DIR__ . '/../views/pedidos/retiradas.php';
+    }
 
+    public function buscarPedidosPorProdutoAjax() {
+        $busca = $_GET['produto'] ?? '';
+        $data  = $_GET['data'] ?? date('Y-m-d');
 
+        $entregaModel = new PedidoEntrega();
+        $retiradaModel = new PedidoRetirada();
 
-    // Aqui permanecem seus métodos de vendedores, produtos e cancelados como no backup original
+        $pedidosEntrega = $entregaModel->buscarPorProdutoEData($busca, $data, null);
+        $pedidosRetirada = $retiradaModel->buscarPorProdutoEData($busca, $data, null);
+
+        $todosPedidos = array_merge($pedidosEntrega, $pedidosRetirada);
+
+        // ORDEM FIXA (crescente por ordem_fila)
+        usort($todosPedidos, function($a, $b) {
+            $oa = isset($a['ordem_fila']) ? (int)$a['ordem_fila'] : PHP_INT_MAX;
+            $ob = isset($b['ordem_fila']) ? (int)$b['ordem_fila'] : PHP_INT_MAX;
+            if ($oa === $ob) {
+                return ((int)($a['id'] ?? 0)) <=> ((int)($b['id'] ?? 0));
+            }
+            return $oa <=> $ob;
+        });
+
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($todosPedidos, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    public function detalhesOperador() {
+        $responsavel = $_GET['responsavel'] ?? '';
+        $dataInicio  = $_GET['data_inicio'] ?? '';
+        $dataFim     = $_GET['data_fim'] ?? '';
+
+        if (!$responsavel || !$dataInicio || !$dataFim) {
+            echo "Parâmetros inválidos.";
+            return;
+        }
+
+        $pdo = Database::conectar();
+
+        $stmt = $pdo->prepare("
+            SELECT 
+                rp.pedido_id,
+                rp.tipo,
+                rp.responsavel,
+                hs_producao.data_hora AS data_producao,
+                hs_pronto.data_hora AS data_pronto,
+                COALESCE(p.numero_pedido, pr.numero_pedido) AS numero_pedido,
+                COALESCE(p.produtos, pr.produtos) AS produtos
+            FROM responsavel_producao rp
+            LEFT JOIN historico_status hs_producao 
+                ON hs_producao.pedido_id = rp.pedido_id AND hs_producao.status = 'Produção'
+            LEFT JOIN historico_status hs_pronto 
+                ON hs_pronto.pedido_id = rp.pedido_id AND hs_pronto.status = 'Pronto'
+            LEFT JOIN pedidos_entrega p ON rp.tipo = 'entrega' AND p.id = rp.pedido_id
+            LEFT JOIN pedidos_retirada pr ON rp.tipo = 'retirada' AND pr.id = rp.pedido_id
+            WHERE rp.responsavel = :responsavel
+              AND DATE(hs_producao.data_hora) BETWEEN :inicio AND :fim
+            ORDER BY hs_producao.data_hora ASC
+        ");
+
+        $stmt->execute([
+            ':responsavel' => $responsavel,
+            ':inicio' => $dataInicio,
+            ':fim' => $dataFim
+        ]);
+
+        $registros = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        require __DIR__ . '/../views/operadores/detalhes_operador.php';
+    }
+
+    public function retornarPedidosPorStatus() {
+        require_once __DIR__ . '/../models/PedidoEntrega.php';
+        require_once __DIR__ . '/../models/PedidoRetirada.php';
+        require_once __DIR__ . '/../../config/database.php';
+
+        header('Content-Type: application/json; charset=utf-8');
+
+        $pdo = Database::conectar();
+        $entregaModel = new PedidoEntrega();
+        $retiradaModel = new PedidoRetirada();
+
+        $dataHoje = date('Y-m-d');
+
+        $entregas = $entregaModel->listarPorData($dataHoje);
+        $retiradas = $retiradaModel->listarPorData($dataHoje);
+
+        $todos = array_merge($entregas, $retiradas);
+
+        $agrupados = [
+            'Pendente' => [],
+            'Produção' => [],
+            'Pronto'   => [],
+        ];
+
+        foreach ($todos as $pedido) {
+            if (isset($agrupados[$pedido['status']])) {
+                $agrupados[$pedido['status']][] = $pedido;
+            }
+        }
+
+        echo json_encode($agrupados, JSON_UNESCAPED_UNICODE);
+    }
+
+    public function buscarPedidosDoDiaJson() {
+        header('Content-Type: application/json; charset=utf-8');
+
+        $dataSelecionada = $_GET['data'] ?? date('Y-m-d');
+
+        $entregaModel = new PedidoEntrega();
+        $retiradaModel = new PedidoRetirada();
+
+        $statusFiltro = ['Pendente', 'Produção']; // Não inclui Pronto
+        $pedidosEntrega = $entregaModel->buscarPorStatusEData($statusFiltro, $dataSelecionada);
+        $pedidosRetirada = $retiradaModel->buscarPorStatusEData($statusFiltro, $dataSelecionada);
+
+        $todos = array_merge($pedidosEntrega, $pedidosRetirada);
+
+        // Ordem fixa (crescente)
+        usort($todos, function($a, $b) {
+            $oa = isset($a['ordem_fila']) ? (int)$a['ordem_fila'] : PHP_INT_MAX;
+            $ob = isset($b['ordem_fila']) ? (int)$b['ordem_fila'] : PHP_INT_MAX;
+            if ($oa === $ob) {
+                return ((int)($a['id'] ?? 0)) <=> ((int)($b['id'] ?? 0));
+            }
+            return $oa <=> $ob;
+        });
+
+        echo json_encode($todos, JSON_UNESCAPED_UNICODE);
+    }
+
+    public function buscarPedidosAtendenteJson() {
+        header('Content-Type: application/json; charset=utf-8');
+
+        $data = $_GET['data'] ?? date('Y-m-d');
+
+        $entregaModel = new PedidoEntrega();
+        $retiradaModel = new PedidoRetirada();
+
+        $entregas = $entregaModel->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
+        $retiradas = $retiradaModel->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
+
+        // Filtra Retorno/Cancelado apenas do dia
+        $entregas = array_filter($entregas, fn($p) => in_array($p['status'], ['Retorno', 'Cancelado']) ? $p['data_abertura'] === $data : true);
+        $retiradas = array_filter($retiradas, fn($p) => in_array($p['status'], ['Retorno', 'Cancelado']) ? $p['data_abertura'] === $data : true);
+
+        $todos = array_merge($entregas, $retiradas);
+
+        // Fila fixa (crescente)
+        usort($todos, function($a, $b) {
+            $oa = isset($a['ordem_fila']) ? (int)$a['ordem_fila'] : PHP_INT_MAX;
+            $ob = isset($b['ordem_fila']) ? (int)$b['ordem_fila'] : PHP_INT_MAX;
+            if ($oa === $ob) {
+                return ((int)($a['id'] ?? 0)) <=> ((int)($b['id'] ?? 0));
+            }
+            return $oa <=> $ob;
+        });
+
+        // Garante chave 'nome'
+        foreach ($todos as &$p) {
+            $p['nome'] = $p['remetente'] ?? $p['nome'] ?? '';
+        }
+
+        echo json_encode($todos, JSON_UNESCAPED_UNICODE);
+    }
+
+    // Métodos de vendedores/produtos/cancelados permanecem como no seu original
 }

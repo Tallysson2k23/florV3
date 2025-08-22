@@ -4,67 +4,67 @@
     <meta charset="UTF-8">
     <title>Cupom Cliente</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 13px;
-            width: 250px;
-            margin: 0 auto;
-        }
+body {
+    font-family: Arial, sans-serif;
+    font-size: 18px;   /* era 13px – agora maior para todo o cupom */
+    width: 250px;
+    margin: 0 auto;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 12px;
-        }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+}
 
-        td {
-            border: 1px solid #000;
-            padding: 6px 8px;
-            vertical-align: top;
-        }
+td {
+    border: 1px solid #000;
+    padding: 8px 10px;   /* aumentei o espaçamento pra acompanhar a fonte maior */
+    vertical-align: top;
+}
 
-        .titulo {
-            text-align: center;
-            font-weight: bold;
-            font-size: 17px;
-            margin-bottom: 10px;
-        }
+.titulo {
+    text-align: center;
+    font-weight: bold;
+    font-size: 22px;   /* era 17px – mais destaque no título */
+    margin-bottom: 12px;
+}
 
-        .aviso {
-            text-align: center;
-            font-weight: bold;
-            font-size: 11px;
-            border-top: 1px solid #000;
-            padding-top: 6px;
-        }
+.aviso {
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;   /* era 11px – mais legível */
+    border-top: 1px solid #000;
+    padding-top: 8px;
+}
 
-        .voltar {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: #eee;
-            padding: 6px 10px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 12px;
-            color: #333;
-            border: 1px solid #ccc;
-        }
+.voltar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #eee;
+    padding: 6px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;   /* um pouco maior que antes */
+    color: #333;
+    border: 1px solid #ccc;
+}
 
-        @media print {
-            .voltar {
-                display: none;
-            }
-        }
+@media print {
+    .voltar {
+        display: none;
+    }
+}
 
-        .cliente-destaque {
-            font-size: 20px !important;
-            font-weight: bold !important;
-            color: #000;
-            text-align: center;
-        }
+.cliente-destaque {
+    font-size: 26px !important;  /* era 20px – nome/remetente em grande destaque */
+    font-weight: bold !important;
+    color: #000;
+    text-align: center;
+}
+</style>
 
-    </style>
 </head>
 <body onload="window.print()">
     <a href="/florV3/public/index.php?rota=painel" class="voltar">⬅ Voltar</a>
