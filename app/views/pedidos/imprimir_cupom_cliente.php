@@ -6,7 +6,7 @@
     <style>
 body {
     font-family: Arial, sans-serif;
-    font-size: 18px;   /* era 13px – agora maior para todo o cupom */
+    font-size: 13px;   /* era 13px – agora maior para todo o cupom */
     width: 250px;
     margin: 0 auto;
 }
@@ -19,21 +19,21 @@ table {
 
 td {
     border: 1px solid #000;
-    padding: 8px 10px;   /* aumentei o espaçamento pra acompanhar a fonte maior */
+    padding:5px 7px;   /* aumentei o espaçamento pra acompanhar a fonte maior */
     vertical-align: top;
 }
 
 .titulo {
     text-align: center;
     font-weight: bold;
-    font-size: 22px;   /* era 17px – mais destaque no título */
+    font-size: 17px;   /* era 17px – mais destaque no título */
     margin-bottom: 12px;
 }
 
 .aviso {
     text-align: center;
     font-weight: bold;
-    font-size: 14px;   /* era 11px – mais legível */
+    font-size: 11px;   /* era 11px – mais legível */
     border-top: 1px solid #000;
     padding-top: 8px;
 }
@@ -46,7 +46,7 @@ td {
     padding: 6px 10px;
     border-radius: 4px;
     text-decoration: none;
-    font-size: 14px;   /* um pouco maior que antes */
+    font-size: 13px;   /* um pouco maior que antes */
     color: #333;
     border: 1px solid #ccc;
 }
@@ -58,7 +58,7 @@ td {
 }
 
 .cliente-destaque {
-    font-size: 26px !important;  /* era 20px – nome/remetente em grande destaque */
+    font-size: 20px !important;  /* era 20px – nome/remetente em grande destaque */
     font-weight: bold !important;
     color: #000;
     text-align: center;
