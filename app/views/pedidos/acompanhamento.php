@@ -98,11 +98,9 @@
     $operadorModel = new Operador();
     $operadores = $operadorModel->listarTodos();
 
-    // 🔒 Garantia: $todosPedidos como array para não quebrar a página
     $todosPedidos = $todosPedidos ?? [];
     if (!is_array($todosPedidos)) { $todosPedidos = []; }
 
-    // Ordenação inicial (desc) segura
     if (count($todosPedidos) > 1) {
         usort($todosPedidos, function($a, $b) {
             $ka = isset($a['ordem_fila']) ? (int)$a['ordem_fila']
@@ -133,7 +131,6 @@
             </tr>
 
             <?php foreach ($todosPedidos as $pedido):
-                // pular PRONTO na visão inicial
                 $statusRaw = $pedido['status'] ?? '';
                 if (strtolower($statusRaw) === 'pronto') continue;
 
@@ -152,7 +149,7 @@
 
                 $tipo      = htmlspecialchars($pedido['tipo'] ?? '');
                 $status    = htmlspecialchars($statusRaw);
-                $tipoLink  = strtolower(substr($tipo, 2)); // mantém sua regra original "p_"
+                $tipoLink  = strtolower(substr($tipo, 2)); // regra original "p_"
 
                 $classeCodigo = '';
                 if (!empty($pedido['tipo'])) {
@@ -416,11 +413,16 @@ function imprimirSegundaVia(id, tipo) {
   window.open(`/florV3/public/index.php?rota=imprimir-pedido&id=${id}&tipo=${tipo}`, '_blank');
 }
 
-// ==================== NOTIFICAÇÕES FUTURAS ====================
+// ==================== NOTIFICAÇÕES FUTURAS (com SOM) ====================
+let notifIdsVistos = new Set();
+let notifUnreadPrev = 0;
+let notifInitDone = false;
+
 function toggleNotificationBox() {
   const box = document.getElementById('notification-box');
   box.style.display = box.style.display === 'block' ? 'none' : 'block';
 }
+
 function carregarNotificacoesFuturas() {
   fetch('/florV3/public/index.php?rota=notificacoes-futuras', { cache: 'no-store' })
     .then(r => r.json())
@@ -428,7 +430,11 @@ function carregarNotificacoesFuturas() {
       const lista = document.getElementById('notification-list');
       const badge = document.getElementById('notification-count');
       lista.innerHTML = '';
-      if (Array.isArray(data) && data.length > 0) {
+
+      if (!Array.isArray(data)) data = [];
+
+      // ---- montar UI
+      if (data.length > 0) {
         badge.innerText = data.length;
         badge.style.display = 'inline-block';
         data.forEach(pedido => {
@@ -457,7 +463,32 @@ function carregarNotificacoesFuturas() {
         badge.style.display = 'none';
         lista.innerHTML = '<p>Sem notificações futuras.</p>';
       }
-    });
+
+      // ---- lógica de SOM para novas notificações futuras
+      const idsAtuais = new Set(data.map(p => String(p.id)));
+      const unreadCount = data.filter(p => !p.lido).length;
+
+      if (!notifInitDone) {
+        // primeira carga: só inicializa os conjuntos/contadores, sem tocar som
+        notifIdsVistos = idsAtuais;
+        notifUnreadPrev = unreadCount;
+        notifInitDone = true;
+        return;
+      }
+
+      let temNovoId = false;
+      idsAtuais.forEach(id => { if (!notifIdsVistos.has(id)) temNovoId = true; });
+
+      const unreadAumentou = unreadCount > notifUnreadPrev;
+
+      if ((temNovoId || unreadAumentou) && document.visibilityState === 'visible') {
+        tocarSomNotificacao();
+      }
+
+      notifIdsVistos = idsAtuais;
+      notifUnreadPrev = unreadCount;
+    })
+    .catch(() => { /* ignora erros de rede */ });
 }
 carregarNotificacoesFuturas();
 setInterval(carregarNotificacoesFuturas, 1000);
@@ -514,7 +545,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-// ==================== AUTO-ATUALIZAÇÃO & ALERTA SONORO ====================
+// ==================== AUTO-ATUALIZAÇÃO & ALERTA SONORO (pedidos do dia) ====================
 let idsVistos = new Set();
 (function inicializarIdsVistos() {
   const links = document.querySelectorAll('#lista-pedidos a[href*="rota=detalhes"]');
@@ -618,7 +649,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<!-- Modal de Seleção de Operador (fica no final para carregar rápido o resto) -->
+<!-- Modal de Seleção de Operador -->
 <div id="modalResponsavel" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999;">
   <div style="background:white; padding:20px; border-radius:8px; width:400px; margin:100px auto; position:relative;">
       <h3>Selecione o Operador</h3>
