@@ -141,12 +141,32 @@ h2::before {
     text-align: center;
     margin-bottom: 50px;
 }
+
+.top-bar {
+    width: 100%;
+    background-color: #111;
+    color: white;
+    font-family: "Brush Script MT", cursive;
+    font-size: 28px;
+    text-align: center;
+    padding: 15px 0;
+}
+
+.logo-img {
+    height: 52px;
+    max-width: 100%;
+    object-fit: contain;
+    display: inline-block;
+}
+
 </style>
 </head>
 <body>
-<div class="topo">
-    Flor de Cheiro
+<!-- substitua o bloco <div class="topo"> -->
+<div class="top-bar">
+    <img src="/florV3/public/assets/img/logo-flor-cortada.png" alt="Flor de Cheiro" class="logo-img">
 </div>
+
 
 <form method="get" action="index.php">
     <input type="hidden" name="rota" value="acompanhamento-atendente">
@@ -191,172 +211,100 @@ h2::before {
     background-color: #333;
 }
 </style>
+
 <script>
 const tipoUsuario = '<?= $usuarioTipo ?>';
 
-// === Trava local para não sobrescrever com o auto-refresh ===
-const LOCAL_LOCK_MS = 15000; // 15s
-const localStatus = new Map(); // chave "tipo:id" -> { status, until }
-function keyPedido(id, tipo) { return `${tipo}:${id}`; }
-function getSelectEl(id, tipo) {
-  return document.querySelector(`select[onchange*="atualizarStatus(this.value, ${id}, '${tipo}')"]`)
-      || document.querySelector(`select[onchange*="atualizarStatus(this.value, ${id},"]`);
-}
-
-// Reaplica classes visuais de status
-function aplicarClasseStatus(selectElement, status) {
-  if (!selectElement) return;
-  selectElement.classList.remove(
-    'status-select-pronto',
-    'status-select-entregue',
-    'status-select-retorno',
-    'status-select-cancelado'
-  );
-  const s = String(status || '').toLowerCase();
-  if (s === 'pronto') selectElement.classList.add('status-select-pronto');
-  else if (s === 'entregue') selectElement.classList.add('status-select-entregue');
-  else if (s === 'retorno') selectElement.classList.add('status-select-retorno');
-  else if (s === 'cancelado') selectElement.classList.add('status-select-cancelado');
-}
-
 function atualizarStatus(novoStatus, id, tipo) {
-  const k = keyPedido(id, tipo);
-  const selectEl = getSelectEl(id, tipo);
+    if (novoStatus === 'Cancelado') {
+        if (tipoUsuario !== 'admin') {
+            alert("Você não tem permissão para cancelar este pedido.");
+            // Força recarregar a página para voltar o select para o valor anterior
+            window.location.reload();
+            return;
+        }
 
-  // Se não existir data-original, tentamos assumir o valor atual antes da mudança
-  // OBS: como onchange dispara após a mudança, se sua tabela já preencher data-original na render,
-  // isso ficará perfeito. Caso contrário, em falhas usaremos uma atualização pontual da tabela.
-  if (selectEl && !selectEl.dataset.original) {
-    // Se vier da render com data-original, ótimo; se não, guardamos o novo como fallback temporário.
-    selectEl.dataset.original = selectEl.value;
-  }
+        const motivo = prompt("Informe o motivo do cancelamento:");
+        if (!motivo || motivo.trim() === "") {
+            alert("Motivo obrigatório para cancelar o pedido!");
+            return;
+        }
 
-  if (novoStatus === 'Cancelado') {
-    if (tipoUsuario !== 'admin') {
-      alert("Você não tem permissão para cancelar este pedido.");
-      // Reverte visualmente sem reload
-if (selectEl?.dataset.original) {
-  selectEl.value = selectEl.dataset.original;
-  aplicarClasseStatus(selectEl, selectEl.dataset.original);
-} else if (typeof atualizarTabelaAtendente === 'function') {
-  atualizarTabelaAtendente();
-}
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('tipo', tipo);
+        formData.append('status', novoStatus);
+        formData.append('mensagem', motivo.trim());
 
-      return;
+        enviarStatus(formData, novoStatus, id);
+        return;
     }
 
-    const motivo = prompt("Informe o motivo do cancelamento:");
-    if (!motivo || motivo.trim() === "") {
-      alert("Motivo obrigatório para cancelar o pedido!");
-      // Reverte
-      if (selectEl?.dataset.original) {
-        selectEl.value = selectEl.dataset.original;
-        aplicarClasseStatus(selectEl, selectEl.dataset.original);
-      } else if (typeof atualizarTabelaAtendente === 'function') {
-        atualizarTabelaAtendente();
-      }
-      return;
-    }
-
-    // Trava local: durante alguns segundos, o auto-refresh não deve sobrescrever
-    localStatus.set(k, { status: "Cancelado", until: Date.now() + LOCAL_LOCK_MS });
-
+    // Continua normalmente para os demais status
     const formData = new FormData();
     formData.append('id', id);
     formData.append('tipo', tipo);
     formData.append('status', novoStatus);
-    formData.append('mensagem', motivo.trim());
 
-    enviarStatus(formData, novoStatus, id, tipo);
-    return;
-  }
+    if (novoStatus === 'Entregue') {
+        const confirma = confirm("Deseja registrar uma mensagem para este pedido?");
+        if (confirma) {
+            const msg = prompt("Digite a mensagem:");
+            if (msg && msg.trim() !== "") {
+                formData.append('mensagem', msg.trim());
+            }
+        }
+    }
 
-  // Demais status
-  const formData = new FormData();
-  formData.append('id', id);
-  formData.append('tipo', tipo);
-  formData.append('status', novoStatus);
-
-  if (novoStatus === 'Entregue') {
-    const confirma = confirm("Deseja registrar uma mensagem para este pedido?");
-    if (confirma) {
-      const msg = prompt("Digite a mensagem:");
-      if (msg && msg.trim() !== "") {
+    if (novoStatus === 'Retorno') {
+        const msg = prompt("Digite o motivo do retorno:");
+        if (!msg || msg.trim() === "") {
+            alert("Motivo obrigatório para retorno!");
+            return;
+        }
         formData.append('mensagem', msg.trim());
-      }
     }
-  }
 
-  if (novoStatus === 'Retorno') {
-    const msg = prompt("Digite o motivo do retorno:");
-    if (!msg || msg.trim() === "") {
-      alert("Motivo obrigatório para retorno!");
-      // Reverte
-      if (selectEl?.dataset.original) {
-        selectEl.value = selectEl.dataset.original;
-        aplicarClasseStatus(selectEl, selectEl.dataset.original);
-      } else if (typeof atualizarTabelaAtendente === 'function') {
-        atualizarTabelaAtendente();
-      }
-      return;
-    }
-    formData.append('mensagem', msg.trim());
-  }
-
-  // TRAVA LOCAL (impede o polling de sobrescrever por alguns segundos)
-  localStatus.set(k, { status: novoStatus, until: Date.now() + LOCAL_LOCK_MS });
-
-  enviarStatus(formData, novoStatus, id, tipo);
+    enviarStatus(formData, novoStatus, id);
 }
 
-function enviarStatus(formData, novoStatus, id, tipo) {
-  fetch('/florV3/public/index.php?rota=atualizar-status', {
-    method: 'POST',
-    body: formData
-  })
-  .then(response => response.text())
-  .then(result => {
-    const selectElement = getSelectEl(id, tipo);
-    if (result === 'OK') {
-      if (selectElement) {
-        // Atualiza classes e valor atual
-        aplicarClasseStatus(selectElement, novoStatus);
-        selectElement.value = novoStatus;
+function enviarStatus(formData, novoStatus, id) {
+    fetch('/florV3/public/index.php?rota=atualizar-status', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(result => {
+        if (result === 'OK') {
+            const selectElement = document.querySelector(`select[onchange*="atualizarStatus(this.value, ${id},"]`);
+            selectElement.classList.remove(
+                'status-select-pronto',
+                'status-select-entregue',
+                'status-select-retorno',
+                'status-select-cancelado'
+            );
 
-        // Atualiza "original" para refletir o que está persistido
-        selectElement.dataset.original = novoStatus;
+            if (novoStatus === 'Pronto') {
+                selectElement.classList.add('status-select-pronto');
+            } else if (novoStatus === 'Entregue') {
+                selectElement.classList.add('status-select-entregue');
+            } else if (novoStatus === 'Retorno') {
+                selectElement.classList.add('status-select-retorno');
+            } else if (novoStatus === 'Cancelado') {
+                selectElement.classList.add('status-select-cancelado');
+            }
 
-        // micro re-render (mantido do seu código)
-        selectElement.style.display = 'none';
-        setTimeout(() => { selectElement.style.display = 'inline-block'; }, 10);
-      }
-    } else {
-      alert(result || 'Erro ao atualizar status.');
-      // falhou: desfaz a trava e reverte visual
-      localStatus.delete(keyPedido(id, tipo));
-      if (selectElement?.dataset.original) {
-        selectElement.value = selectElement.dataset.original;
-        aplicarClasseStatus(selectElement, selectElement.dataset.original);
-      } else if (typeof atualizarTabelaAtendente === 'function') {
-        atualizarTabelaAtendente();
-      }
-    }
-  })
-  .catch(() => {
-    const selectElement = getSelectEl(id, tipo);
-    // falha de rede: desfaz a trava e reverte visual
-    localStatus.delete(keyPedido(id, tipo));
-    if (selectElement?.dataset.original) {
-      selectElement.value = selectElement.dataset.original;
-      aplicarClasseStatus(selectElement, selectElement.dataset.original);
-    } else if (typeof atualizarTabelaAtendente === 'function') {
-      atualizarTabelaAtendente();
-    }
-    alert('Falha de rede ao atualizar status.');
-  });
+            // Re-renderiza
+            selectElement.style.display = 'none';
+            setTimeout(() => {
+                selectElement.style.display = 'inline-block';
+            }, 10);
+        } else {
+            alert(result || 'Erro ao atualizar status.');
+        }
+    });
 }
 </script>
-
 <script>
 function atualizarTabelaAtendente() {
     const data = document.querySelector('input[name="data"]').value;
@@ -367,62 +315,46 @@ function atualizarTabelaAtendente() {
             const tbody = document.querySelector('#tabela-atendente tbody');
             let html = '';
 
-pedidos.forEach(pedido => {
-    const id = pedido.id;
-    const nome = pedido.remetente ?? pedido.nome ?? '';
-    const tipo = (pedido.tipo === '1-Entrega' || pedido.tipo?.toLowerCase() === 'entrega') ? 'entrega' : 'retirada';
-    const tipoLabel = tipo === 'entrega' ? 'Entrega' : 'Retirada';
-    const numero = pedido.numero_pedido ?? '';
-    const statusServidor = pedido.status ?? '';
+            pedidos.forEach(pedido => {
+                const id = pedido.id;
+                const nome = pedido.remetente ?? pedido.nome ?? '';
+                const tipo = (pedido.tipo === '1-Entrega' || pedido.tipo?.toLowerCase() === 'entrega') ? 'entrega' : 'retirada';
+                const tipoLabel = tipo === 'entrega' ? 'Entrega' : 'Retirada';
+                const numero = pedido.numero_pedido ?? '';
+                const status = pedido.status ?? '';
+                const statusLower = status.toLowerCase();
 
-    // ====== RESPEITA A TRAVA LOCAL ======
-    const k = `${tipo}:${id}`;
-    let statusParaUI = statusServidor;
-    const lock = localStatus.get(k);
-    if (lock && Date.now() < lock.until) {
-        statusParaUI = lock.status; // mantém o status que você acabou de escolher
-    } else if (lock) {
-        localStatus.delete(k); // expirou a trava
-    }
+                let classeStatus = '';
+                switch (statusLower) {
+                    case 'pronto': classeStatus = 'status-select-pronto'; break;
+                    case 'entregue': classeStatus = 'status-select-entregue'; break;
+                    case 'retorno': classeStatus = 'status-select-retorno'; break;
+                    case 'cancelado': classeStatus = 'status-select-cancelado'; break;
+                }
 
-    const sLower = String(statusParaUI).toLowerCase();
-    let classeStatus = '';
-    switch (sLower) {
-        case 'pronto':    classeStatus = 'status-select-pronto'; break;
-        case 'entregue':  classeStatus = 'status-select-entregue'; break;
-        case 'retorno':   classeStatus = 'status-select-retorno'; break;
-        case 'cancelado': classeStatus = 'status-select-cancelado'; break;
-    }
-
-    html += `
-        <tr>
-            <td>${numero}</td>
-            <td>${nome}</td>
-            <td>${tipoLabel}</td>
-            <td>
-                <select
-                    onchange="atualizarStatus(this.value, ${id}, '${tipo}')"
-                    onfocus="this.dataset.original=this.value"
-                    class="status-select ${classeStatus}"
-                    data-original="${statusParaUI}"
-                >
-                    <option value="Pronto" ${statusParaUI === 'Pronto' ? 'selected' : ''}>Pronto</option>
-                    <option value="Entregue" ${statusParaUI === 'Entregue' ? 'selected' : ''}>Entregue</option>
-                    <option value="Retorno" ${statusParaUI === 'Retorno' ? 'selected' : ''}>Retorno</option>
-                    <option value="Cancelado" ${statusParaUI === 'Cancelado' ? 'selected' : ''}>Cancelado</option>
-                </select>
-            </td>
-        </tr>
-    `;
-});
-
+                html += `
+                    <tr>
+                        <td>${numero}</td>
+                        <td>${nome}</td>
+                        <td>${tipoLabel}</td>
+                        <td>
+                            <select onchange="atualizarStatus(this.value, ${id}, '${tipo}')" class="status-select ${classeStatus}">
+                                <option value="Pronto" ${status === 'Pronto' ? 'selected' : ''}>Pronto</option>
+                                <option value="Entregue" ${status === 'Entregue' ? 'selected' : ''}>Entregue</option>
+                                <option value="Retorno" ${status === 'Retorno' ? 'selected' : ''}>Retorno</option>
+                                <option value="Cancelado" ${status === 'Cancelado' ? 'selected' : ''}>Cancelado</option>
+                            </select>
+                        </td>
+                    </tr>
+                `;
+            });
 
             tbody.innerHTML = html;
         })
         .catch(err => console.error('Erro ao atualizar pedidos do atendente:', err));
 }
 
-setInterval(atualizarTabelaAtendente, 17000); // atualiza a cada 7 segundos
+setInterval(atualizarTabelaAtendente, 7000); // atualiza a cada 7 segundos
 atualizarTabelaAtendente(); // atualiza imediatamente ao abrir a página
 
 

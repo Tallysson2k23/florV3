@@ -143,7 +143,15 @@ $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
         <div class="form-group">
             <div>
                 <label>Nº Pedido:<span class="obrig">*</span></label>
-                <input name="numero_pedido" id="numero_pedido" required value="<?= htmlspecialchars($numeroPedidoPadrao) ?>">
+                <input
+    name="numero_pedido"
+    id="numero_pedido"
+    required
+    value="<?= htmlspecialchars($numeroPedidoPadrao) ?>"
+    pattern="^<?= htmlspecialchars(preg_quote($numeroPedidoPadrao, '/')) ?>.{5,}$"
+    title="Digite pelo menos 5 caracteres após o prefixo <?= htmlspecialchars($numeroPedidoPadrao) ?>."
+>
+
 
             </div>
             <div>
@@ -306,22 +314,26 @@ document.addEventListener("DOMContentLoaded", function () {
     const campo = document.getElementById("numero_pedido");
     const prefixo = "<?= $numeroPedidoPadrao ?>";
 
-
+    // Garante que começa com o prefixo
     if (!campo.value.startsWith(prefixo)) {
         campo.value = prefixo;
     }
 
+    // Bloqueia apagar/digitar antes do prefixo
     campo.addEventListener("keydown", function (e) {
         const pos = campo.selectionStart;
+
         if ((pos <= prefixo.length) && (e.key === "Backspace" || e.key === "Delete")) {
             e.preventDefault();
         }
+
         if (pos < prefixo.length && !["ArrowLeft", "ArrowRight", "Tab"].includes(e.key)) {
             e.preventDefault();
             campo.setSelectionRange(campo.value.length, campo.value.length);
         }
     });
 
+    // Ao focar, posiciona o cursor após o prefixo
     campo.addEventListener("focus", function () {
         setTimeout(() => {
             if (campo.selectionStart < prefixo.length) {
@@ -329,8 +341,22 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }, 0);
     });
+
+    // Validação dinâmica: exige 5+ caracteres após o prefixo
+    function validarNumeroPedido() {
+        const resto = campo.value.slice(prefixo.length).trim();
+        if (resto.length < 5) {
+            campo.setCustomValidity(`Digite pelo menos 5 caracteres após ${prefixo}.`);
+        } else {
+            campo.setCustomValidity('');
+        }
+    }
+
+    campo.addEventListener('input', validarNumeroPedido);
+    validarNumeroPedido(); // roda ao carregar
 });
 </script>
+
 
 <script src="/florV3/public/assets/js/choices.min.js"></script>
 

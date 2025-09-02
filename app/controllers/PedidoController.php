@@ -14,7 +14,7 @@ class PedidoController {
             return $op;
         }
 
-        // 2) Senão, busca o último operador registrado no banco para esse pedido
+        // 2) Último operador registrado no banco
         $pdo = Database::conectar();
         $stmt = $pdo->prepare("
             SELECT responsavel
@@ -29,12 +29,31 @@ class PedidoController {
         return $row['responsavel'] ?? null;
     }
 
+private function normalizaStatus($s) {
+    $t = mb_strtolower(trim((string)$s));
+
+    // produzir -> Produção
+    if ($t === 'producao' || $t === 'produção') return 'Produção';
+
+    // já mapeados
+    if ($t === 'pronto')    return 'Pronto';
+    if ($t === 'cancelado') return 'Cancelado';
+
+    // ⚠️ FALTAVAM ESTES DO ATENDENTE
+    if ($t === 'entregue')  return 'Entregue';
+    if ($t === 'retorno')   return 'Retorno';
+
+    // padrão
+    return 'Pendente';
+}
+
+
     public function cadastrar() {
         require_once __DIR__ . '/../views/pedidos/cadastrar.php';
     }
 
     public function salvar() {
-        // A lógica de salvar virá depois
+        // (sem uso)
     }
 
     public function formEntrega() {
@@ -53,35 +72,31 @@ class PedidoController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dados = $_POST;
 
-            // Corrigir formato dos produtos (nome, qtd, obs)
+            // Formata produtos ( "qtd x nome (obs)" )
             if (isset($dados['produtos']) && is_array($dados['produtos'])) {
-                $itensFormatados = [];
-                foreach ($dados['produtos'] as $produto) {
-                    $nome = $produto['nome'] ?? '';
-                    $qtd  = $produto['quantidade'] ?? '1';
-                    $obs  = trim($produto['observacao'] ?? '');
-                    $texto = "$qtd x $nome" . ($obs ? " ($obs)" : "");
-                    $itensFormatados[] = $texto;
+                $itens = [];
+                foreach ($dados['produtos'] as $p) {
+                    $nome = $p['nome'] ?? '';
+                    $qtd  = $p['quantidade'] ?? '1';
+                    $obs  = trim($p['observacao'] ?? '');
+                    $itens[] = $qtd . ' x ' . $nome . ($obs ? " ($obs)" : '');
                 }
-                $dados['produtos'] = implode(', ', $itensFormatados);
+                $dados['produtos'] = implode(', ', $itens);
             }
 
-            // Garantir o status conforme seleção do usuário
-            $dados['enviar_para'] = $_POST['enviar_para'] ?? null;
-            if ($dados['enviar_para'] === 'pronta_entrega') {
-                $dados['status'] = 'Pronto';
-            } else {
-                $dados['status'] = 'Pendente';
-            }
+            // Status inicial conforme seleção
+            $env = $_POST['enviar_para'] ?? null;
+            $dados['enviar_para'] = $env;
+            $dados['status'] = ($env === 'pronta_entrega') ? 'Pronto' : 'Pendente';
 
-            // Ordem global de chegada
+            // Ordem de chegada fixa
             $dados['ordem_fila'] = OrdemGlobal::getProximaOrdem();
 
-            // Salvar
+            // Salva
             $model = new PedidoEntrega();
             $id = $model->criar($dados);
 
-            // Impressão opcional
+            // Impressão opcional (NÃO muda status aqui)
             $desejaImprimir = isset($_POST['imprimir']) && $_POST['imprimir'] == '1';
             if ($desejaImprimir) {
                 header("Location: /florV3/public/index.php?rota=imprimir-cupom-cliente&id={$id}&tipo=entrega");
@@ -96,23 +111,21 @@ class PedidoController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dados = $_POST;
 
-            // Corrigir formato dos produtos (nome, qtd, obs)
             if (isset($dados['produtos']) && is_array($dados['produtos'])) {
-                $itensFormatados = [];
-                foreach ($dados['produtos'] as $produto) {
-                    $nome = $produto['nome'] ?? '';
-                    $qtd  = $produto['quantidade'] ?? '1';
-                    $obs  = trim($produto['observacao'] ?? '');
-                    $texto = "$qtd x $nome" . ($obs ? " ($obs)" : "");
-                    $itensFormatados[] = $texto;
+                $itens = [];
+                foreach ($dados['produtos'] as $p) {
+                    $nome = $p['nome'] ?? '';
+                    $qtd  = $p['quantidade'] ?? '1';
+                    $obs  = trim($p['observacao'] ?? '');
+                    $itens[] = $qtd . ' x ' . $nome . ($obs ? " ($obs)" : '');
                 }
-                $dados['produtos'] = implode(', ', $itensFormatados);
+                $dados['produtos'] = implode(', ', $itens);
             }
 
-            $dados['enviar_para'] = $_POST['enviar_para'] ?? null;
-            $dados['status'] = ($dados['enviar_para'] === 'pronta_entrega') ? 'Pronto' : 'Pendente';
+            $env = $_POST['enviar_para'] ?? null;
+            $dados['enviar_para'] = $env;
+            $dados['status'] = ($env === 'pronta_entrega') ? 'Pronto' : 'Pendente';
 
-            // Ordem global de chegada
             $dados['ordem_fila'] = OrdemGlobal::getProximaOrdem();
 
             $model = new PedidoRetirada();
@@ -136,7 +149,6 @@ class PedidoController {
         $pagina = isset($_GET['pagina']) ? max(1, (int)$_GET['pagina']) : 1;
         $porPagina = 20;
 
-        // Filtros
         $dataFiltro = $_GET['data'] ?? null;
         $mesFiltro = $_GET['mes'] ?? null;
         $anoFiltro = $_GET['ano'] ?? date('Y');
@@ -146,10 +158,8 @@ class PedidoController {
 
         $todos = array_merge($resultadosEntrega, $resultadosRetirada);
 
-        // Ordem de chegada (decrescente no histórico – mantém seu comportamento)
         usort($todos, fn($a, $b) => ($b['ordem_fila'] ?? 0) <=> ($a['ordem_fila'] ?? 0));
 
-        // Paginação
         $total = count($todos);
         $inicio = ($pagina - 1) * $porPagina;
         $resultados = array_slice($todos, $inicio, $porPagina);
@@ -171,7 +181,7 @@ class PedidoController {
 
         $todosPedidos = array_merge($pedidosEntrega, $pedidosRetirada);
 
-        // Fila fixa – somente ordem_fila (crescente)
+        // Fila fixa – ordem_fila (crescente)
         usort($todosPedidos, function($a, $b) {
             $oa = isset($a['ordem_fila']) ? (int)$a['ordem_fila'] : PHP_INT_MAX;
             $ob = isset($b['ordem_fila']) ? (int)$b['ordem_fila'] : PHP_INT_MAX;
@@ -189,7 +199,6 @@ class PedidoController {
         $pedidoRetirada = new PedidoRetirada();
 
         $data = $_GET['data'] ?? date('Y-m-d');
-        $usuarioTipo = $_SESSION['usuario_tipo'] ?? 'colaborador';
 
         $entregas = $pedidoEntrega->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
         $retiradas = $pedidoRetirada->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
@@ -213,7 +222,7 @@ class PedidoController {
 
         $todosPedidos = array_merge($entregas, $retiradas);
 
-        // Fila fixa – somente ordem_fila (crescente)
+        // Fila fixa – ordem_fila (crescente)
         usort($todosPedidos, function($a, $b) {
             $oa = isset($a['ordem_fila']) ? (int)$a['ordem_fila'] : PHP_INT_MAX;
             $ob = isset($b['ordem_fila']) ? (int)$b['ordem_fila'] : PHP_INT_MAX;
@@ -229,13 +238,22 @@ class PedidoController {
     public function atualizarStatus() {
         $id = $_POST['id'] ?? null;
         $tipo = $_POST['tipo'] ?? null;
-        $status = $_POST['status'] ?? null;
+        $statusRaw = $_POST['status'] ?? null;
         $mensagem = $_POST['mensagem'] ?? null;
         $responsavel = $_POST['responsavel'] ?? null;
 
-        if (!$id || !$tipo || !$status) {
+        if (!$id || !$tipo || !$statusRaw) {
             http_response_code(400);
             echo 'Dados incompletos';
+            return;
+        }
+
+        $status = $this->normalizaStatus($statusRaw);
+
+        // ⚠️ Bloqueio: Produção só com responsável explícito
+        if ($status === 'Produção' && empty($responsavel)) {
+            http_response_code(400);
+            echo 'Responsável obrigatório para mover para Produção.';
             return;
         }
 
@@ -259,14 +277,16 @@ class PedidoController {
     }
 
     public function imprimirPedido() {
+        // ❌ NÃO muda status aqui. É apenas a visualização/impresso.
         $id = $_GET['id'] ?? null;
         $tipo = $_GET['tipo'] ?? null;
 
         if ($id && $tipo) {
             $model = ($tipo === 'entrega') ? new PedidoEntrega() : new PedidoRetirada();
-            $model->atualizarStatus($id, 'Produção');
 
             $dados = $model->buscarPorId($id);
+            if (!$dados) { echo "Pedido não encontrado."; return; }
+
             $dados['operador'] = $this->obterOperadorDoPedido($id, $tipo) ?? '-';
 
             require __DIR__ . '/../views/pedidos/imprimir_ordem.php';
@@ -276,6 +296,7 @@ class PedidoController {
     }
 
     public function imprimirOrdem() {
+        // Também NÃO muda status automaticamente
         $id = $_GET['id'] ?? null;
         $tipo = $_GET['tipo'] ?? null;
 
@@ -328,7 +349,7 @@ class PedidoController {
         ];
 
         foreach ($todosPedidos as $pedido) {
-            $status = $pedido['status'];
+            $status = $this->normalizaStatus($pedido['status']);
             if (isset($agrupados[$status])) {
                 $agrupados[$status][] = $pedido;
             }
@@ -581,8 +602,9 @@ class PedidoController {
         ];
 
         foreach ($todos as $pedido) {
-            if (isset($agrupados[$pedido['status']])) {
-                $agrupados[$pedido['status']][] = $pedido;
+            $status = $this->normalizaStatus($pedido['status']);
+            if (isset($agrupados[$status])) {
+                $agrupados[$status][] = $pedido;
             }
         }
 
@@ -643,13 +665,10 @@ class PedidoController {
             return $oa <=> $ob;
         });
 
-        // Garante chave 'nome'
         foreach ($todos as &$p) {
             $p['nome'] = $p['remetente'] ?? $p['nome'] ?? '';
         }
 
         echo json_encode($todos, JSON_UNESCAPED_UNICODE);
     }
-
-    // Métodos de vendedores/produtos/cancelados permanecem como no seu original
 }
