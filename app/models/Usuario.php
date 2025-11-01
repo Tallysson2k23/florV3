@@ -58,6 +58,30 @@ public function buscarPorId($id) {
     $stmt->execute(['id' => $id]);
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
+public function atualizarUsuario($id, $nome, $email, $tipo, $senha = '')
+{
+    if (!empty($senha)) {
+        $hash = password_hash($senha, PASSWORD_DEFAULT);
+        $sql = "UPDATE usuarios SET nome = :nome, email = :email, tipo = :tipo, senha = :senha WHERE id = :id";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([
+            ':id' => $id,
+            ':nome' => $nome,
+            ':email' => $email,
+            ':tipo' => $tipo,
+            ':senha' => $hash
+        ]);
+    } else {
+        $sql = "UPDATE usuarios SET nome = :nome, email = :email, tipo = :tipo WHERE id = :id";
+        $stmt = $this->conn->prepare($sql);
+        return $stmt->execute([
+            ':id' => $id,
+            ':nome' => $nome,
+            ':email' => $email,
+            ':tipo' => $tipo
+        ]);
+    }
+}
 
 
 

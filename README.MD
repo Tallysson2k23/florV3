@@ -1,0 +1,37 @@
+ESTRUTURA DO PROJETO 
+
+FLORV2
+    app
+        controllers
+            pedidoController.php
+            produtoController.php
+            usuarioController.php
+        models
+            pedido.php
+            produto.php
+            usuario.php
+        views
+            pedidos
+                cadastrar_pedido.php
+                cadastrar.php
+                criar.php
+                listar.php
+            produtos
+                criar.php
+                editar.php
+                listar.php
+            usuarios
+                cadastrar.php
+                listar.php
+                login.php
+            painel.php
+    config
+        database.php
+        routes.php
+    public
+        index.php
+        testar_conexao.php
+        testa_senha.php
+        teste.php
+    REDME.md
+    teste_conexao.php

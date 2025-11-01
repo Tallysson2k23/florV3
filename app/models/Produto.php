@@ -63,6 +63,17 @@ public function listarAtivos() {
 }
 
 
+public function listarTodosOrdenadoPorNome(): array
+{
+    $sql = "SELECT id, nome, codigo, valor, ativo
+            FROM produtos
+            ORDER BY unaccent(lower(nome)) ASC";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
 
 

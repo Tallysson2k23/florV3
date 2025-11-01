@@ -2,7 +2,6 @@
 
 date_default_timezone_set('America/Recife');
 
-
 require_once __DIR__ . '/../app/controllers/PedidoController.php';
 require_once __DIR__ . '/../app/controllers/UsuarioController.php';
 require_once __DIR__ . '/../app/controllers/ProdutoController.php';
@@ -16,6 +15,8 @@ $produtoController = new ProdutoController();
 $vendedorController = new VendedorController();
 
 switch ($rota) {
+
+    // ---------- Pedidos ----------
     case 'painel':
         $controller->painelComPedidos();
         break;
@@ -55,7 +56,6 @@ switch ($rota) {
     case 'detalhes':
         $id = $_GET['id'] ?? null;
         $tipo = $_GET['tipo'] ?? null;
-
         if ($id && $tipo) {
             $controller->detalhesPedido($id, $tipo);
         } else {
@@ -75,6 +75,51 @@ switch ($rota) {
         $controller->atualizarStatus();
         break;
 
+    case 'retiradas':
+        $controller->retiradas();
+        break;
+
+    case 'imprimir-pedido':
+        $controller->imprimirPedido();
+        break;
+
+    case 'imprimir-ordem':
+        $controller->imprimirOrdem();
+        break;
+
+    case 'imprimir-cupom-cliente':
+        $controller->imprimirCupomCliente();
+        break;
+
+    case 'registrar-responsavel':
+        $controller->registrarResponsavel();
+        break;
+
+    case 'detalhes-operador':
+        $controller->detalhesOperador();
+        break;
+
+    case 'pedidos-status-json':
+        $controller->retornarPedidosPorStatus();
+        break;
+
+    case 'buscar-pedidos-dia-json':
+        $controller->buscarPedidosDoDiaJson();
+        break;
+
+    case 'buscar-pedidos-atendente-json':
+        $controller->buscarPedidosAtendenteJson();
+        break;
+
+    case 'buscar-pedidos-produto':
+        $controller->buscarPedidosPorProdutoAjax();
+        break;
+
+    case 'cancelados':
+        $controller->cancelados();
+        break;
+
+    // ---------- Usuários ----------
     case 'usuarios':
         $usuarioController->listarUsuarios();
         break;
@@ -99,22 +144,11 @@ switch ($rota) {
         $usuarioController->logout();
         break;
 
-    case 'imprimir-pedido':
-        $controller->imprimirPedido();
+    case 'atualizar-status-usuario':
+        $usuarioController->atualizarStatusUsuario();
         break;
 
-    case 'imprimir-ordem':
-        $controller->imprimirOrdem();
-        break;
-
-    case 'imprimir-cupom-cliente':
-        $controller->imprimirCupomCliente();
-        break;
-
-    case 'retiradas':
-        $controller->retiradas();
-        break;
-
+    // ---------- Vendedores ----------
     case 'cadastrar-vendedor':
         $vendedorController->cadastrar();
         break;
@@ -127,6 +161,27 @@ switch ($rota) {
         $vendedorController->listar();
         break;
 
+    case 'salvar-status-vendedores':
+        $vendedorController->salvarStatusVendedores();
+        break;
+
+    case 'excluir-vendedor':
+        $vendedorController->excluirVendedor();
+        break;
+
+    case 'ativar-vendedor':
+        $vendedorController->ativar();
+        break;
+
+    case 'inativar-vendedor':
+        $vendedorController->inativar();
+        break;
+
+    case 'atualizar-status-vendedor':
+        $vendedorController->atualizarStatus();
+        break;
+
+    // ---------- Produtos ----------
     case 'cadastrar-produto':
         $produtoController->formularioCadastro();
         break;
@@ -139,60 +194,20 @@ switch ($rota) {
         $produtoController->listaProdutos();
         break;
 
-    case 'cancelados':
-        $controller->cancelados();
+    case 'editar-produto':
+        $produtoController->editarProduto();
         break;
 
-    case 'acesso-negado':
-        require_once __DIR__ . '/../app/views/usuarios/acesso_negado.php';
+    case 'salvar-edicao-produto':
+        $produtoController->salvarEdicao();
         break;
 
-    case 'agenda':
-        require_once __DIR__ . '/../app/views/agenda.php';
+    case 'ativar-produto':
+        $produtoController->ativarProduto();
         break;
 
-    case 'cadastrar-operador':
-        (new OperadorController())->cadastrarOperador();
-        break;
-
-    case 'salvar-operador':
-        (new OperadorController())->salvarOperador();
-        break;
-
-    case 'lista-operadores':
-        (new OperadorController())->listaOperadores();
-        break;
-
-    case 'relatorio-operadores':
-        (new OperadorController())->relatorioOperadores();
-        break;
-
-    case 'registrar-responsavel':
-        $controller->registrarResponsavel();
-        break;
-
-    case 'editar-operador':
-        $controller->editarOperador();
-        break;
-
-    case 'atualizar-operador':
-        $controller->atualizarOperador();
-        break;
-
-    case 'excluir-operador':
-        $controller->excluirOperador();
-        break;
-
-    case 'permissoes':
-        require_once __DIR__ . '/../app/views/permissoes/permissoes.php';
-        break;
-
-    case 'editar-numero-pedido':
-        require_once __DIR__ . '/../app/views/configuracoes/editar_numero_pedido.php';
-        break;
-
-    case 'atualizar-status-usuario':
-        $usuarioController->atualizarStatusUsuario();
+    case 'inativar-produto':
+        $produtoController->inativarProduto();
         break;
 
     case 'cadastrar-grupo':
@@ -201,10 +216,6 @@ switch ($rota) {
 
     case 'salvar-grupo':
         $produtoController->salvarGrupo();
-        break;
-
-    case 'formulario-cadastro':
-        $produtoController->formularioCadastro();
         break;
 
     case 'lista-grupos':
@@ -223,6 +234,52 @@ switch ($rota) {
         $produtoController->ativarGrupo();
         break;
 
+    // ---------- Operadores ----------
+    case 'cadastrar-operador':
+        (new OperadorController())->cadastrarOperador();
+        break;
+
+    case 'salvar-operador':
+        (new OperadorController())->salvarOperador();
+        break;
+
+    case 'lista-operadores':
+        (new OperadorController())->listaOperadores();
+        break;
+
+    case 'relatorio-operadores':
+        (new OperadorController())->relatorioOperadores();
+        break;
+
+    case 'editar-operador':
+        $controller->editarOperador();
+        break;
+
+    case 'atualizar-operador':
+        $controller->atualizarOperador();
+        break;
+
+    case 'excluir-operador':
+        $controller->excluirOperador();
+        break;
+
+    // ---------- Outros ----------
+    case 'acesso-negado':
+        require_once __DIR__ . '/../app/views/usuarios/acesso_negado.php';
+        break;
+
+    case 'agenda':
+        require_once __DIR__ . '/../app/views/agenda.php';
+        break;
+
+    case 'permissoes':
+        require_once __DIR__ . '/../app/views/permissoes/permissoes.php';
+        break;
+
+    case 'editar-numero-pedido':
+        require_once __DIR__ . '/../app/views/configuracoes/editar_numero_pedido.php';
+        break;
+
     case 'notificacoes-futuras':
         require_once __DIR__ . '/../app/controllers/NotificacaoController.php';
         (new NotificacaoController())->listarPedidosFuturos();
@@ -233,82 +290,17 @@ switch ($rota) {
         (new NotificacaoController())->marcarComoLido();
         break;
 
-case 'editar-produto':
-    $produtoController->editarProduto();
+
+    case 'editar-usuario':
+    $usuarioController->editarUsuario();
     break;
 
-case 'salvar-edicao-produto':
-    $produtoController->salvarEdicao();
-    break;
-
-case 'ativar-produto':
-    $produtoController->ativarProduto();
-    break;
-
-case 'inativar-produto':
-    $produtoController->inativarProduto();
-    break;
-
-case 'buscar-pedidos-produto':
-    require_once __DIR__ . '/../app/controllers/PedidoController.php';
-    $controller = new PedidoController();
-    $controller->buscarPedidosPorProdutoAjax();
-    break;
-
-case 'detalhes-operador':
-    require_once __DIR__ . '/../app/controllers/PedidoController.php';
-    $controller = new PedidoController();
-    $controller->detalhesOperador();
-    break;
-
-case 'pedidos-status-json':
-    require_once __DIR__ . '/../app/controllers/PedidoController.php';
-    $controller = new PedidoController();
-    $controller->retornarPedidosPorStatus();
-    break;
-
-case 'buscar-pedidos-dia-json':
-    require_once __DIR__ . '/../app/controllers/PedidoController.php';
-    $controller = new PedidoController();
-    $controller->buscarPedidosDoDiaJson();
-    break;
-
-    case 'buscar-pedidos-atendente-json':
-    require_once __DIR__ . '/../app/controllers/PedidoController.php';
-    $controller = new PedidoController();
-    $controller->buscarPedidosAtendenteJson();
-    break;
-
-case 'inativar-vendedor':
-    require_once __DIR__ . '/../app/controllers/VendedorController.php';
-
-    (new VendedorController())->inativar();
-    break;
-
-case 'ativar-vendedor':
-    require_once __DIR__ . '/../app/controllers/VendedorController.php';
-
-    (new VendedorController())->ativar();
-    break;
-
-case 'atualizar-status-vendedor':
-    require_once __DIR__ . '/../app/controllers/VendedorController.php';
-    (new VendedorController())->atualizarStatus();
-    break;
-
-case 'salvar-status-vendedores':
-    require_once __DIR__ . '/../app/controllers/VendedorController.php';
-    (new VendedorController())->salvarStatusEmLote();
+case 'salvar-edicao-usuario':
+    $usuarioController->salvarEdicaoUsuario();
     break;
 
 
-
-
-
-
-
-
-
+    // ---------- Default ----------
     default:
         echo "Página não encontrada.";
         break;

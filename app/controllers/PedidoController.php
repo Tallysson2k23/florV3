@@ -3,7 +3,6 @@ require_once __DIR__ . '/../models/PedidoEntrega.php';
 require_once __DIR__ . '/../models/PedidoRetirada.php';
 require_once __DIR__ . '/../models/Vendedor.php';
 require_once __DIR__ . '/../../config/database.php';
-require_once __DIR__ . '/../helpers/OrdemGlobal.php';
 
 class PedidoController {
 
@@ -89,9 +88,6 @@ private function normalizaStatus($s) {
             $dados['enviar_para'] = $env;
             $dados['status'] = ($env === 'pronta_entrega') ? 'Pronto' : 'Pendente';
 
-            // Ordem de chegada fixa
-            $dados['ordem_fila'] = OrdemGlobal::getProximaOrdem();
-
             // Salva
             $model = new PedidoEntrega();
             $id = $model->criar($dados);
@@ -125,8 +121,6 @@ private function normalizaStatus($s) {
             $env = $_POST['enviar_para'] ?? null;
             $dados['enviar_para'] = $env;
             $dados['status'] = ($env === 'pronta_entrega') ? 'Pronto' : 'Pendente';
-
-            $dados['ordem_fila'] = OrdemGlobal::getProximaOrdem();
 
             $model = new PedidoRetirada();
             $id = $model->criar($dados);

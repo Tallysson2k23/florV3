@@ -34,13 +34,19 @@ public function formularioCadastro() {
     require __DIR__ . '/../views/produtos/cadastrar_produto.php';
 }
 
-    public function listaProdutos() {
-        $db = Database::conectar();
-        $produtoModel = new Produto($db);
-        $produtos = $produtoModel->listarTodos();
+public function listaProdutos() {
+    $db = Database::conectar();
+    $produtoModel = new Produto($db);
 
-        require __DIR__ . '/../views/produtos/lista_produtos.php';
-    }
+    // antes:
+    // $produtos = $produtoModel->listarTodos();
+
+    // agora:
+    $produtos = $produtoModel->listarTodosOrdenadoPorNome();
+
+    require __DIR__ . '/../views/produtos/lista_produtos.php';
+}
+
 
     public function formularioCadastrarGrupo() {
         require __DIR__ . '/../views/produtos/cadastrar_grupo.php';

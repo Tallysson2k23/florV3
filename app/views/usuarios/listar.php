@@ -27,7 +27,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 850px;
             margin: 40px auto;
             background: white;
             padding: 30px;
@@ -84,20 +84,42 @@
             color: white;
         }
 
-        .btn-voltar {
-            background-color: #555;
+        .btn-voltar { background-color: #555; }
+        .btn-voltar:hover { background-color: #333; }
+
+        .btn-novo { background-color: #2ecc71; }
+        .btn-novo:hover { background-color: #27ae60; }
+
+        .btn-editar {
+            background-color: #3498db;
+            padding: 6px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: white;
+            font-size: 13px;
         }
 
-        .btn-voltar:hover {
-            background-color: #333;
+        .btn-editar:hover {
+            background-color: #2a7ec4;
         }
 
-        .btn-novo {
-            background-color: #2ecc71;
+        .btn-excluir {
+            background-color: #e74c3c;
+            padding: 6px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            color: white;
+            font-size: 13px;
         }
 
-        .btn-novo:hover {
-            background-color: #27ae60;
+        .btn-excluir:hover {
+            background-color: #c0392b;
+        }
+
+        td.acao {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
         }
     </style>
 </head>
@@ -116,6 +138,7 @@
             <th>Email</th>
             <th>Tipo</th>
             <th>Inativo</th>
+            <th>Ações</th>
         </tr>
         <?php foreach ($usuarios as $usuario): ?>
             <tr>
@@ -126,6 +149,10 @@
                     <input type="checkbox"
                            <?= isset($usuario['ativo']) && !$usuario['ativo'] ? 'checked' : '' ?>
                            onchange="atualizarStatus(<?= isset($usuario['id']) ? (int)$usuario['id'] : 0 ?>, this.checked)">
+                </td>
+                <td class="acao">
+                    <a href="index.php?rota=editar-usuario&id=<?= $usuario['id'] ?>" class="btn-editar">Editar</a>
+                    <a href="index.php?rota=excluir-usuario&id=<?= $usuario['id'] ?>" class="btn-excluir" onclick="return confirm('Tem certeza que deseja excluir este usuário?')">Excluir</a>
                 </td>
             </tr>
         <?php endforeach; ?>

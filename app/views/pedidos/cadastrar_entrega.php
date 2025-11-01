@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../models/Produto.php';
-require_once __DIR__ . '/../../../config/database.php'; 
+require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../models/Configuracao.php';
 
 $pdo = Database::conectar();
@@ -8,411 +8,413 @@ $produtoModel = new Produto($pdo);
 $produtos = $produtoModel->listarAtivos();
 
 require_once __DIR__ . '/../../models/Vendedor.php';
-
 $vendedorModel = new Vendedor($pdo);
 $vendedores = $vendedorModel->listarAtivos();
 
 $configModel = new \app\models\Configuracao($pdo);
 $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Cadastro de Entrega - Flor de Cheiro</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <title>Cadastro de Entrega - Flor de Cheiro</title>
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #f3f4f6;
-            margin: 0;
-            padding: 0;
-        }
+  <style>
+    :root{
+      --topbar-h: 90px;     /* altura da barra superior */
+      --extra-gap: 80px;    /* espaço extra abaixo do topo (ajuste à vontade) */
+    }
+    *{ box-sizing:border-box; }
 
-.form-wrapper {
-    max-width: 800px;
-    margin: 50px auto;
-    background: #f3f4f6; /* mesmo fundo do body */
-    padding: 40px;
-    border-radius: 0;
-    box-shadow: none;
-}
+    body{
+      font-family:'Segoe UI',sans-serif;
+      background:#f3f4f6;
+      margin:0;
+      color:#111;
+      min-height:100vh;
+    }
 
+    /* Topo fixo (logo central + botão voltar à esquerda) */
+    .top-bar{
+      position:fixed;
+      inset:0 0 auto 0;
+      height:var(--topbar-h);
+      background:#111;
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 2px 6px rgba(0,0,0,.18);
+      z-index:999;
+    }
+    .logo-img{ height:50px; object-fit:contain; }
 
-        h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 24px;
-            color: #111;
-        }
+    .btn-top-voltar{
+      position:absolute;
+      left:12px;
+      top:50%;
+      transform:translateY(-50%);
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background:#1f2937;
+      color:#fff !important;
+      border:1px solid rgba(255,255,255,.18);
+      padding:8px 14px;
+      border-radius:8px;
+      font-size:13px;
+      font-weight:700;
+      text-decoration:none;
+      cursor:pointer;
+      transition:background .2s ease, transform .05s ease;
+    }
+    .btn-top-voltar:hover{ background:#374151; }
+    .btn-top-voltar:active{ transform:translateY(-50%) scale(.98); }
 
-        .form-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
+    /* Wrapper do formulário deslocado para baixo do topo fixo */
+    .form-wrapper{
+      max-width: 900px;
+      margin: 0 auto;
+      padding: calc(var(--topbar-h) + var(--extra-gap)) 24px 40px;
+      background:#f3f4f6; /* mesmo fundo do body */
+    }
 
-        .form-group.full {
-            grid-template-columns: 1fr;
-        }
+    h2{
+      text-align:center;
+      margin:0 0 28px;
+      font-size:24px;
+      color:#111;
+    }
 
-        label {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-            display: block;
-        }
+    .form-group{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:20px;
+      margin-bottom:20px;
+    }
+    .form-group.full{ grid-template-columns:1fr; }
 
-        .obrig {
-            color: red;
-            margin-left: 2px;
-        }
+    label{
+      font-weight:600; color:#333; margin-bottom:6px; display:block;
+    }
+    .obrig{ color:red; margin-left:2px; }
 
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 15px;
-        }
+    input, select, textarea{
+      width:100%;
+      padding:10px;
+      border:1px solid #ccc;
+      border-radius:8px;
+      font-size:15px;
+      background:#fff;
+    }
 
-        .actions {
-            text-align: center;
-            margin-top: 30px;
-        }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:#fff;
+      border-radius:10px;
+      overflow:hidden;
+      box-shadow:0 2px 8px rgba(0,0,0,.04);
+    }
+    table thead th{
+      background:#f0f0f0;
+      padding:10px;
+      border:1px solid #ddd;
+      text-align:left;
+    }
+    table td{
+      padding:10px;
+      border:1px solid #ddd;
+      vertical-align:middle;
+    }
 
-        .actions button {
-            background-color: #111;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            margin: 0 10px;
-            font-size: 16px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
+    .actions{
+      text-align:center;
+      margin-top:30px;
+    }
+    .actions button{
+      background:#111;
+      color:#fff;
+      border:none;
+      padding:12px 24px;
+      margin:0 10px;
+      font-size:16px;
+      border-radius:10px;
+      cursor:pointer;
+      transition:background .3s;
+    }
+    .actions button:hover{ background:#333; }
 
-        .actions button:hover {
-            background-color: #333;
-        }
+    @media (max-width: 720px){
+      .form-group{ grid-template-columns:1fr; }
+    }
+  </style>
 
-        @media (max-width: 600px) {
-            .form-group {
-                grid-template-columns: 1fr;
-            }
-        }
-
-.top-bar {
-    background-color: #111;
-    height: 90px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.logo-img {
-    height: 50px;
-    object-fit: contain;
-    max-width: 100%;
-    display: inline-block;
-}
-
-
-    </style>
-
-    <link rel="stylesheet" href="/florV3/public/assets/css/choices.min.css">
+  <link rel="stylesheet" href="/florV3/public/assets/css/choices.min.css">
 </head>
 <body>
 
-<div class="top-bar">
+  <div class="top-bar">
+    <a href="javascript:void(0)" class="btn-top-voltar" onclick="voltar()" aria-label="Voltar">← Voltar</a>
     <img src="/florV3/public/assets/img/logo-flor-cortada.png" alt="Flor de Cheiro" class="logo-img">
-</div>
+  </div>
 
-
-<div class="form-wrapper">
+  <div class="form-wrapper">
     <h2>Cadastro de Entrega</h2>
 
     <form id="form-entrega" method="post" action="/florV3/public/index.php?rota=salvar-entrega">
 
-        <div class="form-group">
-            <div>
-                <label>Nº Pedido:<span class="obrig">*</span></label>
-                <input
-    name="numero_pedido"
-    id="numero_pedido"
-    required
-    value="<?= htmlspecialchars($numeroPedidoPadrao) ?>"
-    pattern="^<?= htmlspecialchars(preg_quote($numeroPedidoPadrao, '/')) ?>.{5,}$"
-    title="Digite pelo menos 5 caracteres após o prefixo <?= htmlspecialchars($numeroPedidoPadrao) ?>."
->
-
-
-            </div>
-            <div>
-                <label>Tipo:<span class="obrig">*</span></label>
-                <input name="tipo" value="1-Entrega" readonly>
-            </div>
+      <div class="form-group">
+        <div>
+          <label>Nº Pedido:<span class="obrig">*</span></label>
+          <input
+            name="numero_pedido"
+            id="numero_pedido"
+            required
+            value="<?= htmlspecialchars($numeroPedidoPadrao) ?>"
+            pattern="^<?= htmlspecialchars(preg_quote($numeroPedidoPadrao, '/')) ?>.{5,}$"
+            title="Digite pelo menos 5 caracteres após o prefixo <?= htmlspecialchars($numeroPedidoPadrao) ?>."
+          >
         </div>
-
-        <div class="form-group">
-            <div>
-                <label>Remetente:<span class="obrig">*</span></label>
-                <input name="remetente" required>
-            </div>
-            <div>
-                <label>Telefone do Remetente:<span class="obrig">*</span></label>
-                <input name="telefone_remetente" required>
-            </div>
+        <div>
+          <label>Tipo:<span class="obrig">*</span></label>
+          <input name="tipo" value="1-Entrega" readonly>
         </div>
+      </div>
 
-        <div class="form-group">
-            <div>
-                <label>Destinatário:</label>
-                <input name="destinatario">
-            </div>
-            <div>
-                <label>Telefone do Destinatário:</label>
-                <input name="telefone_destinatario">
-            </div>
+      <div class="form-group">
+        <div>
+          <label>Remetente:<span class="obrig">*</span></label>
+          <input name="remetente" required>
         </div>
-
-        <div class="form-group">
-            <div>
-                <label>Endereço:<span class="obrig">*</span></label>
-                <input name="endereco" required>
-            </div>
-            <div>
-                <label>Nº:<span class="obrig">*</span></label>
-                <input name="numero_endereco" required>
-            </div>
+        <div>
+          <label>Telefone do Remetente:<span class="obrig">*</span></label>
+          <input name="telefone_remetente" required>
         </div>
+      </div>
 
-        <div class="form-group">
-            <div>
-                <label>Bairro:<span class="obrig">*</span></label>
-                <input name="bairro" required>
-            </div>
-            <div>
-                <label>Referência:</label>
-                <input name="referencia">
-            </div>
+      <div class="form-group">
+        <div>
+          <label>Destinatário:</label>
+          <input name="destinatario">
         </div>
-
-        <div class="form-group full">
-            <label>Produto:<span class="obrig">*</span></label>
-            <select id="produto-seletor">
-    <option value="">Selecione...</option>
-    <?php foreach ($produtos as $produto): ?>
-        <option value="<?= htmlspecialchars($produto['codigo']) ?> - <?= htmlspecialchars($produto['nome']) ?>">
-            <?= htmlspecialchars($produto['codigo']) ?> - <?= htmlspecialchars($produto['nome']) ?>
-        </option>
-    <?php endforeach; ?>
-</select>
-
+        <div>
+          <label>Telefone do Destinatário:</label>
+          <input name="telefone_destinatario">
         </div>
+      </div>
 
-        <table style="width:100%; border-collapse: collapse;" id="tabela-produtos">
-            <thead>
-                <tr style="background: #f0f0f0;">
-                    <th style="padding: 10px; border: 1px solid #ddd;">Produto</th>
-                    <th style="padding: 10px; border: 1px solid #ddd;">Quantidade</th>
-                    <th style="padding: 10px; border: 1px solid #ddd;">Observação</th>
-                    <th style="padding: 10px; border: 1px solid #ddd;">Remover</th>
-                </tr>
-            </thead>
-            <tbody id="lista-produtos"></tbody>
-        </table>
-        <br>
-
-<div class="form-group full">
-    <div>
-        <label>Adicionais:</label>
-        <textarea name="adicionais" rows="3" placeholder="Observações extras ou detalhes adicionais..."></textarea>
-    </div>
-</div>
-
-
-        <div class="form-group full">
-            <div>
-                <label>Data de Abertura:<span class="obrig">*</span></label>
-                <input type="date" name="data_abertura" value="<?= date('Y-m-d') ?>" required>
-            </div>
+      <div class="form-group">
+        <div>
+          <label>Endereço:<span class="obrig">*</span></label>
+          <input name="endereco" required>
         </div>
-
-        <div class="form-group full">
-            <div>
-                <label>Vendedor:<span class="obrig">*</span></label>
-                <select name="vendedor_codigo" required>
-                    <option value="">Selecione</option>
-                    <?php foreach ($vendedores as $v): ?>
-                        <option value="<?= htmlspecialchars($v['codigo']) ?>">
-                            <?= htmlspecialchars($v['codigo']) ?> - <?= htmlspecialchars($v['nome']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+        <div>
+          <label>Nº:<span class="obrig">*</span></label>
+          <input name="numero_endereco" required>
         </div>
+      </div>
 
-        <label><strong>Enviar para: <span class="obrig">*</span></strong></label><br>
-        <div style="margin-left:20px;">
-            <input type="radio" name="enviar_para" id="producao" value="producao" required>
-            <label for="producao">Mandar para Produção</label><br>
-            
-            <input type="radio" name="enviar_para" id="pronta_entrega" value="pronta_entrega" required>
-            <label for="pronta_entrega">Pronta Entrega</label>
-        </div><br>
-
-        <input type="hidden" name="imprimir" id="imprimir" value="0">
-
-        <div class="actions">
-            <button type="button" onclick="confirmarEnvioEntrega()">Enviar</button>
-            <button type="button" onclick="confirmarCancelamento()">Cancelar</button>
+      <div class="form-group">
+        <div>
+          <label>Bairro:<span class="obrig">*</span></label>
+          <input name="bairro" required>
         </div>
+        <div>
+          <label>Referência:</label>
+          <input name="referencia">
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <label>Produto:<span class="obrig">*</span></label>
+        <select id="produto-seletor">
+          <option value="">Selecione...</option>
+          <?php foreach ($produtos as $produto): ?>
+            <option value="<?= htmlspecialchars($produto['codigo']) ?> - <?= htmlspecialchars($produto['nome']) ?>">
+              <?= htmlspecialchars($produto['codigo']) ?> - <?= htmlspecialchars($produto['nome']) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <table id="tabela-produtos">
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Quantidade</th>
+            <th>Observação</th>
+            <th>Remover</th>
+          </tr>
+        </thead>
+        <tbody id="lista-produtos"></tbody>
+      </table>
+      <br>
+
+      <div class="form-group full">
+        <div>
+          <label>Adicionais:</label>
+          <textarea name="adicionais" rows="3" placeholder="Observações extras ou detalhes adicionais..."></textarea>
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <div>
+          <label>Data de Abertura:<span class="obrig">*</span></label>
+          <input type="date" name="data_abertura" value="<?= date('Y-m-d') ?>" required>
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <div>
+          <label>Vendedor:<span class="obrig">*</span></label>
+          <select name="vendedor_codigo" required>
+            <option value="">Selecione</option>
+            <?php foreach ($vendedores as $v): ?>
+              <option value="<?= htmlspecialchars($v['codigo']) ?>">
+                <?= htmlspecialchars($v['codigo']) ?> - <?= htmlspecialchars($v['nome']) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+      </div>
+
+      <label><strong>Enviar para: <span class="obrig">*</span></strong></label><br>
+      <div style="margin-left:20px;">
+        <input type="radio" name="enviar_para" id="producao" value="producao" required>
+        <label for="producao">Mandar para Produção</label><br>
+
+        <input type="radio" name="enviar_para" id="pronta_entrega" value="pronta_entrega" required>
+        <label for="pronta_entrega">Pronta Entrega</label>
+      </div>
+      <br>
+
+      <input type="hidden" name="imprimir" id="imprimir" value="0">
+
+      <div class="actions">
+        <button type="button" onclick="confirmarEnvioEntrega()">Enviar</button>
+        <button type="button" onclick="confirmarCancelamento()">Cancelar</button>
+      </div>
     </form>
-</div>
+  </div>
 
-<script>
-function camposMinimosOk() {
-    const form = document.getElementById('form-entrega');
-    if (!form.reportValidity()) return false;
-    if (!document.querySelector('#lista-produtos tr')) {
+  <script>
+    // Botão voltar: histórico, senão vai ao painel
+    function voltar(){
+      try{
+        if (document.referrer && window.history.length > 1){
+          window.history.back();
+          return;
+        }
+      }catch(e){}
+      window.location.href = '/florV3/public/index.php?rota=painel';
+    }
+
+    function camposMinimosOk() {
+      const form = document.getElementById('form-entrega');
+      if (!form.reportValidity()) return false;
+      if (!document.querySelector('#lista-produtos tr')) {
         alert('Adicione pelo menos um produto.');
         return false;
+      }
+      return true;
     }
-    return true;
-}
 
-function confirmarEnvioEntrega() {
-    if (!camposMinimosOk()) return;
+    function confirmarEnvioEntrega() {
+      if (!camposMinimosOk()) return;
 
-    const enviarParaSelecionado = document.querySelector('input[name="enviar_para"]:checked');
-    if (!enviarParaSelecionado) {
+      const enviarParaSelecionado = document.querySelector('input[name="enviar_para"]:checked');
+      if (!enviarParaSelecionado) {
         alert("Por favor, selecione uma opção em 'Enviar para'.");
         return;
+      }
+
+      if (!confirm("Deseja realmente enviar o pedido?")) return;
+      document.getElementById("imprimir").value = confirm("Deseja imprimir o cupom?") ? "1" : "0";
+      document.getElementById("form-entrega").submit();
     }
 
-    if (!confirm("Deseja realmente enviar o pedido?")) return;
-    document.getElementById("imprimir").value = confirm("Deseja imprimir o cupom?") ? "1" : "0";
-    document.getElementById("form-entrega").submit();
-}
-
-function confirmarCancelamento() {
-    if (confirm("Deseja realmente cancelar? Os dados serão perdidos.")) {
+    function confirmarCancelamento() {
+      if (confirm("Deseja realmente cancelar? Os dados serão perdidos.")) {
         window.location.href = "/florV3/public/index.php?rota=painel";
+      }
     }
-}
-</script>
+  </script>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const campo = document.getElementById("numero_pedido");
-    const prefixo = "<?= $numeroPedidoPadrao ?>";
+  <script>
+    // Nº pedido com prefixo fixo + mínimo 5 caracteres após o prefixo
+    document.addEventListener("DOMContentLoaded", function () {
+      const campo = document.getElementById("numero_pedido");
+      const prefixo = "<?= $numeroPedidoPadrao ?>";
 
-    // Garante que começa com o prefixo
-    if (!campo.value.startsWith(prefixo)) {
-        campo.value = prefixo;
-    }
+      if (!campo.value.startsWith(prefixo)) campo.value = prefixo;
 
-    // Bloqueia apagar/digitar antes do prefixo
-    campo.addEventListener("keydown", function (e) {
+      campo.addEventListener("keydown", function (e) {
         const pos = campo.selectionStart;
-
-        if ((pos <= prefixo.length) && (e.key === "Backspace" || e.key === "Delete")) {
-            e.preventDefault();
+        if ((pos <= prefixo.length) && (e.key === "Backspace" || e.key === "Delete")) e.preventDefault();
+        if (pos < prefixo.length && !["ArrowLeft","ArrowRight","Tab"].includes(e.key)) {
+          e.preventDefault();
+          campo.setSelectionRange(campo.value.length, campo.value.length);
         }
+      });
 
-        if (pos < prefixo.length && !["ArrowLeft", "ArrowRight", "Tab"].includes(e.key)) {
-            e.preventDefault();
-            campo.setSelectionRange(campo.value.length, campo.value.length);
-        }
-    });
-
-    // Ao focar, posiciona o cursor após o prefixo
-    campo.addEventListener("focus", function () {
+      campo.addEventListener("focus", function () {
         setTimeout(() => {
-            if (campo.selectionStart < prefixo.length) {
-                campo.setSelectionRange(campo.value.length, campo.value.length);
-            }
+          if (campo.selectionStart < prefixo.length) {
+            campo.setSelectionRange(campo.value.length, campo.value.length);
+          }
         }, 0);
-    });
+      });
 
-    // Validação dinâmica: exige 5+ caracteres após o prefixo
-    function validarNumeroPedido() {
+      function validarNumeroPedido() {
         const resto = campo.value.slice(prefixo.length).trim();
-        if (resto.length < 5) {
-            campo.setCustomValidity(`Digite pelo menos 5 caracteres após ${prefixo}.`);
-        } else {
-            campo.setCustomValidity('');
-        }
-    }
+        campo.setCustomValidity(resto.length < 5 ? `Digite pelo menos 5 caracteres após ${prefixo}.` : '');
+      }
+      campo.addEventListener('input', validarNumeroPedido);
+      validarNumeroPedido();
+    });
+  </script>
 
-    campo.addEventListener('input', validarNumeroPedido);
-    validarNumeroPedido(); // roda ao carregar
-});
-</script>
+  <script src="/florV3/public/assets/js/choices.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const seletor = document.getElementById('produto-seletor');
+      const lista   = document.getElementById('lista-produtos');
 
-
-<script src="/florV3/public/assets/js/choices.min.js"></script>
-
-
-
-<script src="/florV3/public/assets/js/choices.min.js"></script>
-<script>document.addEventListener('DOMContentLoaded', function () {
-    const seletor = document.getElementById('produto-seletor');
-    const lista = document.getElementById('lista-produtos');
-
-    const choices = new Choices(seletor, {
+      const choices = new Choices(seletor, {
         searchEnabled: true,
         placeholder: true,
         searchResultLimit: 5,
         renderChoiceLimit: 5,
         itemSelectText: '',
         shouldSort: false
-    });
+      });
 
-seletor.addEventListener('change', function () {
-    const nome = seletor.value;
-    if (!nome) return;
+      seletor.addEventListener('change', function () {
+        const nome = seletor.value;
+        if (!nome) return;
 
-    // Gerar um ID único baseado no timestamp
-    const idUnico = Date.now() + Math.floor(Math.random() * 1000);
+        const idUnico = Date.now() + Math.floor(Math.random()*1000);
 
-    const linha = document.createElement('tr');
-    linha.innerHTML = `
-        <td style="border: 1px solid #ddd; padding: 8px;">
+        const linha = document.createElement('tr');
+        linha.innerHTML = `
+          <td>
             <input type="hidden" name="produtos[${idUnico}][nome]" value="${nome}">
             ${nome}
-        </td>
-        <td style="border: 1px solid #ddd; padding: 8px;">
-            <input type="number" name="produtos[${idUnico}][quantidade]" value="1" min="1" required style="width: 60px;">
-        </td>
-        <td style="border: 1px solid #ddd; padding: 8px;">
-            <input type="text" name="produtos[${idUnico}][observacao]" placeholder="Observação...">
-        </td>
-        <td style="border: 1px solid #ddd; padding: 8px;">
-            <button type="button" onclick="this.closest('tr').remove()">❌</button>
-        </td>
-    `;
-    lista.appendChild(linha);
+          </td>
+          <td><input type="number" name="produtos[${idUnico}][quantidade]" value="1" min="1" required style="width:70px;"></td>
+          <td><input type="text" name="produtos[${idUnico}][observacao]" placeholder="Observação..."></td>
+          <td><button type="button" onclick="this.closest('tr').remove()">❌</button></td>
+        `;
+        lista.appendChild(linha);
 
-    // Reseta a escolha no Choices.js
-    choices.removeActiveItems(); 
-    choices.setChoices([...seletor.options], 'value', 'text', true);
-});
-
-
-});
-
-</script>
-
-
-
+        // Reseta a seleção no Choices
+        choices.removeActiveItems();
+        choices.setChoiceByValue(''); // limpa selecionado
+      });
+    });
+  </script>
 
 </body>
 </html>

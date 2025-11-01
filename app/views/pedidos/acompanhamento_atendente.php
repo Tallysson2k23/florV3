@@ -149,7 +149,28 @@ h2::before {
     font-family: "Brush Script MT", cursive;
     font-size: 28px;
     text-align: center;
-    padding: 15px 0;
+    padding: 15px 20px;
+    position: relative; /* necessário para posicionamento absoluto do botão */
+}
+
+.voltar-simples {
+    position: absolute;
+    left: 20px;  /* distância da borda esquerda */
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 8px 24px; /* era 8px 20px */
+    background-color: #292727ff;
+    color: #fff;
+    font-size: 20px;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background-color 0.3s;
+    font-family: Arial, sans-serif; /* força fonte normal */
+    font-size: 12px;                /* tamanho do texto */
+    font-weight: 600;               /* deixa mais encorpado */
+}
+.voltar-simples:hover {
+    background-color: #666;
 }
 
 .logo-img {
@@ -158,6 +179,80 @@ h2::before {
     object-fit: contain;
     display: inline-block;
 }
+/* --- barra de controles (data + busca) na MESMA linha --- */
+.toolbar {
+    width: 90%;
+    max-width: 1100px;
+    margin: 10px auto 10px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* tudo centralizado */
+    gap: 12px;
+    flex-wrap: wrap;         /* quebra linha só em telas pequenas */
+    text-align: initial;     /* evita herdar center do form antigo */
+}
+
+/* date e busca com mesma altura visual */
+.toolbar label {
+    font-size: 14px;
+    color: #111;
+    margin-right: 4px;
+}
+
+input[type="date"] {
+    margin: 0;
+    padding: 8px 12px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* campo de busca */
+.search-input {
+    flex: 1;               /* ocupa o espaço livre */
+    min-width: 260px;      /* evita ficar muito curto */
+    max-width: 520px;
+    height: 36px;
+    padding: 8px 14px;
+    border: 1px solid #ccc;
+    border-radius: 999px;
+    font-size: 14px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,.06);
+    outline: none;
+    transition: border-color .2s;
+}
+.search-input:focus { border-color: #111; }
+
+/* botão limpar */
+.search-btn {
+    height: 36px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    background: #292727;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.search-btn:hover { background: #444; }
+
+/* responsivo: empilha em telas estreitas */
+@media (max-width: 720px) {
+    .toolbar {
+        justify-content: center;
+    }
+    .search-input {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+}
+
+
+
 
 </style>
 </head>
@@ -165,19 +260,31 @@ h2::before {
 <!-- substitua o bloco <div class="topo"> -->
 <div class="top-bar">
     <img src="/florV3/public/assets/img/logo-flor-cortada.png" alt="Flor de Cheiro" class="logo-img">
+    <a href="/florV3/public/index.php?rota=painel" class="voltar-simples">← Voltar</a>
 </div>
 
 
-<form method="get" action="index.php">
+<form method="get" action="index.php" class="toolbar">
     <input type="hidden" name="rota" value="acompanhamento-atendente">
+
     <label for="data">Selecionar Data:</label>
-    <input type="date" name="data" id="data" value="<?= htmlspecialchars($_GET['data'] ?? date('Y-m-d')) ?>" onchange="this.form.submit()">
+    <input type="date" name="data" id="data"
+           value="<?= htmlspecialchars($_GET['data'] ?? date('Y-m-d')) ?>"
+           onchange="this.form.submit()">
+
+    <input id="busca" type="text" class="search-input"
+           placeholder="Buscar por nº do pedido ou nome do cliente..." autocomplete="off">
+
+    <button type="button" id="limparBusca" class="search-btn">Limpar</button>
 </form>
+
 
 <h1>Acompanhamento do Atendente</h1>
 
+
 <div class="table-card">
-<h2>Pedidos</h2>
+<h2 id="titulo-pedidos">Pedidos</h2>
+
 <table id="tabela-atendente">
     <thead>
         <tr>
@@ -194,23 +301,8 @@ h2::before {
 
 </div>
 
-<a href="/florV3/public/index.php?rota=painel" class="voltar-simples">← Voltar</a>
-
-<style>
-.voltar-simples {
-    display: inline-block;
-    padding: 8px 20px;
-    background-color: #111;
-    color: #fff;
-    font-size: 14px;
-    text-decoration: none;
-    border-radius: 6px;
-    transition: background-color 0.3s;
-}
-.voltar-simples:hover {
-    background-color: #333;
-}
-</style>
+<!-- <a href="/florV3/public/index.php?rota=painel" class="voltar-simples">← Voltar</a>
+-->
 
 <script>
 const tipoUsuario = '<?= $usuarioTipo ?>';
@@ -304,61 +396,132 @@ function enviarStatus(formData, novoStatus, id) {
         }
     });
 }
-</script>
-<script>
-function atualizarTabelaAtendente() {
-    const data = document.querySelector('input[name="data"]').value;
+</script><script>
+// ---------- estado ----------
+let pedidosCache = [];     // guarda o último resultado do servidor
+let filtroTexto  = '';     // o que o usuário digitou
 
-    fetch(`/florV3/public/index.php?rota=buscar-pedidos-atendente-json&data=${encodeURIComponent(data)}`)
-        .then(response => response.json())
-        .then(pedidos => {
-            const tbody = document.querySelector('#tabela-atendente tbody');
-            let html = '';
-
-            pedidos.forEach(pedido => {
-                const id = pedido.id;
-                const nome = pedido.remetente ?? pedido.nome ?? '';
-                const tipo = (pedido.tipo === '1-Entrega' || pedido.tipo?.toLowerCase() === 'entrega') ? 'entrega' : 'retirada';
-                const tipoLabel = tipo === 'entrega' ? 'Entrega' : 'Retirada';
-                const numero = pedido.numero_pedido ?? '';
-                const status = pedido.status ?? '';
-                const statusLower = status.toLowerCase();
-
-                let classeStatus = '';
-                switch (statusLower) {
-                    case 'pronto': classeStatus = 'status-select-pronto'; break;
-                    case 'entregue': classeStatus = 'status-select-entregue'; break;
-                    case 'retorno': classeStatus = 'status-select-retorno'; break;
-                    case 'cancelado': classeStatus = 'status-select-cancelado'; break;
-                }
-
-                html += `
-                    <tr>
-                        <td>${numero}</td>
-                        <td>${nome}</td>
-                        <td>${tipoLabel}</td>
-                        <td>
-                            <select onchange="atualizarStatus(this.value, ${id}, '${tipo}')" class="status-select ${classeStatus}">
-                                <option value="Pronto" ${status === 'Pronto' ? 'selected' : ''}>Pronto</option>
-                                <option value="Entregue" ${status === 'Entregue' ? 'selected' : ''}>Entregue</option>
-                                <option value="Retorno" ${status === 'Retorno' ? 'selected' : ''}>Retorno</option>
-                                <option value="Cancelado" ${status === 'Cancelado' ? 'selected' : ''}>Cancelado</option>
-                            </select>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            tbody.innerHTML = html;
-        })
-        .catch(err => console.error('Erro ao atualizar pedidos do atendente:', err));
+// ---------- utilidades ----------
+function normalize(str) {
+  return (str ?? '')
+    .toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove acentos
+    .toLowerCase()
+    .trim();
+}
+function escapeHtml(s='') {
+  return s.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
 
-setInterval(atualizarTabelaAtendente, 7000); // atualiza a cada 7 segundos
-atualizarTabelaAtendente(); // atualiza imediatamente ao abrir a página
+// ---------- renderização ----------
+function renderTabela() {
+  const tbody = document.querySelector('#tabela-atendente tbody');
+  const q = normalize(filtroTexto);
 
+  const filtrados = pedidosCache.filter(p => {
+    if (!q) return true;
+    const nomeNorm   = normalize(p?.remetente ?? p?.nome ?? '');
+    const numeroNorm = normalize(p?.numero_pedido ?? '');
+    return nomeNorm.includes(q) || numeroNorm.includes(q);
+  });
 
+  let html = '';
+  filtrados.forEach(pedido => {
+    const id    = pedido.id;
+    const nome  = pedido.remetente ?? pedido.nome ?? '';
+    const tipo  = (pedido.tipo === '1-Entrega' || pedido.tipo?.toLowerCase() === 'entrega') ? 'entrega' : 'retirada';
+    const tipoLabel = tipo === 'entrega' ? 'Entrega' : 'Retirada';
+    const numero = pedido.numero_pedido ?? '';
+    const status = pedido.status ?? '';
+    const statusLower = (status ?? '').toLowerCase();
+
+    let classeStatus = '';
+    switch (statusLower) {
+      case 'pronto':    classeStatus = 'status-select-pronto'; break;
+      case 'entregue':  classeStatus = 'status-select-entregue'; break;
+      case 'retorno':   classeStatus = 'status-select-retorno'; break;
+      case 'cancelado': classeStatus = 'status-select-cancelado'; break;
+    }
+
+    html += `
+      <tr>
+        <td>${escapeHtml(String(numero))}</td>
+        <td>${escapeHtml(String(nome))}</td>
+        <td>${escapeHtml(tipoLabel)}</td>
+        <td>
+          <select onchange="atualizarStatus(this.value, ${id}, '${tipo}')" class="status-select ${classeStatus}">
+            <option value="Pronto"    ${status === 'Pronto'    ? 'selected' : ''}>Pronto</option>
+            <option value="Entregue"  ${status === 'Entregue'  ? 'selected' : ''}>Entregue</option>
+            <option value="Retorno"   ${status === 'Retorno'   ? 'selected' : ''}>Retorno</option>
+            <option value="Cancelado" ${status === 'Cancelado' ? 'selected' : ''}>Cancelado</option>
+          </select>
+        </td>
+      </tr>
+    `;
+  });
+
+  tbody.innerHTML = html || `
+    <tr>
+      <td colspan="4" style="text-align:center;color:#666;padding:16px;">
+        Nenhum pedido${q ? ' com esse filtro' : ''}.
+      </td>
+    </tr>`;
+}
+
+// ---------- busca no servidor ----------
+function atualizarTabelaAtendente() {
+  const data = document.querySelector('input[name="data"]').value;
+
+  fetch(`/florV3/public/index.php?rota=buscar-pedidos-atendente-json&data=${encodeURIComponent(data)}`)
+    .then(response => response.json())
+    .then(pedidos => {
+      pedidosCache = Array.isArray(pedidos) ? pedidos : [];
+      renderTabela(); // respeita o filtro atual
+    })
+    .catch(err => console.error('Erro ao atualizar pedidos do atendente:', err));
+}
+
+// ---------- eventos da barra de busca ----------
+function initBusca() {
+  const input = document.getElementById('busca');
+  const limpar = document.getElementById('limparBusca');
+  if (!input) return;
+
+  // filtra em tempo real
+  input.addEventListener('input', (e) => {
+    filtroTexto = e.target.value || '';
+    renderTabela();
+  });
+
+  // ESC limpa; ENTER evita submit acidental
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') e.preventDefault();
+    if (e.key === 'Escape') {
+      input.value = '';
+      filtroTexto = '';
+      renderTabela();
+    }
+  });
+
+  if (limpar) {
+    limpar.addEventListener('click', () => {
+      input.value = '';
+      filtroTexto = '';
+      input.focus();
+      renderTabela();
+    });
+  }
+}
+
+// ---------- bootstrap ----------
+document.addEventListener('DOMContentLoaded', () => {
+  initBusca();
+  atualizarTabelaAtendente();
+  setInterval(atualizarTabelaAtendente, 7000); // atualiza a cada 7s
+});
 </script>
+
 
 <!-- 6,0 -->
 

@@ -100,13 +100,43 @@
         .btn-voltar:hover {
             background-color: #333;
         }
+
+        .top-bar {
+    background-color: #111;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* necessário para posicionar o botão */
+}
+
+.btn-voltar-top {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 8px 16px;
+    background-color: #302b2bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.btn-voltar-top:hover {
+    background-color: #424242ff;
+}
+
     </style>
 </head>
 <body>
 
 <div class="top-bar">
+    <a href="/florV3/public/index.php?rota=painel" class="btn-voltar-top">⬅ Voltar</a>
     <img src="/florV3/public/assets/img/logo-flor-cortada.png" alt="Flor de Cheiro" class="logo-img">
 </div>
+
 
 <div class="container">
     <h2>📋 Lista de Produtos</h2>
