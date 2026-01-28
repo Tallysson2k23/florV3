@@ -84,6 +84,41 @@ function pode($chave) {
         }
         .codigo-entrega  { background:#2ecc71; } /* verde */
         .codigo-retirada { background:#e74c3c; } /* vermelho */
+
+/* garante que o topo seja referência para posicionamento absoluto */
+.topo { position: relative; }
+
+/* mantém exatamente o comportamento original do botão */
+.menu-btn {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    z-index: 20; /* frente aos outros elementos */
+}
+
+/* chapéu aplicado sem quebrar layout; use o arquivo PNG que você colocou */
+.menu-btn::after {
+    content: "";
+    position: absolute;
+    width: 54px;                /* ajuste o tamanho se quiser maior/menor */
+    height: 35px;
+    background-image: url('https://i.postimg.cc/gjbW6kH0/image-removebg-preview.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    top: -17px;                 /* sobe o chapéu para ficar "em cima" do ícone */
+    left: 4px;                  /* alinhamento horizontal em relação aos traços */
+    transform: rotate(-18deg);  /* inclina um pouco para ficar mais natural */
+    pointer-events: none;       /* não atrapalha cliques no botão */
+    z-index: 25;
+}
+
+        
     </style>
 </head>
 <body>
