@@ -68,6 +68,8 @@ private function normalizaStatus($s) {
     }
 
     public function salvarEntrega() {
+
+    
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dados = $_POST;
 
@@ -632,37 +634,65 @@ private function normalizaStatus($s) {
         echo json_encode($todos, JSON_UNESCAPED_UNICODE);
     }
 
-    public function buscarPedidosAtendenteJson() {
-        header('Content-Type: application/json; charset=utf-8');
+public function buscarPedidosAtendenteJson() {
+    header('Content-Type: application/json; charset=utf-8');
 
-        $data = $_GET['data'] ?? date('Y-m-d');
+    $data = $_GET['data'] ?? date('Y-m-d');
 
-        $entregaModel = new PedidoEntrega();
-        $retiradaModel = new PedidoRetirada();
+    $entregaModel  = new PedidoEntrega();
+    $retiradaModel = new PedidoRetirada();
 
-        $entregas = $entregaModel->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
-        $retiradas = $retiradaModel->buscarPorStatusEData(['Pronto', 'Entregue', 'Retorno', 'Cancelado'], $data);
+    $entregas = $entregaModel->buscarPorStatusEData(
+        ['Pronto', 'Entregue', 'Retorno', 'Cancelado'],
+        $data
+    );
 
-        // Filtra Retorno/Cancelado apenas do dia
-        $entregas = array_filter($entregas, fn($p) => in_array($p['status'], ['Retorno', 'Cancelado']) ? $p['data_abertura'] === $data : true);
-        $retiradas = array_filter($retiradas, fn($p) => in_array($p['status'], ['Retorno', 'Cancelado']) ? $p['data_abertura'] === $data : true);
+    $retiradas = $retiradaModel->buscarPorStatusEData(
+        ['Pronto', 'Entregue', 'Retorno', 'Cancelado'],
+        $data
+    );
 
-        $todos = array_merge($entregas, $retiradas);
+    // Filtra Retorno/Cancelado apenas do dia
+    $entregas = array_filter($entregas, function ($p) use ($data) {
+        return in_array($p['status'], ['Retorno', 'Cancelado'])
+            ? ($p['data_abertura'] === $data)
+            : true;
+    });
 
-        // Fila fixa (crescente)
-        usort($todos, function($a, $b) {
-            $oa = isset($a['ordem_fila']) ? (int)$a['ordem_fila'] : PHP_INT_MAX;
-            $ob = isset($b['ordem_fila']) ? (int)$b['ordem_fila'] : PHP_INT_MAX;
-            if ($oa === $ob) {
-                return ((int)($a['id'] ?? 0)) <=> ((int)($b['id'] ?? 0));
-            }
-            return $oa <=> $ob;
-        });
+    $retiradas = array_filter($retiradas, function ($p) use ($data) {
+        return in_array($p['status'], ['Retorno', 'Cancelado'])
+            ? ($p['data_abertura'] === $data)
+            : true;
+    });
 
-        foreach ($todos as &$p) {
-            $p['nome'] = $p['remetente'] ?? $p['nome'] ?? '';
-        }
+    $todos = array_merge($entregas ?: [], $retiradas ?: []);
 
-        echo json_encode($todos, JSON_UNESCAPED_UNICODE);
+    // Ordenação por fila
+    usort($todos, function ($a, $b) {
+        $oa = isset($a['ordem_fila']) ? (int)$a['ordem_fila'] : PHP_INT_MAX;
+        $ob = isset($b['ordem_fila']) ? (int)$b['ordem_fila'] : PHP_INT_MAX;
+        return ($oa === $ob)
+            ? ((int)($a['id'] ?? 0)) <=> ((int)($b['id'] ?? 0))
+            : $oa <=> $ob;
+    });
+
+    // ✅ NORMALIZAÇÃO SEGURA (SEM CHAMAR MÉTODO INEXISTENTE)
+    foreach ($todos as &$p) {
+        $p['nome'] = $p['remetente'] ?? $p['nome'] ?? '';
+
+        // produtos já vêm do banco
+        $p['produtos'] = $p['produtos'] ?? 'Não informado';
+
+        // tenta achar vendedor
+        $p['vendedor'] =
+            $p['vendedor']
+            ?? $p['usuario']
+            ?? $p['atendente']
+            ?? 'Não informado';
     }
+
+    echo json_encode(array_values($todos), JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 }

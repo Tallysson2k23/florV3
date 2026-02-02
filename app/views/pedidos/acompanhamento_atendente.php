@@ -251,6 +251,34 @@ input[type="date"] {
     }
 }
 
+/* tooltip do pedido */
+.pedido-tooltip {
+    position: relative;
+}
+
+.pedido-tooltip .tooltip-box {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 20px;
+    background: #111;
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    width: 260px;
+    z-index: 999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.pedido-tooltip .tooltip-box strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.pedido-tooltip:hover .tooltip-box {
+    display: block;
+}
 
 
 
@@ -435,6 +463,9 @@ function renderTabela() {
     const numero = pedido.numero_pedido ?? '';
     const status = pedido.status ?? '';
     const statusLower = (status ?? '').toLowerCase();
+    const urlDetalhes = `/florV3/public/index.php?rota=detalhes&id=${id}&tipo=${tipo}`;
+
+
 
     let classeStatus = '';
     switch (statusLower) {
@@ -443,14 +474,45 @@ function renderTabela() {
       case 'retorno':   classeStatus = 'status-select-retorno'; break;
       case 'cancelado': classeStatus = 'status-select-cancelado'; break;
     }
+const produtos =
+    pedido.produtos ??
+    pedido.produto ??
+    pedido.itens ??
+    'Não informado';
 
-    html += `
-      <tr>
-        <td>${escapeHtml(String(numero))}</td>
-        <td>${escapeHtml(String(nome))}</td>
-        <td>${escapeHtml(tipoLabel)}</td>
-        <td>
-          <select onchange="atualizarStatus(this.value, ${id}, '${tipo}')" class="status-select ${classeStatus}">
+const vendedor =
+    pedido.vendedor ??
+    pedido.usuario ??
+    pedido.atendente ??
+    pedido.usuario_nome ??
+    'Não informado';
+
+html += `
+  <tr class="pedido-tooltip">
+    <td>${escapeHtml(String(numero))}</td>
+
+<td>
+  <a href="${urlDetalhes}" 
+     style="color:#111; font-weight:600; text-decoration:underline;"
+     title="Ver detalhes do pedido">
+     ${escapeHtml(String(nome))}
+  </a>
+
+  <div class="tooltip-box">
+
+        <strong>Produtos:</strong>
+        ${escapeHtml(String(produtos))}
+        <br><br>
+        <strong>Vendedor:</strong>
+        ${escapeHtml(String(vendedor))}
+      </div>
+    </td>
+
+    <td>${escapeHtml(tipoLabel)}</td>
+
+    <td>
+      <select onchange="atualizarStatus(this.value, ${id}, '${tipo}')" class="status-select ${classeStatus}">
+
             <option value="Pronto"    ${status === 'Pronto'    ? 'selected' : ''}>Pronto</option>
             <option value="Entregue"  ${status === 'Entregue'  ? 'selected' : ''}>Entregue</option>
             <option value="Retorno"   ${status === 'Retorno'   ? 'selected' : ''}>Retorno</option>

@@ -258,6 +258,16 @@ $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
           <textarea name="adicionais" rows="3" placeholder="Observações extras ou detalhes adicionais..."></textarea>
         </div>
       </div>
+      <div class="form-group full">
+  <div>
+    <label>Informações Gerais:</label>
+    <textarea 
+      name="informacao_geral" 
+      rows="3" 
+      placeholder="Informação interna para a produção..."></textarea>
+  </div>
+</div>
+
 
       <div class="form-group full">
         <div>
@@ -391,9 +401,14 @@ $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
         shouldSort: false
       });
 
-      seletor.addEventListener('change', function () {
-        const nome = seletor.value;
-        if (!nome) return;
+seletor.addEventListener('change', function () {
+  const valor = seletor.value;
+  if (!valor) return;
+
+  // separa "CODIGO - NOME"
+  const partes = valor.split(' - ');
+  const nome = partes.slice(1).join(' - ').trim(); // só o nome
+
 
         const idUnico = Date.now() + Math.floor(Math.random()*1000);
 

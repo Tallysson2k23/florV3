@@ -16,10 +16,10 @@ public function criar($dados) {
 
     $sql = "INSERT INTO {$this->table} 
     (numero_pedido, tipo, remetente, telefone_remetente, destinatario, telefone_destinatario,
-     endereco, numero_endereco, bairro, referencia, produtos, adicionais, data_abertura, hora, status, ordem_fila, vendedor_codigo, obs_produto, quantidade, enviar_para)
+     endereco, numero_endereco, bairro, referencia, produtos, adicionais, data_abertura, hora, status, ordem_fila, vendedor_codigo, obs_produto, quantidade, enviar_para, informacao_geral)
     VALUES 
     (:numero_pedido, :tipo, :remetente, :telefone_remetente, :destinatario, :telefone_destinatario,
-     :endereco, :numero_endereco, :bairro, :referencia, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo, :obs_produto, :quantidade, :enviar_para)";
+     :endereco, :numero_endereco, :bairro, :referencia, :produtos, :adicionais, :data_abertura, :hora, :status, :ordem_fila, :vendedor_codigo, :obs_produto, :quantidade, :enviar_para, :informacao_geral)";
 
     unset($dados['imprimir']); // Remove campos extras
 
@@ -44,6 +44,7 @@ public function criar($dados) {
     $dados['obs_produto'] = $dados['obs_produto'] ?? null;
     $dados['quantidade'] = $dados['quantidade'] ?? 1;
     $dados['enviar_para'] = $dados['enviar_para'] ?? null;
+    $dados['informacao_geral'] = $dados['informacao_geral'] ?? null;
 
     $stmt = $this->conn->prepare($sql);
     $stmt->execute($dados);
@@ -137,34 +138,54 @@ public function buscarPorStatus($status) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-public function buscarPorStatusEData($statusArray, $data, $busca = '') {
-    $placeholders = implode(',', array_fill(0, count($statusArray), '?'));
 
-    $sql = "SELECT id, numero_pedido, tipo,
-                   COALESCE(remetente, destinatario) AS nome,
-                   status, data_abertura, hora, ordem_fila
-            FROM {$this->table} 
-            WHERE status IN ($placeholders)
-              AND data_abertura = ?";
+public function buscarPorStatusEData(array $status, string $data) {
 
-    $params = array_merge($statusArray, [$data]);
+    $in = implode(',', array_fill(0, count($status), '?'));
 
-    if (!empty($busca)) {
-        $sql .= " AND (
-                    numero_pedido ILIKE ? 
-                    OR destinatario ILIKE ?
-                    OR produtos ILIKE ?
-                )";
-        $params = array_merge($params, ["%$busca%", "%$busca%", "%$busca%"]);
-    }
-
-    $sql .= " ORDER BY ordem_fila ASC";
+    $sql = "
+        SELECT 
+            p.id,
+            p.numero_pedido,
+            p.tipo,
+            COALESCE(p.remetente, p.destinatario) AS nome,
+            p.produtos,
+            p.status,
+            p.data_abertura,
+            p.hora,
+            p.ordem_fila,
+            v.nome AS vendedor
+        FROM {$this->table} p
+        LEFT JOIN vendedores v 
+            ON p.vendedor_codigo = v.codigo
+        WHERE p.status IN ($in)
+          AND DATE(p.data_abertura) = ?
+        ORDER BY p.ordem_fila ASC
+    ";
 
     $stmt = $this->conn->prepare($sql);
-    $stmt->execute($params);
+    $stmt->execute([...$status, $data]);
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

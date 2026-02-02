@@ -213,18 +213,37 @@ $ignorar = [
     </ul>
 <?php endif; ?>
 
+<?php
+$passouPelaProducao = false;
+
+if (!empty($historico)) {
+    foreach ($historico as $h) {
+        if (mb_strtolower($h['status']) === 'produção') {
+            $passouPelaProducao = true;
+            break;
+        }
+    }
+}
+?>
 
 
 <div class="botoes">
     <a class="btn-voltar" href="/florV3/public/index.php?rota=painel"><- Voltar</a>
-    <a class="btn-voltar" href="/florV3/public/index.php?rota=historico">📜 Histórico</a>
+    <a class="btn-voltar" href="/florV3/public/index.php?rota=historico"> Histórico</a>
 
     <?php if (isset($_GET['id']) && isset($_GET['tipo'])): ?>
         <a class="btn-voltar" target="_blank"
            href="/florV3/public/index.php?rota=imprimir-cupom-cliente&id=<?= htmlspecialchars($_GET['id']) ?>&tipo=<?= htmlspecialchars($_GET['tipo']) ?>">
-            🧾 Cupom do Cliente
+             Cupom do Cliente
         </a>
     <?php endif; ?>
+    <?php if ($passouPelaProducao && isset($_GET['id'], $_GET['tipo'])): ?>
+    <a class="btn-voltar" target="_blank"
+       href="/florV3/public/index.php?rota=imprimir-ordem&id=<?= htmlspecialchars($_GET['id']) ?>&tipo=<?= htmlspecialchars($_GET['tipo']) ?>">
+         Cupom da Produção
+    </a>
+<?php endif; ?>
+
 </div>
 
 

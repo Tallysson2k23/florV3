@@ -102,6 +102,15 @@ foreach ($produtos as $index => $produto) :
 </tr>
 <?php endif; endforeach; ?>
 
+<?php if (!empty($dados['informacao_geral'])): ?>
+<tr>
+    <td class="label">Info Produção</td>
+    <td><?= nl2br(htmlspecialchars($dados['informacao_geral'])) ?></td>
+</tr>
+<?php endif; ?>
+
+
+
         <!--
         <tr>
             <td class="label">Complemento</td>

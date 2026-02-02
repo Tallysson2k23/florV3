@@ -108,7 +108,7 @@ function pode($chave) {
     position: absolute;
     width: 54px;                /* ajuste o tamanho se quiser maior/menor */
     height: 35px;
-    background-image: url('https://i.postimg.cc/gjbW6kH0/image-removebg-preview.png');
+    background-image: url('');
     background-size: contain;
     background-repeat: no-repeat;
     top: -17px;                 /* sobe o chapéu para ficar "em cima" do ícone */

@@ -109,23 +109,64 @@
             <th>Data</th>
         </tr>
         <?php foreach ($pedidosPaginados as $pedido): ?>
+
+<?php
+$tipoRaw = strtolower($pedido['tipo'] ?? '');
+$tipo = str_contains($tipoRaw, 'entrega') ? 'entrega' : 'retirada';
+$nomeCliente = $pedido['nome'] ?? ($pedido['remetente'] ?? '');
+?>
+
+
             <tr>
                 <td><?= htmlspecialchars($pedido['tipo']) ?></td>
                 <td><?= htmlspecialchars($pedido['numero_pedido']) ?></td>
-                <td><?= htmlspecialchars($pedido['nome'] ?? ($pedido['remetente'] ?? '')) ?></td>
+<td>
+    <a href="/florV3/public/index.php?rota=detalhes&id=<?= (int)$pedido['id'] ?>&tipo=<?= $tipo ?>"
+       style="color:#111; font-weight:600; text-decoration:underline;"
+       title="Ver detalhes do pedido">
+        <?= htmlspecialchars($nomeCliente) ?>
+    </a>
+</td>
+  
+               
                 <td><?= htmlspecialchars($pedido['produto'] ?? $pedido['produtos']) ?></td>
                 <td><?= htmlspecialchars(date('d/m/Y', strtotime($pedido['data_abertura']))) ?></td>
             </tr>
         <?php endforeach; ?>
     </table>
 
-    <div class="paginacao">
-        <?php
-        $totalPaginas = ceil($total / 10);
-        for ($i = 1; $i <= $totalPaginas; $i++): ?>
-            <a href="?rota=retiradas&pagina=<?= $i ?>"><?= $i ?></a>
-        <?php endfor; ?>
-    </div>
+    
+<div class="paginacao">
+    <?php
+    $paginaAtual = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+    if ($paginaAtual < 1) $paginaAtual = 1;
+
+    $totalPaginas = ceil($total / 10);
+
+    $inicio = max(1, $paginaAtual - 1);
+    $fim = min($totalPaginas, $paginaAtual + 1);
+    ?>
+
+    <?php if ($paginaAtual > 1): ?>
+        <a href="?rota=retiradas&pagina=<?= $paginaAtual - 1 ?>">←</a>
+    <?php endif; ?>
+
+    <?php for ($i = $inicio; $i <= $fim; $i++): ?>
+        <a href="?rota=retiradas&pagina=<?= $i ?>"
+           style="<?= $i == $paginaAtual ? 'text-decoration: underline;' : '' ?>">
+            <?= $i ?>
+        </a>
+    <?php endfor; ?>
+
+    <?php if ($paginaAtual < $totalPaginas): ?>
+        <a href="?rota=retiradas&pagina=<?= $paginaAtual + 1 ?>">→</a>
+    <?php endif; ?>
+</div>
+
+
+    
+
+ 
 
 <?php else: ?>
     <p style="text-align:center;">Nenhuma retirada registrada com status "Entregue".</p>

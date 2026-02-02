@@ -195,6 +195,8 @@
             background: #111;
             color: white;
         }
+
+        
     </style>
 </head>
 <body>
@@ -288,24 +290,41 @@
 const campoBusca = document.getElementById('campo-busca');
 const sugestoes = document.getElementById('sugestoes');
 
-const dados = <?= json_encode(array_map(fn($p) => $p['nome'] . ' - ' . $p['numero_pedido'], $todos)) ?>;
+const dados = <?= json_encode(
+    array_map(fn($p) => [
+        'id' => $p['id'],
+        'nome' => $p['nome'],
+        'numero' => $p['numero_pedido'],
+        'tipo' => strtolower(substr($p['tipo'], 2))
+    ], $todos)
+) ?>;
+
+
+
 
 campoBusca.addEventListener('input', function () {
     const valor = this.value.toLowerCase();
     sugestoes.innerHTML = '';
     if (valor.length === 0) return;
 
-    const filtrados = dados.filter(item => item.toLowerCase().includes(valor)).slice(0, 5);
-    filtrados.forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = item;
-        li.onclick = () => {
-            campoBusca.value = item;
-            sugestoes.innerHTML = '';
-        };
-        sugestoes.appendChild(li);
-    });
+const filtrados = dados.filter(p =>
+    (p.nome + ' ' + p.numero).toLowerCase().includes(valor)
+).slice(0, 5);
+
+filtrados.forEach(p => {
+    const li = document.createElement('li');
+    li.textContent = `${p.nome} - ${p.numero}`;
+
+li.onclick = () => {
+    window.location.href =
+        `/florV3/public/index.php?rota=detalhes&id=${p.id}&tipo=${p.tipo}`;
+};
+
+
+    sugestoes.appendChild(li);
 });
+});
+
 
 const btnMostrar = document.getElementById('mostrar-todos');
 if (btnMostrar) {

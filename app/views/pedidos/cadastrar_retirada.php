@@ -101,10 +101,11 @@ $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
           <label>Nome: <span style="color:red">*</span></label>
           <input name="nome" required>
         </div>
-        <div>
-          <label>Telefone:</label>
-          <input name="telefone">
-        </div>
+<div>
+  <label>Telefone: <span style="color:red">*</span></label>
+  <input name="telefone" required>
+</div>
+
       </div>
 
       <div class="form-group full">
@@ -137,6 +138,17 @@ $numeroPedidoPadrao = $configModel->obter('numero_pedido_padrao') ?? 'L20';
           <textarea name="adicionais" rows="3" placeholder="Observações extras ou detalhes adicionais..."></textarea>
         </div>
       </div>
+      <div class="form-group full">
+  <div>
+
+    <label>Informações Gerais:</label>
+    <textarea 
+      name="informacao_geral" 
+      rows="3" 
+      placeholder="Informação interna para a produção..."></textarea>
+  </div>
+</div>
+
 
       <div class="form-group full">
         <div>
