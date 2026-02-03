@@ -335,30 +335,38 @@ input[type="date"] {
 <script>
 const tipoUsuario = '<?= $usuarioTipo ?>';
 
+let cancelamentoTemp = {
+    id: null,
+    tipo: null,
+    status: null
+};
+
 function atualizarStatus(novoStatus, id, tipo) {
-    if (novoStatus === 'Cancelado') {
-        if (tipoUsuario !== 'admin') {
-            alert("Você não tem permissão para cancelar este pedido.");
-            // Força recarregar a página para voltar o select para o valor anterior
-            window.location.reload();
-            return;
-        }
+if (novoStatus === 'Cancelado') {
 
-        const motivo = prompt("Informe o motivo do cancelamento:");
-        if (!motivo || motivo.trim() === "") {
-            alert("Motivo obrigatório para cancelar o pedido!");
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('id', id);
-        formData.append('tipo', tipo);
-        formData.append('status', novoStatus);
-        formData.append('mensagem', motivo.trim());
-
-        enviarStatus(formData, novoStatus, id);
+    if (tipoUsuario !== 'admin') {
+        alert("Você não tem permissão para cancelar este pedido.");
+        window.location.reload();
         return;
     }
+
+    if (!confirm("Tem certeza que deseja CANCELAR este pedido?")) {
+        window.location.reload();
+        return;
+    }
+
+    // guarda dados temporários
+    cancelamentoTemp.id = id;
+    cancelamentoTemp.tipo = tipo;
+    cancelamentoTemp.status = novoStatus;
+
+    // abre modal
+    document.getElementById('senhaCancelamentoInput').value = '';
+    document.getElementById('modalSenhaCancelamento').style.display = 'flex';
+    document.getElementById('senhaCancelamentoInput').focus();
+    return;
+}
+
 
     // Continua normalmente para os demais status
     const formData = new FormData();
@@ -387,6 +395,38 @@ function atualizarStatus(novoStatus, id, tipo) {
 
     enviarStatus(formData, novoStatus, id);
 }
+
+function fecharModalSenha() {
+    document.getElementById('modalSenhaCancelamento').style.display = 'none';
+    window.location.reload(); // volta status anterior
+}
+
+function confirmarSenhaCancelamento() {
+    const senha = document.getElementById('senhaCancelamentoInput').value;
+
+    if (senha !== '2026') {
+        alert('❌ Senha incorreta!');
+        return;
+    }
+
+    const motivo = prompt("Informe o motivo do cancelamento:");
+
+    if (!motivo || motivo.trim() === "") {
+        alert("Motivo obrigatório!");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('id', cancelamentoTemp.id);
+    formData.append('tipo', cancelamentoTemp.tipo);
+    formData.append('status', 'Cancelado');
+    formData.append('mensagem', motivo.trim());
+
+    enviarStatus(formData, 'Cancelado', cancelamentoTemp.id);
+
+    document.getElementById('modalSenhaCancelamento').style.display = 'none';
+}
+
 
 function enviarStatus(formData, novoStatus, id) {
     fetch('/florV3/public/index.php?rota=atualizar-status', {
@@ -586,6 +626,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 <!-- 6,0 -->
+<!-- Modal Senha Cancelamento -->
+<div id="modalSenhaCancelamento" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  z-index:10000;
+  align-items:center;
+  justify-content:center;
+">
+  <div style="
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    width:320px;
+    text-align:center;
+  ">
+    <h3>🔒 Confirmação de Cancelamento</h3>
+    <p>Digite a senha:</p>
+    <input 
+      type="password" 
+      id="senhaCancelamentoInput"
+      style="width:100%; padding:10px; font-size:18px; text-align:center;"
+      placeholder="••••"
+    >
+    <div style="margin-top:15px; display:flex; gap:10px; justify-content:center;">
+      <button onclick="confirmarSenhaCancelamento()">Confirmar</button>
+      <button onclick="fecharModalSenha()">Cancelar</button>
+    </div>
+  </div>
+</div>
 
 
 </body>
