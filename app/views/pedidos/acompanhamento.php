@@ -113,8 +113,8 @@
   <form method="GET" action="/florV3/public/index.php" class="filtros">
     <input type="hidden" name="rota" value="acompanhamento">
     <input type="date" name="data" value="<?= htmlspecialchars($_GET['data'] ?? date('Y-m-d')) ?>" onchange="this.form.submit()">
-    <input type="text" name="produto" placeholder="🔍 Buscar por produto" value="<?= htmlspecialchars($_GET['produto'] ?? '') ?>">
-    <button type="submit">🔎 Filtrar</button>
+    <input type="text" name="produto" placeholder="🔍 Digite apenas o produto" value="<?= htmlspecialchars($_GET['produto'] ?? '') ?>">
+    
   </form>
 
   <div class="notification-wrapper" onclick="toggleNotificationBox()">
@@ -307,6 +307,8 @@
 
 <script>
 /* ======== ÁUDIO ========= */
+let pedidosCacheBusca = [];
+
 const audioEl = document.getElementById('notificacaoSom');
 audioEl.volume = 1.0;
 const SOUND_MP3 = '/florV3/public/assets/sounds/beep.mp3';
@@ -907,68 +909,35 @@ function carregarNotificacoesFuturas() {
 carregarNotificacoesFuturas();
 setInterval(carregarNotificacoesFuturas, 1000);
 
-/* ======== BUSCA (live) ========= */
 document.addEventListener("DOMContentLoaded", function () {
   const inputBusca = document.querySelector('input[name="produto"]');
-  const containerPedidos = document.querySelector('#lista-pedidos');
   if (!inputBusca) return;
 
   inputBusca.addEventListener("keyup", function () {
-    const termo = this.value;
-    const data = document.querySelector('input[name="data"]').value;
-    fetch(`/florV3/public/index.php?rota=buscar-pedidos-produto&produto=${encodeURIComponent(termo)}&data=${encodeURIComponent(data)}`, { cache: 'no-store' })
-      .then(r => r.json())
-      .then(data => {
-        if (!Array.isArray(data)) return;
-        let html = `
-<table>
-<tr>
-  <th class="col-codigo">Código</th>
-  <th>Cliente</th>
-  <th>Status</th>
-  <th>Produtos</th>
-  <th>Ações</th>
-</tr>`;
-        const key = (p) => {
-          if (p.ordem_fila !== null && p.ordem_fila !== undefined) return Number(p.ordem_fila);
-          const dt = (p.data_abertura || '1970-01-01') + 'T' + (p.hora || '00:00:00');
-          const ts = Date.parse(dt);
-          return Number.isNaN(ts) ? parseInt(p.id || 0, 10) : ts;
-        };
-        data.sort((a,b)=>{const ka=key(a),kb=key(b); if(ka===kb) return (parseInt(b.id||0,10))-(parseInt(a.id||0,10)); return kb-ka;});
+    const termo = this.value.toLowerCase().trim();
 
-        data.forEach(pedido => {
-          const nome   = pedido.nome || pedido.remetente || pedido.destinatario || '';
-          const tipo   = normalizaTipoJS(pedido.tipo);
-          const status = pedido.status ?? '';
-          const numero = pedido.numero_pedido ?? '';
-          const id     = pedido.id;
+    if (!termo) {
+      atualizarTabelaAcompanhamento();
+      return;
+    }
 
-          const classeCodigo = tipo.includes('entrega') ? 'codigo-entrega' : (tipo.includes('retirada') ? 'codigo-retirada' : '');
-          const linhas = extrairProdutos(pedido);
-          const produtosHtml = linhas.map(escapeHtml).join('<br>');
+    const filtrados = pedidosCacheBusca.filter(pedido => {
+      const status = (pedido.status || '').toLowerCase();
+      if (status !== 'pendente' && status !== 'produção' && status !== 'producao') {
+        return false;
+      }
 
-          html += `
-<tr>
-  <td class="col-codigo"><span class="codigo-badge ${classeCodigo}">${escapeHtml(numero)}</span></td>
-  <td><a href="/florV3/public/index.php?rota=detalhes&id=${id}&tipo=${tipo}">${escapeHtml(nome)}</a></td>
-  <td>${escapeHtml(status)}</td>
-  <td>
-    <div class="produtos-list" data-id="${id}" data-tipo="${tipo}" data-tipo-raw="${escapeHtml(pedido.tipo || '')}">
-      ${produtosHtml || '<em>—</em>'}
-    </div>
-  </td>
-  <td><button onclick="confirmarImpressao(${id}, '${tipo}')">🖨️ Imprimir</button></td>
-</tr>`;
-        });
-        html += '</table>';
-        containerPedidos.innerHTML = html || '<p>Nenhum pedido encontrado.</p>';
+      const produtos = extrairProdutos(pedido)
+        .join(' ')
+        .toLowerCase();
 
-        seedProdutosCacheDoDOM();
-        carregarProdutosPreguicoso();
-      });
+      return produtos.includes(termo);
+    });
+
+    renderTabelaBusca(filtrados);
   });
 });
+
 
 /* ======== AUTO-ATUALIZAÇÃO ========= */
 let idsVistos = new Set();
@@ -977,6 +946,63 @@ let idsVistos = new Set();
   links.forEach(a => { const m = a.href.match(/[?&]id=(\d+)/); if (m) idsVistos.add(m[1]); });
 })();
 
+function renderTabelaBusca(pedidos) {
+  const tabela = document.querySelector('#lista-pedidos');
+
+  if (!pedidos.length) {
+    tabela.innerHTML = `<p style="text-align:center;color:red;font-weight:bold">
+      Nenhum pedido encontrado com esse produto.
+    </p>`;
+    return;
+  }
+
+  let html = `
+<table>
+<tr>
+  <th class="col-codigo">Código</th>
+  <th>Cliente</th>
+  <th>Status</th>
+  <th>Produtos</th>
+  <th>Ações</th>
+</tr>`;
+
+  pedidos.forEach(pedido => {
+    const id = pedido.id;
+    const nome = pedido.nome || pedido.remetente || pedido.destinatario || '';
+    const tipo = normalizaTipoJS(pedido.tipo);
+    const numero = pedido.numero_pedido ?? '';
+    const status = pedido.status ?? '';
+    const statusClasse =
+      status.toLowerCase() === 'pendente' ? 'status-pendente' :
+      status.toLowerCase().includes('produ') ? 'status-producao' : '';
+
+    const classeCodigo = tipo.includes('entrega') ? 'codigo-entrega' : 'codigo-retirada';
+    const produtosHtml = extrairProdutos(pedido).map(escapeHtml).join('<br>');
+
+    html += `
+<tr>
+  <td class="col-codigo"><span class="codigo-badge ${classeCodigo}">${escapeHtml(numero)}</span></td>
+  <td><a href="/florV3/public/index.php?rota=detalhes&id=${id}&tipo=${tipo}">${escapeHtml(nome)}</a></td>
+  <td>
+    <select class="${statusClasse}" data-status="${escapeHtml(status)}" onchange="atualizarStatus(${id}, '${tipo}', this)">
+      ${['Pendente', 'Produção', 'Pronto', 'Cancelado'].map(opt => {
+        const sel = opt.toLowerCase() === status.toLowerCase() ? 'selected' : '';
+        return `<option value="${opt}" ${sel}>${opt}</option>`;
+      }).join('')}
+    </select>
+  </td>
+  <td>${produtosHtml || '<em>—</em>'}</td>
+  <td>
+    <button onclick="confirmarImpressao(${id}, '${tipo}')">🖨️ Imprimir</button>
+    <button onclick="imprimirSegundaVia(${id}, '${tipo}')" style="background-color:#000">🖨️ 2ª via</button>
+  </td>
+</tr>`;
+  });
+
+  html += '</table>';
+  tabela.innerHTML = html;
+}
+
 function atualizarTabelaAcompanhamento() {
   if (refreshPaused) return;
 
@@ -984,6 +1010,8 @@ function atualizarTabelaAcompanhamento() {
   fetch(`/florV3/public/index.php?rota=buscar-pedidos-dia-json&data=${encodeURIComponent(data)}`, { cache: 'no-store' })
     .then(r => r.json())
     .then(pedidos => {
+      pedidosCacheBusca = pedidos;
+
       if (!Array.isArray(pedidos)) return;
 
       const key = (p) => {
