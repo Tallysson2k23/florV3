@@ -1,4 +1,10 @@
 <!DOCTYPE html>
+
+<?php
+$dataImpressao = date('d/m/Y');
+$horaImpressao = date('H:i');
+?>
+
 <html>
 <head>
     <meta charset="UTF-8">
@@ -125,6 +131,18 @@ foreach ($produtos as $index => $produto) :
             <td class="label">Data</td>
             <td><?= date('d/m/Y', strtotime($dados['data_abertura'] ?? date('Y-m-d'))) ?></td>
         </tr>
+
+
+<tr>
+    <td class="label">Impresso em</td>
+    <td><?= $dataImpressao ?> às <?= $horaImpressao ?></td>
+</tr>
+
+
+
+
+
+
 <tr>
     <td class="label">Operador</td>
     <td><?= htmlspecialchars($dados['operador'] ?? '-') ?></td>
