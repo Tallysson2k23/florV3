@@ -713,16 +713,37 @@ function atualizarStatus(id, tipo, el) {
 
   const s = (novoStatus || '').toLowerCase();
 
+  // ===== CANCELAMENTO COM SENHA =====
   if (s === 'cancelado') {
-    if (!confirm('Tem certeza que deseja CANCELAR este pedido?')) { if (el){ el.value = anterior; aplicarClasseStatus(el, anterior); } return; }
-    const motivo = prompt('Informe o motivo do cancelamento:');
-    if (!motivo) { alert('O motivo é obrigatório para cancelar.'); if (el){ el.value = anterior; aplicarClasseStatus(el, anterior);} return; }
-    enviarStatus(id, tipo, novoStatus, { mensagem: motivo });
-    return;
+
+    if (!confirm('Tem certeza que deseja CANCELAR este pedido?')) {
+      if (el){ 
+        el.value = anterior; 
+        aplicarClasseStatus(el, anterior); 
+      }
+      return;
+    }
+
+    // Guarda dados temporários
+    cancelamentoTemp.id = id;
+    cancelamentoTemp.tipo = tipo;
+    cancelamentoTemp.el = el;
+    cancelamentoTemp.statusAnterior = anterior;
+
+    // Abre modal de senha
+    document.getElementById('senhaCancelamentoInput').value = '';
+    document.getElementById('modalSenhaCancelamento').style.display = 'flex';
+    document.getElementById('senhaCancelamentoInput').focus();
+
+    return; // PARA A FUNÇÃO AQUI
   }
+  // ===== FIM CANCELAMENTO =====
 
   if (s === 'pronto') {
-    if (!confirm('Confirmar que o pedido está PRONTO? Ele sairá da lista.')) { if (el){ el.value = anterior; aplicarClasseStatus(el, anterior);} return; }
+    if (!confirm('Confirmar que o pedido está PRONTO? Ele sairá da lista.')) { 
+      if (el){ el.value = anterior; aplicarClasseStatus(el, anterior);} 
+      return; 
+    }
     enviarStatus(id, tipo, novoStatus);
     return;
   }
@@ -741,6 +762,8 @@ function atualizarStatus(id, tipo, el) {
 
   enviarStatus(id, tipo, novoStatus);
 }
+
+
 
 function enviarStatus(id, tipo, status, extras = {}, onOk) {
   const params = new URLSearchParams();
@@ -1048,6 +1071,52 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+let cancelamentoTemp = {
+  id: null,
+  tipo: null,
+  el: null,
+  statusAnterior: null
+};
+
+function fecharModalSenha() {
+  const m = document.getElementById('modalSenhaCancelamento');
+  m.style.display = 'none';
+
+  // volta status se cancelar
+  if (cancelamentoTemp.el) {
+    cancelamentoTemp.el.value = cancelamentoTemp.statusAnterior;
+    aplicarClasseStatus(cancelamentoTemp.el, cancelamentoTemp.statusAnterior);
+  }
+}
+
+function confirmarSenhaCancelamento() {
+  const senha = document.getElementById('senhaCancelamentoInput').value;
+
+  if (senha !== '2026') {
+    alert('❌ Senha incorreta!');
+    return;
+  }
+
+  const motivo = prompt('Informe o motivo do cancelamento:');
+
+  if (!motivo || motivo.trim() === '') {
+    alert('O motivo é obrigatório.');
+    return;
+  }
+
+  // Envia cancelamento
+  enviarStatus(
+    cancelamentoTemp.id,
+    cancelamentoTemp.tipo,
+    'Cancelado',
+    { mensagem: motivo }
+  );
+
+  document.getElementById('modalSenhaCancelamento').style.display = 'none';
+}
+
+
 </script>
 
 <!-- Modal de Seleção de Operador -->
@@ -1063,6 +1132,37 @@ document.addEventListener('DOMContentLoaded', () => {
     <div style="margin-top:20px; text-align:right;">
       <button onclick="confirmarResponsavel()">Confirmar</button>
       <button onclick="fecharModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+<!-- Modal Senha Cancelamento -->
+<div id="modalSenhaCancelamento" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  z-index:10000;
+  align-items:center;
+  justify-content:center;
+">
+  <div style="
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    width:320px;
+    text-align:center;
+  ">
+    <h3>🔒 Confirmação de Cancelamento</h3>
+    <p>Digite a senha:</p>
+    <input 
+      type="password" 
+      id="senhaCancelamentoInput"
+      style="width:100%; padding:10px; font-size:18px; text-align:center;"
+      placeholder="••••"
+    >
+    <div style="margin-top:15px; display:flex; gap:10px; justify-content:center;">
+      <button onclick="confirmarSenhaCancelamento()">Confirmar</button>
+      <button onclick="fecharModalSenha()">Cancelar</button>
     </div>
   </div>
 </div>
