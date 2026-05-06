@@ -34,6 +34,7 @@ $horaImpressao = date('H:i');
     .titulo {
         text-align: center;
         font-weight: bold;
+         font-size: 20px;
         border-bottom: 1px solid #000;
         padding-bottom: 5px;
         margin-bottom: 8px;
@@ -74,12 +75,15 @@ $horaImpressao = date('H:i');
         }
     }
 
-    .cliente-destaque {
-        font-size: 38px !important; /* pode subir p/ 42–44 se precisar mais destaque */
-        font-weight: bold !important;
-        color: #000;
-        text-align: center;
-    }
+.cliente-destaque {
+    font-size: 32px !important;
+    font-weight: bold !important;
+    color: #000;
+    text-align: center;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
 </style>
 
 </head>

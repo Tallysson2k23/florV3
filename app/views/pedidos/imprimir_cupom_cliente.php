@@ -4,30 +4,43 @@
     <meta charset="UTF-8">
     <title>Cupom Cliente</title>
     <style>
+
 body {
     font-family: Arial, sans-serif;
-    font-size: 13px;   /* era 13px – agora maior para todo o cupom */
-    width: 250px;
+    font-size: 21px;
+    width: 340px;
     margin: 0 auto;
+    padding: 10px;
+    background: #fff;
+    color: #000;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 12px;
+    margin-bottom: 18px;
 }
 
 td {
     border: 1px solid #000;
-    padding:5px 7px;   /* aumentei o espaçamento pra acompanhar a fonte maior */
+    padding: 10px 12px;
     vertical-align: top;
+    line-height: 1.5;
+
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+
+    height: auto;
 }
 
 .titulo {
     text-align: center;
     font-weight: bold;
-    font-size: 17px;   /* era 17px – mais destaque no título */
-    margin-bottom: 12px;
+    font-size: 36px;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #000;
 }
 
 .aviso {
@@ -57,12 +70,24 @@ td {
     }
 }
 
+
 .cliente-destaque {
-    font-size: 20px !important;  /* era 20px – nome/remetente em grande destaque */
+    font-size: 32px !important;
     font-weight: bold !important;
     color: #000;
     text-align: center;
+    line-height: 1.2;
+    word-break: break-word;
 }
+
+tr {
+    height: auto;
+}
+
+td strong {
+    white-space: nowrap;
+}
+
 </style>
 
 </head>
@@ -84,23 +109,30 @@ td {
         <tr><td><strong>Endereço:</strong></td><td><?= $dados['endereco'] ?>, Nº <?= $dados['numero_endereco'] ?></td></tr>
         <tr><td><strong>Bairro:</strong></td><td><?= $dados['bairro'] ?></td></tr>
         <tr><td><strong>Referência:</strong></td><td><?= $dados['referencia'] ?></td></tr>
-        <?php
+       
+<?php
 $produtos = explode(',', $dados['produtos'] ?? '');
-foreach ($produtos as $produto) :
+
+foreach ($produtos as $produto):
     $produto = trim($produto);
+
     if (!empty($produto)):
 ?>
 <tr>
     <td><strong>Produto:</strong></td>
     <td><?= htmlspecialchars($produto) ?></td>
 </tr>
-        <?php if (!empty($dados['adicionais'])): ?>
+<?php
+    endif;
+endforeach;
+?>
+
+<?php if (!empty($dados['adicionais'])): ?>
 <tr>
     <td><strong>Adicionais:</strong></td>
     <td><?= nl2br(htmlspecialchars($dados['adicionais'])) ?></td>
 </tr>
 <?php endif; ?>
-<?php endif; endforeach; ?>
 
  
         <tr><td><strong>Nº Pedido:</strong></td><td><?= $dados['numero_pedido'] ?></td></tr>
@@ -121,21 +153,27 @@ foreach ($produtos as $produto) :
         <tr><td><strong>Contato:</strong></td><td><?= $dados['telefone'] ?></td></tr>
 <?php
 $produtos = explode(',', $dados['produtos'] ?? '');
-foreach ($produtos as $produto) :
+
+foreach ($produtos as $produto):
     $produto = trim($produto);
+
     if (!empty($produto)):
 ?>
 <tr>
     <td><strong>Produto:</strong></td>
     <td><?= htmlspecialchars($produto) ?></td>
 </tr>
-        <?php if (!empty($dados['adicionais'])): ?>
+<?php
+    endif;
+endforeach;
+?>
+
+<?php if (!empty($dados['adicionais'])): ?>
 <tr>
     <td><strong>Adicionais:</strong></td>
     <td><?= nl2br(htmlspecialchars($dados['adicionais'])) ?></td>
 </tr>
 <?php endif; ?>
-<?php endif; endforeach; ?>
 
         <tr><td><strong>Nº Pedido:</strong></td><td><?= $dados['numero_pedido'] ?></td></tr>
         <tr><td><strong>Data/Hora:</strong></td><td><?= date('d/m/Y', strtotime($dados['data_abertura'])) ?> <?= substr($dados['hora'], 0, 5) ?></td></tr>

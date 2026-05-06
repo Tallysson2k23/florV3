@@ -134,17 +134,21 @@
 
   $todosPedidos = (isset($todosPedidos) && is_array($todosPedidos)) ? $todosPedidos : [];
 
-  if (count($todosPedidos) > 1) {
+ if (count($todosPedidos) > 1) {
     usort($todosPedidos, function($a, $b) {
-      $ka = isset($a['ordem_fila']) ? (int)$a['ordem_fila']
-        : (isset($a['data_abertura']) ? strtotime(trim(($a['data_abertura'] ?? '1970-01-01') . ' ' . ($a['hora'] ?? '00:00:00'))) : (int)($a['id'] ?? 0));
-      $kb = isset($b['ordem_fila']) ? (int)$b['ordem_fila']
-        : (isset($b['data_abertura']) ? strtotime(trim(($b['data_abertura'] ?? '1970-01-01') . ' ' . ($b['hora'] ?? '00:00:00'))) : (int)($b['id'] ?? 0));
-      if ($ka === $kb) return ((int)($b['id'] ?? 0)) <=> ((int)($a['id'] ?? 0));
-      return $kb <=> $ka;
-    });
-  }
 
+        $ka = isset($a['ordem_fila'])
+            ? (int)$a['ordem_fila']
+            : (int)($a['id'] ?? 0);
+
+        $kb = isset($b['ordem_fila'])
+            ? (int)$b['ordem_fila']
+            : (int)($b['id'] ?? 0);
+
+        // MENOR PRIMEIRO = MAIS ANTIGO PRIMEIRO
+        return $ka <=> $kb;
+    });
+}
   function normaliza_tipo_php(?string $tipo): string {
     $t = strtolower(trim((string)$tipo));
     if ($t === '') return '';
@@ -1020,7 +1024,17 @@ function atualizarTabelaAcompanhamento() {
         const ts = Date.parse(dt);
         return Number.isNaN(ts) ? parseInt(p.id || 0, 10) : ts;
       };
-      pedidos.sort((a,b)=>{const ka=key(a),kb=key(b); if(ka===kb) return (parseInt(b.id||0,10))-(parseInt(a.id||0,10)); return kb-ka;});
+      pedidos.sort((a, b) => {
+    const ka = key(a);
+    const kb = key(b);
+
+    // menor primeiro = mais antigo primeiro
+    if (ka === kb) {
+        return parseInt(a.id || 0, 10) - parseInt(b.id || 0, 10);
+    }
+
+    return ka - kb;
+});
 
       let chegouNovo = false;
       const idsAtuais = new Set();
@@ -1030,6 +1044,8 @@ function atualizarTabelaAcompanhamento() {
 
       const tabela = document.querySelector('#lista-pedidos');
       let html = `
+
+
 <table>
 <tr>
   <th class="col-codigo">Código</th>
@@ -1086,8 +1102,21 @@ function atualizarTabelaAcompanhamento() {
       carregarProdutosPreguicoso();
     });
 }
+
+
 atualizarTabelaAcompanhamento();
-setInterval(atualizarTabelaAcompanhamento, 17000);
+setInterval(() => {
+
+    const campoBusca = document.querySelector('input[name="produto"]');
+
+    // Se estiver pesquisando, NÃO atualiza automaticamente
+    if (campoBusca && campoBusca.value.trim() !== '') {
+        return;
+    }
+
+    atualizarTabelaAcompanhamento();
+
+}, 17000);
 
 // Som via botão de login (se existir)
 document.addEventListener('DOMContentLoaded', () => {
